@@ -22,10 +22,11 @@ public class Venta {
     private LocalDate fechaVenta;
     private Double total;
     
-    //Relación 1 a n con Producto
-    @OneToMany
-    @JoinColumn(name="venta_id", referencedColumnName="idVenta")
-    private List<Producto> listProductos;
+    /*Relación n a n con Producto, se implementará por medio de dos relaciones 1 a n, la primera va de Venta a
+    la tabla intermedia VentaProducto y la segunda de Producto a la tabla intermedia VentaProducto. 
+    Debemos usar el mappedBy para hacer la relación con el objeto en VentaProducto que en este caso es "venta" */
+    @OneToMany(mappedBy= "venta")
+    private List<VentaProducto> listProductos;
     
     
     //Relación 1 a 1 con Cliente
@@ -36,7 +37,7 @@ public class Venta {
     public Venta() {
     }
 
-    public Venta(Long idVenta, LocalDate fechaVenta, Double total, List<Producto> listProductos, Cliente cliente) {
+    public Venta(Long idVenta, LocalDate fechaVenta, Double total, List<VentaProducto> listProductos, Cliente cliente) {
         this.idVenta = idVenta;
         this.fechaVenta = fechaVenta;
         this.total = total;
