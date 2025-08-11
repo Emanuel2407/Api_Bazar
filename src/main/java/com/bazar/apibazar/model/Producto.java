@@ -20,23 +20,16 @@ public class Producto {
     private String marca;
     private Double costo;
     private Integer cantidadDisponible;
-    
-    /*Relación n a n con Producto, se implementará por medio de dos relaciones 1 a n, la primera va de Venta a
-    la tabla intermedia VentaProducto y la segunda de Producto a la tabla intermedia VentaProducto. 
-    Debemos usar el mappedBy para hacer la relación con el objeto en VentaProducto que en este caso es "producto" */
-    @OneToMany(mappedBy= "producto")
-    private List<VentaProducto> listVentas;
 
     public Producto() {
     }
 
-    public Producto(Long idProducto, String nombre, String marca, Double costo, Integer cantidadDisponible, List<VentaProducto> listVentas) {
+    public Producto(Long idProducto, String nombre, String marca, Double costo, Integer cantidadDisponible) {
         this.idProducto = idProducto;
         this.nombre = nombre;
         this.marca = marca;
         this.costo = costo;
         this.cantidadDisponible = cantidadDisponible;
-        this.listVentas = listVentas;
     }
 
     

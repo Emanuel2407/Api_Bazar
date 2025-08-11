@@ -2,6 +2,7 @@ package com.bazar.apibazar.model;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 
@@ -18,10 +19,12 @@ public class VentaProducto {
     
     @ManyToOne
     @MapsId("ventaId")
+    @JoinColumn(name="venta_id")
     private Venta venta;
     
     @ManyToOne
     @MapsId("productoId")
+    @JoinColumn(name= "producto_id")
     private Producto producto;
     
     /*Acontinuación se van a declarar los atributos propios de la relacipon que dependerán tanto de las ventas 
@@ -30,8 +33,6 @@ public class VentaProducto {
     private Double totalVenta;
     
     private Integer cantidad;
-    
-    private Double precioUnitario;
     
     
 }
