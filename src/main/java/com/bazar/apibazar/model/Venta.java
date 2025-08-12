@@ -21,7 +21,7 @@ public class Venta {
     private Long idVenta;
     private LocalDate fechaVenta;
     private Double totalVenta;
-    private Integer cantidadProductos;
+    private Integer cantidadTotalProductos;
     
     /*Relación n a n con Producto, se implementará por medio de dos relaciones 1 a n, la primera va de Venta a
     la tabla intermedia VentaProducto(relación bidireccional) y la segunda de Producto a la tabla intermedia 
@@ -39,12 +39,16 @@ public class Venta {
     public Venta() {
     }
 
-    public Venta(Long idVenta, LocalDate fechaVenta, List<VentaProducto> listProductos, Cliente cliente) {
+    public Venta(Long idVenta, LocalDate fechaVenta, Double totalVenta, Integer cantidadTotalProductos, List<VentaProducto> listProductos, Cliente cliente) {
         this.idVenta = idVenta;
         this.fechaVenta = fechaVenta;
+        this.totalVenta = totalVenta;
+        this.cantidadTotalProductos = cantidadTotalProductos;
         this.listProductos = listProductos;
         this.cliente = cliente;
     }
+
+    
 
     
     

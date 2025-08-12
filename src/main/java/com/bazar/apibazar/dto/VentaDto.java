@@ -15,16 +15,16 @@ public class VentaDto {
     private LocalDate fechaVenta;
     private List<VentaProductoDto> listProductos = new ArrayList<>();
     private Cliente cliente;
-    private Double totalVenta;
     
     public VentaDto() {
     }
 
-    public VentaDto(LocalDate fechaVenta, List<VentaProductoDto>listProductos, Cliente cliente) {
+    public VentaDto(LocalDate fechaVenta, Cliente cliente) {
         this.fechaVenta = fechaVenta;
-        this.listProductos = listProductos;
         this.cliente = cliente;
     }
+
+    
 
     
     

@@ -190,7 +190,7 @@ public class VentaService implements IVentaService{
         objVenta.setTotalVenta(totalFinal);
         
         //Establecemos la cantidad total de todos los productos
-        objVenta.setCantidadProductos(cantidadTotalProductos);
+        objVenta.setCantidadTotalProductos(cantidadTotalProductos);
         
         //Guardamos nuevamente pero ahora con el total de la venta
         ventaRepository.save(objVenta);
@@ -200,11 +200,15 @@ public class VentaService implements IVentaService{
     @Override
     public boolean deleteVenta(Long id) {
         
-        if(ventaRepository.existsById(id)){
+        Venta objVenta = findVenta(id);
+        
+        if(objVenta != null){
             
-            //Al momento de eliminar una venta, se deben sumar los producto que estaban en ella, ya que ahora están disponibles
-            adicionarCantidadProducto(findVenta(id).getListProductos());
-            
+            for(VentaProducto objProducto: objVenta.getListProductos()){
+                
+                
+                
+            }
             //Ahora si eliminamos la venta 
             ventaRepository.deleteById(id);
             
