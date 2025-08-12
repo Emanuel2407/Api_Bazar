@@ -5,8 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Setter  @Getter
 public class VentaProducto {
     
     //Clave embebida de la tabla intermedia
@@ -30,9 +33,21 @@ public class VentaProducto {
     /*Acontinuación se van a declarar los atributos propios de la relacipon que dependerán tanto de las ventas 
     como de los productos en cuestón*/
     
-    private Double totalVenta;
+    private Double subTotalVenta;
     
     private Integer cantidad;
+
+    public VentaProducto() {
+    }
+
+    public VentaProducto(Venta venta, Producto producto, Double subTotalVenta, Integer cantidad) {
+        this.venta = venta;
+        this.producto = producto;
+        this.subTotalVenta = subTotalVenta;
+        this.cantidad = cantidad;
+    }
+    
+    
     
     
 }

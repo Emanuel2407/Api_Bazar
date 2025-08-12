@@ -20,6 +20,8 @@ public class Venta {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long idVenta;
     private LocalDate fechaVenta;
+    private Double totalVenta;
+    private Integer cantidadProductos;
     
     /*Relación n a n con Producto, se implementará por medio de dos relaciones 1 a n, la primera va de Venta a
     la tabla intermedia VentaProducto(relación bidireccional) y la segunda de Producto a la tabla intermedia 

@@ -1,12 +1,16 @@
 package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.VentaDto;
+import com.bazar.apibazar.dto.VentaProductoDto;
 import com.bazar.apibazar.dto.VentaResumenDto;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.model.Venta;
+import com.bazar.apibazar.model.VentaProducto;
+import com.bazar.apibazar.model.VentaProductoId;
 import com.bazar.apibazar.repository.IClienteRepository;
 import com.bazar.apibazar.repository.IProductoRepository;
+import com.bazar.apibazar.repository.IVentaProductoRepository;
 import com.bazar.apibazar.repository.IVentaRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,6 +33,39 @@ public class VentaService implements IVentaService{
     //Inyección de dependecia para ClienteService
     @Autowired
     IClienteService clienteService;
+    
+    /*Inyección de dependencia para la interfaz IventaProductoRepository que contiene todos los métodos necesarios
+    para manejar la relación entre las tablas Venta y Producto*/
+    @Autowired
+    IVentaProductoRepository vpRepository;
+    
+    
+    /*Método propio para guardar un registro de la tabla intermedia VentaProducto que establece una relación
+    Many-To-Many entre venta y Producto*/
+    private void crearRelacionVentaProducto(Venta objVenta, Producto objProducto, Integer cantidadProducto, Double subTotal){
+        VentaProducto objRelacion = new VentaProducto();
+            
+        /*Creamos la PK compuesta del registro en cuestión la cual recibe como parámetro las PKs
+        de las tablas relacionadas (Venta y Producto)*/
+        objRelacion.setId(new VentaProductoId(objVenta.getIdVenta(), objProducto.getIdProducto()));
+                
+        //Agregamos el resto de datos de la relación
+        objRelacion.setProducto(objProducto);
+        objRelacion.setVenta(objVenta);
+        objRelacion.setCantidad(cantidadProducto);
+        /*Establecemos el subtotal de la relación, IMPORTANTE: este sólo es el total de la relación,
+        es decir solo se tiene en cuenta el costo de un determinado producto y la cantidad que fue
+        agregado a la venta, el TOTAL FINAL de la venta estará en la entidad Venta*/
+        objRelacion.setSubTotalVenta(subTotal);
+                
+        //Le restamos la cantiddad apartada del producto para la venta al Producto en cuestión
+        objProducto.setCantidadDisponible(objProducto.getCantidadDisponible() - cantidadProducto);
+                
+        //Guardamos el registro de la relación en la tabla intermedia VentaProducto
+        vpRepository.save(objRelacion);
+    }
+    
+    
     
     //Método propiio para cálcular el total de una determinada venta
     private Double calcularTotal(List<Producto> listProducto){
@@ -108,12 +145,54 @@ public class VentaService implements IVentaService{
         objVenta.setFechaVenta(objNuevo.getFechaVenta());   
         objVenta.setCliente(objNuevo.getCliente());
         
-        //Agregamos lista de productos disponibles a la venta
-        List<Producto> listProductos = buscarProductosDeVenta(objNuevo.getListProductos());
-        objVenta.setListProductos(listProductos);
+        //Primero se guarda la venta sin los productos para obtener su id
+        ventaRepository.save(objVenta);
+        
+        
+        //Guardamos el total FINAL de la venta 
+        Double totalFinal = 0.0;
+        
+        //Guardamos la cantidad total de todos los productos en la venta 
+        Integer cantidadTotalProductos= 0;
+        
+        /*Como es una relación ManyToMany entre Venta y Producto y la venta no tiene simples objetos Productos
+        sino objetos DTO de la tabla intermedia VentaProducto, para poder hacer la relación lo primero que se
+        debe hacer es un bucle for each para recorrer todos los objetos VentaProductoDto que vienen en la venta*/
+        for(VentaProductoDto objDto: objNuevo.getListProductos()){
+            
+            //Buscamos el producto relacionado con el id que vino en objDto
+            Producto objProducto = productoService.findProducto(objDto.getProductoId());
+            
+            //Guardamos la cantidad de cada producto que se asignará a la venta en cuestión
+            Integer cantidadProducto = objDto.getCantidad();
+            
+            /*Para que un productos que llega en objNuevo puedan ser agregado a la relación con la nueva venta,
+            tiene que pasar dos filtros que demuestren que efectivamente está disponible, estos filtros se ven
+            claramente en el condicional siguiente:*/
+            if(objProducto != null && objProducto.getCantidadDisponible() >= cantidadProducto){
+                
+                /*Una vez el producto pase los filtros llamamos al método que se encargue de crear el registro
+                que representa la relación entre la venta y cada uno de los productos*/
+                Double subTotal = objProducto.getCosto() * cantidadProducto;
+                
+                crearRelacionVentaProducto(objVenta, objProducto, cantidadProducto, subTotal);
+                
+                //Sumamos el subTotal de este producto al total final de la venta
+                totalFinal += subTotal;
+                
+                //Sumamos la cantidad de este producto a la cantidad total de todos los productos
+                cantidadTotalProductos += cantidadProducto;
+            }
+            
+        }
         
         //Ahora calculamos el total con base a la lista de productos que sabemos que tienen disponibilidad
-        objVenta.setTotal(calcularTotal(listProductos));
+        objVenta.setTotalVenta(totalFinal);
+        
+        //Establecemos la cantidad total de todos los productos
+        objVenta.setCantidadProductos(cantidadTotalProductos);
+        
+        //Guardamos nuevamente pero ahora con el total de la venta
         ventaRepository.save(objVenta);
         
     }

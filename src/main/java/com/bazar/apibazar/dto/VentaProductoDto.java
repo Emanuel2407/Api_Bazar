@@ -10,7 +10,7 @@ public class VentaProductoDto {
 
     private Long productoId;
     
-    private Double totalVenta;
+    private Double subTotalVenta;
     
     private Integer cantidad;
 
@@ -18,9 +18,9 @@ public class VentaProductoDto {
     public VentaProductoDto() {
     }
 
-    public VentaProductoDto(Long productoId, Double totalVenta, Integer cantidad) {
+    public VentaProductoDto(Long productoId, Double subTotalVenta, Integer cantidad) {
         this.productoId = productoId;
-        this.totalVenta = totalVenta;
+        this.subTotalVenta = subTotalVenta;
         this.cantidad = cantidad;
     }
 

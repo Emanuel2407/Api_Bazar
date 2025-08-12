@@ -15,7 +15,8 @@ public class VentaDto {
     private LocalDate fechaVenta;
     private List<VentaProductoDto> listProductos = new ArrayList<>();
     private Cliente cliente;
-
+    private Double totalVenta;
+    
     public VentaDto() {
     }
 
