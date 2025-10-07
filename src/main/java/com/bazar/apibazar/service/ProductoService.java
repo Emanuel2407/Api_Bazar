@@ -49,11 +49,10 @@ public class ProductoService implements IProductoService{
     
     //Sobrecarga del método saveProducto que será útil en el desarrollo interno del programa
     @Override
-    public void saveProducto(Producto objNuevo) {
-        
-        productoRepository.save(objNuevo);
-    }
+    public void saveProducto(Producto objNuevo) {productoRepository.save(objNuevo);}
     
+    @Override
+    public void saveAll(List<Producto> listProducto) {productoRepository.saveAll(listProducto);}
 
     @Override
     public boolean deleteProducto(Long id) {
@@ -115,6 +114,8 @@ public class ProductoService implements IProductoService{
         
         return listProductos;
     }
+
+    
 
     
     

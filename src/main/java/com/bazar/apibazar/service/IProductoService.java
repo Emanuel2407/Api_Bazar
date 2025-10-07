@@ -14,6 +14,9 @@ public interface IProductoService {
     
     void saveProducto(Producto objNuevo);
     
+    //Método para guardar varios Productos almacenados en una lista 
+    void saveAll(List<Producto> listProducto);
+    
     boolean deleteProducto(Long id);
     
     Producto updateProducto(Long id, ProductoDto objActualizado);
