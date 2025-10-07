@@ -58,7 +58,7 @@ public class VentaService implements IVentaService{
         agregado a la venta, el TOTAL FINAL de la venta estará en la entidad Venta*/
         objRelacion.setSubTotalVenta(subTotal);
                 
-        //Le restamos la cantiddad apartada del producto para la venta al Producto en cuestión
+        //Le restamos la cantidad apartada del producto para la venta al Producto en cuestión
         objProducto.setCantidadDisponible(objProducto.getCantidadDisponible() - cantidadProducto);
                 
         //Guardamos el registro de la relación en la tabla intermedia VentaProducto
@@ -149,15 +149,15 @@ public class VentaService implements IVentaService{
         ventaRepository.save(objVenta);
         
         
-        //Guardamos el total FINAL de la venta 
+        //Declaramos el total FINAL de la venta 
         Double totalFinal = 0.0;
         
-        //Guardamos la cantidad total de todos los productos en la venta 
+        //Declaramos la cantidad total de todos los productos en la venta 
         Integer cantidadTotalProductos= 0;
         
         /*Como es una relación ManyToMany entre Venta y Producto y la venta no tiene simples objetos Productos
         sino objetos DTO de la tabla intermedia VentaProducto, para poder hacer la relación lo primero que se
-        debe hacer es un bucle for each para recorrer todos los objetos VentaProductoDto que vienen en la venta*/
+        debe hacer es un bucle for-each para recorrer todos los objetos VentaProductoDto que vienen en la venta*/
         for(VentaProductoDto objDto: objNuevo.getListProductos()){
             
             //Buscamos el producto relacionado con el id que vino en objDto
@@ -186,7 +186,7 @@ public class VentaService implements IVentaService{
             
         }
         
-        //Ahora calculamos el total con base a la lista de productos que sabemos que tienen disponibilidad
+        //Ahora agregamos el total final de la venta a la entidad Venta
         objVenta.setTotalVenta(totalFinal);
         
         //Establecemos la cantidad total de todos los productos
@@ -204,11 +204,14 @@ public class VentaService implements IVentaService{
         
         if(objVenta != null){
             
-            for(VentaProducto objProducto: objVenta.getListProductos()){
+            //Primero se eliminan todas las relaciones que tiene la venta con los diferentes productos
+            for(VentaProducto objVP: objVenta.getListProductos()){ 
+                Producto objProducto = productoService.findProducto(objVP.getProducto().getIdProducto());
                 
-                
+                vpRepository.deleteById(objVP.getId());  
                 
             }
+            
             //Ahora si eliminamos la venta 
             ventaRepository.deleteById(id);
             
@@ -316,22 +319,20 @@ public class VentaService implements IVentaService{
     public String ventasDelDia(LocalDate fechaVenta) {
         double total = 0;
         int contVentas= 0;
-        boolean existe = false;
         
         for(Venta objVenta: getVentas()){
             
             //Comparamos la fecha de cada Venta a ver si coincide con la que viene en parametro
             if(objVenta.getFechaVenta().equals(fechaVenta)){
-                total += objVenta.getTotal();
+                total += objVenta.getTotalVenta();
                 contVentas++;
                 
-                //Cuando entre al menos una vez, confirmaremos que la venta existe
-                if(existe == false){existe = true;}
+                
             }
         }
         
-        //Si confirmamos que la venta existe, devuelve el monto total y cantidad de ventas
-        if(existe){
+        //Si confirmamos que al menos una venta coincide con la fecha, devolvemos lo pedido
+        if(contVentas>0){
             return "El total de las ventas del día " + fechaVenta + " es: $" + total + ".\n"
                     + "Y se ha hecho un total de " + contVentas + " venta(s).";
         }

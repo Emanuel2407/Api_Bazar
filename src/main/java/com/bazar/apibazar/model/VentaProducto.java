@@ -16,15 +16,20 @@ public class VentaProducto {
     @EmbeddedId
     private VentaProductoId id = new VentaProductoId();
     
-    /*Como es una relación bidireccional, usamos la annotation @ManyToOne para la relación con Venta y con 
-    Producto, además la annotation @MapsId es necesaria para la relación con la clave primaria compuesta de la 
-    tabla intermedia*/
-    
+    /*Como Venta tiene una relación bidireccional con VentaProducto debemos usar la annotation @ManyToOne y del
+    lado de venta la annotation @OneToMany, además la annotation @MapsId es necesaria para la relación con la 
+    clave primaria compuesta de la tabla intermedia*/
     @ManyToOne
     @MapsId("ventaId")
     @JoinColumn(name="venta_id")
     private Venta venta;
     
+     /*La relación entre Producto y VentaProducto se mapea desde VentaProducto porque esta tabla intermedia es
+    la que contiene la FK hacia prodcuto.
+    En JPA el lado dueño de la relación siempre es el que tiene la FK por eso debemos usar el @ManyToOne junto
+    con el @JoinColum.
+    Además usamos @MapsId porque la FK de VentaProducto está compuesta por las PKs de Venta y Producto por lo
+    que necesitamos que Jpa las sincronice*/
     @ManyToOne
     @MapsId("productoId")
     @JoinColumn(name= "producto_id")
