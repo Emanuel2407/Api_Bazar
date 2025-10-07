@@ -204,13 +204,25 @@ public class VentaService implements IVentaService{
         
         if(objVenta != null){
             
-            //Primero se eliminan todas las relaciones que tiene la venta con los diferentes productos
+            /*Primero recorremos la lista VentaProducto de cada venta*/
             for(VentaProducto objVP: objVenta.getListProductos()){ 
-                Producto objProducto = productoService.findProducto(objVP.getProducto().getIdProducto());
                 
-                vpRepository.deleteById(objVP.getId());  
+                //Encontramos el Producto asociado a la relación
+                Producto objProducto = objVP.getProducto();
+                
+                //Le devolvemos toda el stock que habia en la relación al producto correspondiente
+                if(objProducto != null){
+                    objProducto.setCantidadDisponible(objProducto.getCantidadDisponible() + objVP.getCantidad());
+                    //Guardamos datos en database
+                    productoService.saveProducto(objProducto);
+                    
+                }    
                 
             }
+            
+            /*Eliminamos todos los Productos de la venta, osea todos los registros relacionados con la venta
+            en la tabla intermedia*/
+            vpRepository.deleteAll(objVenta.getListProductos());
             
             //Ahora si eliminamos la venta 
             ventaRepository.deleteById(id);

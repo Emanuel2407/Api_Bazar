@@ -12,6 +12,8 @@ public interface IProductoService {
     
     void saveProducto(ProductoDto objNuevo);
     
+    void saveProducto(Producto objNuevo);
+    
     boolean deleteProducto(Long id);
     
     Producto updateProducto(Long id, ProductoDto objActualizado);
