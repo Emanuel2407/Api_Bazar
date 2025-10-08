@@ -350,7 +350,14 @@ public class VentaService implements IVentaService{
         //Si no se encuentra la venta, se retorna una lista vacía
         if(objVenta == null){return new ArrayList<>();}
         
-        return objVenta.getListProductos();
+        //Lista que almacenará todos los productos de la venta
+        List<Producto> listProductos = new ArrayList<>();
+                
+        for(VentaProducto objVP: objVenta.getListProductos()){
+            listProductos.add(objVP.getProducto());
+        }
+        
+        return listProductos;
     }
 
     @Override
@@ -389,13 +396,13 @@ public class VentaService implements IVentaService{
         //Si no hay ventas registradas, retornamos null
         if(listVentas.isEmpty()){return null;}
         
-        //Le damos valor de la primera venta de la lista para empezar a comparar
+        //Le damos el valor de la primera venta de la lista para empezar a comparar
         Venta mayorVenta = listVentas.get(0);      
         
         //Buscamos la venta con mayor monto que va a terminar en "mayorVenta"
         for(Venta objVenta: listVentas){
             
-            if(objVenta.getTotal() > mayorVenta.getTotal()){
+            if(objVenta.getTotalVenta() > mayorVenta.getTotalVenta()){
                 mayorVenta = objVenta;
             }
         }
@@ -404,8 +411,8 @@ public class VentaService implements IVentaService{
         VentaResumenDto mayorVentaDto = new VentaResumenDto();
         
         mayorVentaDto.setIdVenta(mayorVenta.getIdVenta());
-        mayorVentaDto.setTotal(mayorVenta.getTotal());
-        mayorVentaDto.setCantProductos(mayorVenta.getListProductos().size());
+        mayorVentaDto.setTotal(mayorVenta.getTotalVenta());
+        mayorVentaDto.setCantProductos(mayorVenta.getCantidadTotalProductos());
         if(mayorVenta.getCliente() != null){
             mayorVentaDto.setNombreCliente(mayorVenta.getCliente().getNombre());
             mayorVentaDto.setApellidoCliente(mayorVenta.getCliente().getApellido());
