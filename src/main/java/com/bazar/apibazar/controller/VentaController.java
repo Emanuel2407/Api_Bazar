@@ -1,6 +1,7 @@
 package com.bazar.apibazar.controller;
 
 import com.bazar.apibazar.dto.VentaDto;
+import com.bazar.apibazar.dto.VentaProductoDto;
 import com.bazar.apibazar.dto.VentaResumenDto;
 import com.bazar.apibazar.model.Venta;
 import com.bazar.apibazar.service.IVentaService;
@@ -126,6 +127,19 @@ public class VentaController {
     @PatchMapping("/{id}")
     public ResponseEntity<?> patchVenta(@PathVariable Long id, @RequestBody VentaDto objDto){
         Venta objVenta = ventaService.patchVenta(id, objDto);
+        
+        if(objVenta == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
+        }
+        
+        return ResponseEntity.ok(objVenta);
+    }
+    
+    
+    //Agregar productos a Venta existente
+    @PatchMapping("/agregarProductos/{id}")
+    public ResponseEntity<?> addProductosAventa(@PathVariable Long id, @RequestBody List<VentaProductoDto> productosNuevos){
+        Venta objVenta = ventaService.addProductosAVenta(id, productosNuevos);
         
         if(objVenta == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));

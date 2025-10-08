@@ -12,6 +12,7 @@ import com.bazar.apibazar.repository.IClienteRepository;
 import com.bazar.apibazar.repository.IProductoRepository;
 import com.bazar.apibazar.repository.IVentaProductoRepository;
 import com.bazar.apibazar.repository.IVentaRepository;
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,6 +103,8 @@ public class VentaService implements IVentaService{
     
     
     //Método propio para cear la relación entre una venta y cada uno de los productos con los que se va a relacionar
+    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
+                    si nunca se hubiera ejecutado el método*/
     private void crearRelacionVentaProducto(List<VentaProductoDto> listProductos, Venta objVenta){
         
 
@@ -138,6 +141,8 @@ public class VentaService implements IVentaService{
     
     /*Método propio para guardar un registro de la tabla intermedia VentaProducto que establece una relación
     Many-To-Many entre venta y Producto*/
+    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
+                    si nunca se hubiera ejecutado el método*/
     private void crearRegistroVentaProducto(Venta objVenta, Producto objProducto, Integer cantidadProducto, Double subTotal){
         VentaProducto objRelacion = new VentaProducto();
             
@@ -178,6 +183,8 @@ public class VentaService implements IVentaService{
     }
 
     @Override
+    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
+                    si nunca se hubiera ejecutado el método*/
     public void saveVenta(VentaDto objNuevo) {
         Venta objVenta = new Venta();
         
@@ -203,6 +210,8 @@ public class VentaService implements IVentaService{
     }
 
     @Override
+    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
+                    si nunca se hubiera ejecutado el método*/
     public boolean deleteVenta(Long id) {
         
         Venta objVenta = findVenta(id);
@@ -224,6 +233,8 @@ public class VentaService implements IVentaService{
     }
 
     @Override
+    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
+                    si nunca se hubiera ejecutado el método*/
     public Venta updateVenta(Long id, VentaDto objActualizado) {
         Venta objVenta = findVenta(id);
         
@@ -247,11 +258,11 @@ public class VentaService implements IVentaService{
         } 
         
         /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
-        poder actualizar esas relaciones y que queden con producos nuevos*/
+        poder actualizar esas relaciones y que queden con los nurvos productos*/
         eliminarRelacionVentaProducto(objVenta);          
         
         /*Ahora llamamos al método que se encargue de crear las relaciones actualizadas entre la venta y cada 
-        no de los nuevos productos*/
+        uno de los nuevos productos*/
         crearRelacionVentaProducto(objActualizado.getListProductos(), objVenta);
         
         //Ahora agregamos el total actualizado de la venta a la entidad Venta
@@ -267,6 +278,8 @@ public class VentaService implements IVentaService{
     }
 
     @Override
+    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
+                    si nunca se hubiera ejecutado el método*/
     public Venta patchVenta(Long id, VentaDto objDto) {
         Venta objVenta = findVenta(id);
         
@@ -274,7 +287,7 @@ public class VentaService implements IVentaService{
         if(objVenta == null){return objVenta;}
         
         
-        //Actualizamos solo los datos que especifique el usuario
+        //Actualizamos solo los datos que especifique el usuario en la request 
         if(objDto.getFechaVenta() != null){objVenta.setFechaVenta(objDto.getFechaVenta());}
         
         if(objDto.getCliente() != null){
@@ -289,28 +302,47 @@ public class VentaService implements IVentaService{
         
         if(!objDto.getListProductos().isEmpty()){     
             
-            ////Agregamos primero los nuevos productos que vienen en objDto
-            List<Producto> listProductos = buscarProductosDeVenta(objDto.getListProductos());
-            
-            //Agregamos ahora los que ya estaban registrado en la venta si es que habia    
-            for(Producto obj: objVenta.getListProductos()){
-                listProductos.add(obj);
-             }
-     
-            //Agregamos la lista a la respectiva venta
-            objVenta.setListProductos(listProductos);
-            
-            
-            //Actualizamos el total 
-            objVenta.setTotal(calcularTotal(listProductos));
-       
+            /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
+            poder actualizar esas relaciones y que queden con los nuevos productos*/
+            eliminarRelacionVentaProducto(objVenta);          
+        
+            /*Ahora llamamos al método que se encargue de crear las relaciones actualizadas entre la venta y cada 
+            uno de los nuevos productos*/
+            crearRelacionVentaProducto(objDto.getListProductos(), objVenta);
+        
+            //Ahora agregamos el total actualizado de la venta a la entidad Venta
+            objVenta.setTotalVenta(calcularTotal(objDto.getListProductos()));
+        
+            //Establecemos la cantidad total de todos los productos que hay en la venta
+            objVenta.setCantidadTotalProductos(calcularCantidadDeProductosEnVenta(objDto.getListProductos()));
+        
         }
         
+        //Actualizamos la venta
         ventaRepository.save(objVenta);
         
         return objVenta;
     }
-
+    
+    @Override
+    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
+                    si nunca se hubiera ejecutado el método*/
+    public Venta addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
+        
+        Venta objVenta = ventaRepository.findById(id).orElse(null);
+        
+        if(objVenta == null){return null;}
+        
+        //Método para crear las nuevas relaciones de venta con los nuevos productos      
+        crearRelacionVentaProducto(productosNuevos, objVenta);
+        
+        //Actualizar venta 
+        ventaRepository.save(objVenta);
+        
+        return objVenta;
+    }
+    
+    
     @Override
     public List<Producto> productosDeVenta(Long id) {
         Venta objVenta = findVenta(id);
@@ -383,5 +415,7 @@ public class VentaService implements IVentaService{
         return mayorVentaDto;  
         
     }
+
+    
     
 }
