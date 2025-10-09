@@ -1,5 +1,7 @@
 package com.bazar.apibazar.service;
 
+import com.bazar.apibazar.dto.GetVentaDto;
+import com.bazar.apibazar.dto.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.VentaDto;
 import com.bazar.apibazar.dto.VentaProductoDto;
 import com.bazar.apibazar.dto.VentaResumenDto;
@@ -167,7 +169,61 @@ public class VentaService implements IVentaService{
     }
     
     
+    @Override
+    public List<GetVentaDto> getVentasSimples() {
+        
+        List<GetVentaDto> listVentas = new ArrayList<>();
+        
+        //Bucle for-each para recorrer todas las ventas registradas
+        for(Venta objVenta: ventaRepository.findAll()){
+            
+            List<ProductoDeVentaDto> listProductos = new ArrayList<>();
+            
+            //Bucle for-each para recorrer todos los objetos VentaProducto de una determinada venta 
+            for(VentaProducto objVP: objVenta.getListProductos()){
+                
+                Producto objProducto = objVP.getProducto();
+                
+                /*La lista se llena con objetos Dtos ya que hay unos datos que nos interesan y otros que no
+                en la clase Producto*/
+                listProductos.add(new ProductoDeVentaDto(objProducto.getIdProducto(), objProducto.getNombre(),
+                        objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
+            }
+            
+            listVentas.add(new GetVentaDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
+                    objVenta.getCantidadTotalProductos(), listProductos, objVenta.getCliente()));
+        }
+        
+        return listVentas;
+    }
+
+    @Override
+    public GetVentaDto findVentaSimple(Long id) {
+        Optional<Venta> objVentaOp = ventaRepository.findById(id);
+        
+        if(objVentaOp.isEmpty()){return null;}
+        
+        Venta objVenta = objVentaOp.get();
+        
+        List<ProductoDeVentaDto> listProductos = new ArrayList<>();
+
+        //Bucle for-each para recorrer todos los objetos VentaParoducto de una determinada venta
+        for(VentaProducto objVP: objVenta.getListProductos()){
+            
+            Producto objProducto = objVP.getProducto();
+            
+            /*La lista se llena con objetos Dtos ya que hay unos datos que nos interesan y otros que no
+                en la clase Producto*/
+            listProductos.add(new ProductoDeVentaDto(objProducto.getIdProducto(), objProducto.getNombre(),
+                        objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
+        }
+        
+        return new GetVentaDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
+                objVenta.getCantidadTotalProductos(), listProductos, objVenta.getCliente());
+  
+    }
     
+   
     @Override
     public List<Venta> getVentas() {
         return ventaRepository.findAll();
@@ -422,6 +478,8 @@ public class VentaService implements IVentaService{
         return mayorVentaDto;  
         
     }
+
+    
 
     
     

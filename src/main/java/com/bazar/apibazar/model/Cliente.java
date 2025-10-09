@@ -7,8 +7,9 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter  @Setter
+
 @Entity
+@Getter  @Setter
 public class Cliente {
     
     @Id

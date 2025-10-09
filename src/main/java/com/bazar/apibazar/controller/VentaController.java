@@ -1,5 +1,6 @@
 package com.bazar.apibazar.controller;
 
+import com.bazar.apibazar.dto.GetVentaDto;
 import com.bazar.apibazar.dto.VentaDto;
 import com.bazar.apibazar.dto.VentaProductoDto;
 import com.bazar.apibazar.dto.VentaResumenDto;
@@ -34,14 +35,14 @@ public class VentaController {
     //Traer todos
     @GetMapping("/")
     @ResponseBody
-    public List<Venta> getVentas(){
-        return ventaService.getVentas();
+    public List<GetVentaDto> getVentas(){
+        return ventaService.getVentasSimples();
     }
     
     //Traer uno
     @GetMapping("/{id}")
     public ResponseEntity<?> findVenta(@PathVariable Long id){
-        Venta objVenta = ventaService.findVenta(id);
+        GetVentaDto objVenta = ventaService.findVentaSimple(id);
         
         if(objVenta == null){
             //Si no existe registro, se le envia un error personalizado al usuario indicandoselo

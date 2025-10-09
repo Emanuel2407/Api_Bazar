@@ -1,5 +1,6 @@
 package com.bazar.apibazar.service;
 
+import com.bazar.apibazar.dto.GetVentaDto;
 import com.bazar.apibazar.dto.VentaDto;
 import com.bazar.apibazar.dto.VentaProductoDto;
 import com.bazar.apibazar.dto.VentaResumenDto;
@@ -9,8 +10,20 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface IVentaService {
+    
+    /*Como queremos que este método nos devuelva sólo la lista de productos que estan relacionados con la 
+    respectiva Venta y no la lista completa de la tabla intermedia VentaProducto. Entonces para lograsr esto
+    hacemos la implementacion de una clase Dto que devuelva lo mismo que la clase Venta normal excepto que la
+    lista de VentaProducto se va a cambiar por una lista de productos normalita*/
+    List<GetVentaDto> getVentasSimples();
+    
+    //Se devuelve objeto Dto con una lista de simples productos
+    GetVentaDto findVentaSimple(Long id);
+    
+    //Método get normalito
     List<Venta> getVentas();
     
+    //Método find normalito
     Venta findVenta(Long id);
     
     void saveVenta(VentaDto objNuevo);
