@@ -31,21 +31,15 @@ public class Venta {
     private List<VentaProducto> listProductos;
     
     
-    //Relación 1 a 1 con Cliente
-    @OneToOne
-    @JoinColumn(name="cliente_id", referencedColumnName="idCliente")
-    private Cliente cliente;
-
     public Venta() {
     }
 
-    public Venta(Long idVenta, LocalDate fechaVenta, Double totalVenta, Integer cantidadTotalProductos, List<VentaProducto> listProductos, Cliente cliente) {
+    public Venta(Long idVenta, LocalDate fechaVenta, Double totalVenta, Integer cantidadTotalProductos, List<VentaProducto> listProductos) {
         this.idVenta = idVenta;
         this.fechaVenta = fechaVenta;
         this.totalVenta = totalVenta;
         this.cantidadTotalProductos = cantidadTotalProductos;
         this.listProductos = listProductos;
-        this.cliente = cliente;
     }
 
     

@@ -31,9 +31,9 @@ public class VentaService implements IVentaService{
     
     //Inyección de dependencia para ProductoService
     @Autowired
-    IProductoService productoService;
+    IProductoService productoService; 
     
-    //Inyección de dependecia para ClienteService
+    //Inyección de dependencia para ClienteService
     @Autowired
     IClienteService clienteService;
     
@@ -43,6 +43,23 @@ public class VentaService implements IVentaService{
     IVentaProductoRepository vpRepository;
     
     
+    //Método propio para encontrar el cliente de una determinada Venta
+    private Cliente buscarClienteDeVenta(Long idVenta){
+        
+        //Recorrer todos los clientes registrados
+        for(Cliente objCliente: clienteService.getClientes()){
+            
+            //Recorrer las ventas de cada cliente
+            for(Venta objVenta: objCliente.getListVentas()){
+                
+                //Si entontramos el cliente lo retornamos
+                if(objVenta.getIdVenta() == idVenta){return objCliente;}
+            }
+        }
+        
+        return null;
+        
+    }
     /*Método propio para saber cual es la cantitad total de productos que hay en una venta. La multiplicidad
     en los productos cuenta, es decir, un producto que esté repetido 3 veces, cuenta en el total de productos 
     como 3*/
@@ -191,7 +208,7 @@ public class VentaService implements IVentaService{
             }
             
             listVentas.add(new GetVentaDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
-                    objVenta.getCantidadTotalProductos(), listProductos, objVenta.getCliente()));
+                    objVenta.getCantidadTotalProductos(), listProductos, buscarClienteDeVenta(objVenta.getIdVenta())));
         }
         
         return listVentas;
@@ -219,18 +236,17 @@ public class VentaService implements IVentaService{
         }
         
         return new GetVentaDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
-                objVenta.getCantidadTotalProductos(), listProductos, objVenta.getCliente());
+                objVenta.getCantidadTotalProductos(), listProductos, buscarClienteDeVenta(objVenta.getIdVenta()));
   
     }
     
-   
-    @Override
-    public List<Venta> getVentas() {
+    //Método propio para buscar todas las ventas con listas VentaProducto
+    private  List<Venta> getVentas() {
         return ventaRepository.findAll();
     }
 
-    @Override
-    public Venta findVenta(Long id) {
+    //Método propio para buscar una venta en especifico que tenga sus respectivos objetos VentaProducto
+    private Venta findVenta(Long id) {
         Optional<Venta> objVenta = ventaRepository.findById(id);
         
         if(objVenta.isEmpty()){return null;}
@@ -246,7 +262,6 @@ public class VentaService implements IVentaService{
         
         //Migramos datos del objeto Dto al objeto Venta
         objVenta.setFechaVenta(objNuevo.getFechaVenta());   
-        objVenta.setCliente(objNuevo.getCliente());
         
         //Primero se guarda la venta sin los productos para obtener su id
         ventaRepository.save(objVenta);
@@ -299,20 +314,7 @@ public class VentaService implements IVentaService{
         
         //Actualizamos datos de la venta en cuestion
         objVenta.setFechaVenta(objActualizado.getFechaVenta());
-        
-        //Buscamos y agregamos el respectivo cliente a la venta
-        if(objActualizado.getCliente() == null){  
-            
-            //Si no viene un Cliente en los datos de la venta nueva, se registra como null
-            objVenta.setCliente(null);
-            
-        }else{
-            //Si sí veiene lo buscamos y agregamos
-            Cliente objCliente = clienteService.findCliente(objActualizado.getCliente().getIdCliente());
 
-            objVenta.setCliente(objCliente);
-        } 
-        
         /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
         poder actualizar esas relaciones y que queden con los nurvos productos*/
         eliminarRelacionVentaProducto(objVenta);          
@@ -342,19 +344,6 @@ public class VentaService implements IVentaService{
         //Si no existe retornamos null
         if(objVenta == null){return objVenta;}
         
-        
-        //Actualizamos solo los datos que especifique el usuario en la request 
-        if(objDto.getFechaVenta() != null){objVenta.setFechaVenta(objDto.getFechaVenta());}
-        
-        if(objDto.getCliente() != null){
- 
-            //Buscamos el cliente para agregarlo
-            Cliente objCliente = clienteService.findCliente(objDto.getCliente().getIdCliente());
-            
-            //Lo agregamos
-            objVenta.setCliente(objCliente);
-        
-        }
         
         if(!objDto.getListProductos().isEmpty()){     
             
@@ -469,9 +458,13 @@ public class VentaService implements IVentaService{
         mayorVentaDto.setIdVenta(mayorVenta.getIdVenta());
         mayorVentaDto.setTotal(mayorVenta.getTotalVenta());
         mayorVentaDto.setCantProductos(mayorVenta.getCantidadTotalProductos());
-        if(mayorVenta.getCliente() != null){
-            mayorVentaDto.setNombreCliente(mayorVenta.getCliente().getNombre());
-            mayorVentaDto.setApellidoCliente(mayorVenta.getCliente().getApellido());
+        
+        //Buscamo el cliente de la Mayor venta
+        Cliente objCliente = buscarClienteDeVenta(mayorVenta.getIdVenta());
+        
+        if(objCliente != null){
+            mayorVentaDto.setNombreCliente(objCliente.getNombre());
+            mayorVentaDto.setApellidoCliente(objCliente.getApellido());
         }
         
        

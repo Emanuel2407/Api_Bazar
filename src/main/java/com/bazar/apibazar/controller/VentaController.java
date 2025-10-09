@@ -56,7 +56,7 @@ public class VentaController {
     //Traer productos de una venta
     @GetMapping("/productos/{id}")
     public ResponseEntity<?> productosDeVenta(@PathVariable Long id){
-        Venta objVenta = ventaService.findVenta(id);
+        GetVentaDto objVenta = ventaService.findVentaSimple(id);
         
         if(objVenta == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));

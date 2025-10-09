@@ -14,14 +14,12 @@ public class VentaDto {
     
     private LocalDate fechaVenta;
     private List<VentaProductoDto> listProductos = new ArrayList<>();
-    private Cliente cliente;
     
     public VentaDto() {
     }
 
     public VentaDto(LocalDate fechaVenta, Cliente cliente) {
         this.fechaVenta = fechaVenta;
-        this.cliente = cliente;
     }
 
     

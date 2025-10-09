@@ -4,6 +4,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +22,10 @@ public class Cliente {
     private String nombre;
     private String apellido;
     private String documento;
+    //Relación 1 a n con ventas 
+    @OneToMany
+    @JoinColumn(name= "cliente_Id", referencedColumnName= "idCliente")
+    private List<Venta> listVentas = new ArrayList<>();
 
     public Cliente() {
     }

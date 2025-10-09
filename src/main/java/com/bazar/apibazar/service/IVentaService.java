@@ -20,12 +20,6 @@ public interface IVentaService {
     //Se devuelve objeto Dto con una lista de simples productos
     GetVentaDto findVentaSimple(Long id);
     
-    //Método get normalito
-    List<Venta> getVentas();
-    
-    //Método find normalito
-    Venta findVenta(Long id);
-    
     void saveVenta(VentaDto objNuevo);
     
     boolean deleteVenta(Long id);
@@ -45,4 +39,5 @@ public interface IVentaService {
     
     //Obtener la venta con mayor monto total usando el objeto DTO VentaResumenDto
     VentaResumenDto findMayorVenta();
+   
 }
