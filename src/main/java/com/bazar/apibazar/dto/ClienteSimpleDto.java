@@ -1,23 +1,23 @@
 package com.bazar.apibazar.dto;
 
-import com.bazar.apibazar.model.Venta;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter  @Getter
-public class ClienteDto {
+@Getter @Setter
+public class ClienteSimpleDto {
     
+    private Long idCliente;
     private String nombre;
     private String apellido;
     private String documento;
-    private List<Venta> listVentas = new ArrayList<>();
+    private List<VentaDeClienteDto> listVentas;
     
-    public ClienteDto() {
+    public ClienteSimpleDto() {
     }
 
-    public ClienteDto(String nombre, String apellido, String documento, List<Venta> listVentas) {
+    public ClienteSimpleDto(Long idCliente, String nombre, String apellido, String documento, List<VentaDeClienteDto> listVentas) {
+        this.idCliente = idCliente;
         this.nombre = nombre;
         this.apellido = apellido;
         this.documento = documento;

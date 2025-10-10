@@ -1,14 +1,22 @@
 package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.ClienteDto;
+import com.bazar.apibazar.dto.ClienteSimpleDto;
+import com.bazar.apibazar.dto.GetVentaDto;
 import com.bazar.apibazar.model.Cliente;
 import java.util.List;
 
 public interface IClienteService {
     
-    List<Cliente> getClientes();
+    /*Como queremos que este método nos devuelva sólo la lista de productos que estan relacionados con la 
+    respectiva Venta de un  cliente y no la lista completa de la tabla intermedia VentaProducto. Entonces para
+    lograsr esto hacemos la implementacion de una clase Dto que devuelva lo mismo que la clase Cliente normal 
+    excepto que la lista de VentaProducto de las ventas del cliente se va a cambiar por una lista de 
+    productos normalita*/
+    List<ClienteSimpleDto> getClientesSimples();
     
-    Cliente findCliente(Long id);
+    //Se devuelve objeto Dto con un Cliente que tiene ventas con simples productos
+    ClienteSimpleDto findClienteSimple(Long id);
     
     void saveCliente(ClienteDto objNuevo);
     

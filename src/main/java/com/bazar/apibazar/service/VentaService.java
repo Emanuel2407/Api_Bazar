@@ -1,5 +1,6 @@
 package com.bazar.apibazar.service;
 
+import com.bazar.apibazar.dto.ClienteDeVentaDto;
 import com.bazar.apibazar.dto.GetVentaDto;
 import com.bazar.apibazar.dto.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.VentaDto;
@@ -35,7 +36,7 @@ public class VentaService implements IVentaService{
     
     //Inyección de dependencia para ClienteService
     @Autowired
-    IClienteService clienteService;
+    IClienteRepository clienteRepository;
     
     /*Inyección de dependencia para la interfaz IventaProductoRepository que contiene todos los métodos necesarios
     para manejar la relación entre las tablas Venta y Producto*/
@@ -44,16 +45,17 @@ public class VentaService implements IVentaService{
     
     
     //Método propio para encontrar el cliente de una determinada Venta
-    private Cliente buscarClienteDeVenta(Long idVenta){
+    private ClienteDeVentaDto buscarClienteDeVenta(Long idVenta){
         
         //Recorrer todos los clientes registrados
-        for(Cliente objCliente: clienteService.getClientes()){
+        for(Cliente objCliente: clienteRepository.findAll()){
             
             //Recorrer las ventas de cada cliente
             for(Venta objVenta: objCliente.getListVentas()){
                 
                 //Si entontramos el cliente lo retornamos
-                if(objVenta.getIdVenta() == idVenta){return objCliente;}
+                if(objVenta.getIdVenta() == idVenta){return new ClienteDeVentaDto(objCliente.getNombre(),
+                        objCliente.getApellido(), objCliente.getDocumento());}
             }
         }
         
@@ -316,7 +318,7 @@ public class VentaService implements IVentaService{
         objVenta.setFechaVenta(objActualizado.getFechaVenta());
 
         /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
-        poder actualizar esas relaciones y que queden con los nurvos productos*/
+        poder actualizar esas relaciones y que queden con los nuevos productos*/
         eliminarRelacionVentaProducto(objVenta);          
         
         /*Ahora llamamos al método que se encargue de crear las relaciones actualizadas entre la venta y cada 
@@ -344,6 +346,8 @@ public class VentaService implements IVentaService{
         //Si no existe retornamos null
         if(objVenta == null){return objVenta;}
         
+        //Actualizamos fecha de la venta 
+        if(objVenta.getFechaVenta() != null){objVenta.setFechaVenta(objDto.getFechaVenta());}
         
         if(!objDto.getListProductos().isEmpty()){     
             
@@ -460,7 +464,7 @@ public class VentaService implements IVentaService{
         mayorVentaDto.setCantProductos(mayorVenta.getCantidadTotalProductos());
         
         //Buscamo el cliente de la Mayor venta
-        Cliente objCliente = buscarClienteDeVenta(mayorVenta.getIdVenta());
+        ClienteDeVentaDto objCliente = buscarClienteDeVenta(mayorVenta.getIdVenta());
         
         if(objCliente != null){
             mayorVentaDto.setNombreCliente(objCliente.getNombre());

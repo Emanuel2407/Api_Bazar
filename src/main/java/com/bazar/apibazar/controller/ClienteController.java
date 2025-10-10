@@ -1,6 +1,7 @@
 package com.bazar.apibazar.controller;
 
 import com.bazar.apibazar.dto.ClienteDto;
+import com.bazar.apibazar.dto.ClienteSimpleDto;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.service.IClienteService;
 import com.bazar.apibazar.utils.ResponseUtil;
@@ -30,14 +31,14 @@ public class ClienteController {
     //Traer todos
     @GetMapping("/")
     @ResponseBody
-    public List<Cliente> getClientes(){
-        return clienteService.getClientes();
+    public List<ClienteSimpleDto> getClientes(){
+        return clienteService.getClientesSimples();
     }
     
     //Traer uno
     @GetMapping("/{id}")
     public ResponseEntity<?> findCliente(@PathVariable Long id){
-        Cliente objCliente = clienteService.findCliente(id);
+        ClienteSimpleDto objCliente = clienteService.findClienteSimple(id);
         
         if(objCliente == null){
             //Si no existe registro, se le envia un error personalizado al usuario indicandoselo
