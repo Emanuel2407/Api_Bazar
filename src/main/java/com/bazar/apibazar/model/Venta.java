@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +29,7 @@ public class Venta {
     VentaProducto(relación unidireccional). Debemos usar el mappedBy para hacer la relación bidireccional con 
     el objeto en VentaProducto que en este caso es "venta" */
     @OneToMany(mappedBy= "venta")
-    private List<VentaProducto> listProductos;
+    private List<VentaProducto> listProductos = new ArrayList<>();
     
     
     public Venta() {

@@ -8,7 +8,7 @@ import lombok.Setter;
 
 
 @Getter @Setter
-public class GetVentaDto {
+public class VentaSimpleDto {
     
     private Long idVenta;
     private LocalDate fechaVenta;
@@ -17,10 +17,10 @@ public class GetVentaDto {
     private List<ProductoDeVentaDto> listProductos; 
     private ClienteDeVentaDto cliente;
 
-    public GetVentaDto() {
+    public VentaSimpleDto() {
     }
 
-    public GetVentaDto(Long idVenta, LocalDate fechaVenta, Double totalVenta, Integer cantidadTotalProductos, List<ProductoDeVentaDto> listProductos, ClienteDeVentaDto cliente) {
+    public VentaSimpleDto(Long idVenta, LocalDate fechaVenta, Double totalVenta, Integer cantidadTotalProductos, List<ProductoDeVentaDto> listProductos, ClienteDeVentaDto cliente) {
         this.idVenta = idVenta;
         this.fechaVenta = fechaVenta;
         this.totalVenta = totalVenta;

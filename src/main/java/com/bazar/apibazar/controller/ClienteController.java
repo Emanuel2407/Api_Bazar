@@ -67,7 +67,7 @@ public class ClienteController {
     //Actualizamos 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCliente(@PathVariable Long id, @RequestBody ClienteDto objActualizado){
-        Cliente objCliente = clienteService.updateCliente(id, objActualizado);
+        ClienteSimpleDto objCliente = clienteService.updateCliente(id, objActualizado);
         
         if(objCliente == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
@@ -79,7 +79,7 @@ public class ClienteController {
     //Actualización parcial
     @PatchMapping("/{id}")
     public ResponseEntity<?> patchCliente(@PathVariable Long id, @RequestBody ClienteDto objDto){
-        Cliente objCliente = clienteService.patchCliente(id, objDto);
+        ClienteSimpleDto objCliente = clienteService.patchCliente(id, objDto);
         
         if(objCliente == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));

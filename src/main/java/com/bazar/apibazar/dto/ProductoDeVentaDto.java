@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter  @Setter
 public class ProductoDeVentaDto {
     
-    private Long id;
+    private Long idProducto;
     private String nombre;
     private String marca;
     private Double costo;
@@ -17,7 +17,7 @@ public class ProductoDeVentaDto {
     }
 
     public ProductoDeVentaDto(Long id, String nombre, String marca, Double costo, Integer cantidadComprada, Double subTotalVenta) {
-        this.id = id;
+        this.idProducto = id;
         this.nombre = nombre;
         this.marca = marca;
         this.costo = costo;

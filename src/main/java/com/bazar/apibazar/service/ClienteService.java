@@ -25,61 +25,12 @@ public class ClienteService implements IClienteService{
     @Autowired
     IVentaService ventaService;
     
-    
-    @Override
-    public List<ClienteSimpleDto> getClientesSimples() {
+    /*Método propio que se va a encargar de pasar de un cliente que tiene una serie de ventas y que estas
+    ventas tienen objetos VentaProducto a un Cliente que tenga ventas con objetos Producto simples para evitar
+    la recursividad infinita*/
+    private ClienteSimpleDto sacarClienteSimple(Cliente objCliente){
         
-        //Lista que va a contener a todos los clientes en su formato simple
-        List<ClienteSimpleDto> listClientes = new ArrayList<>();
-        
-        //Recorrer los clientes registrados
-        for(Cliente objCliente: getClientes()){
-            
-            //Lista para almacenar las ventas de los clientes transformadas a formato simple
-            List<VentaDeClienteDto> listVentas = new ArrayList<>();
-            
-            //Recorrer las ventas de cada cliente
-            for(Venta objVenta: objCliente.getListVentas()){
-                
-                //Lista para almacenar los productos de las ventas de los clientes en su formato simple
-                List<ProductoDeVentaDto> listProductos = new ArrayList<>();
-                
-                //Recorrer los productos en formato VentaProducto de cada una de las ventas de cada clientes 
-                for(VentaProducto objVP: objVenta.getListProductos()){
-                    
-                    //Sacar el objeto asociado a la relación 
-                    Producto objProducto = objVP.getProducto();
-                    
-                    /*Empezar a agregar las transformaciones a formato simple de los productos a la lista que
-                    se encardará de almacenarlos*/
-                    listProductos.add(new ProductoDeVentaDto(objProducto.getIdProducto(), objProducto.getNombre(),
-                            objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
-                }
-                
-                /*Una vez tengamos la lista de los productos convertidos a simples, podemos empezar a convertir
-                las ventas a formarto simple también*/
-                listVentas.add(new VentaDeClienteDto(objVenta.getIdVenta(), objVenta.getFechaVenta(),
-                        objVenta.getTotalVenta(), objVenta.getCantidadTotalProductos(), listProductos));
-            }
-            
-            /*Por último, una vez que se haya hecho todo el trabajo anterior, podremos empezar a convertir los
-            clientes a clientes que contengan ventas simples que a su vez contengan productos simples, dando 
-            como resultado clientes simples*/
-            listClientes.add(new ClienteSimpleDto(objCliente.getIdCliente(), objCliente.getNombre(),
-                    objCliente.getApellido(), objCliente.getDocumento(), listVentas));
-        }
-        
-        return listClientes;
-        
-    }
-
-    @Override
-    public ClienteSimpleDto findClienteSimple(Long id) {
-        
-        //Objeto a tranformar 
-        Cliente objCliente = findCliente(id);
-        
-        //Si no existe se retorna null
+        //Si no existe el cliente se retorna null
         if(objCliente == null){return null;}
         
         //Lista para almacenar todas las ventas en formato simple del cliente
@@ -111,14 +62,46 @@ public class ClienteService implements IClienteService{
         //Por último podemos crear el objeto Cliente simplificado y exponerlo
         return (new ClienteSimpleDto(objCliente.getIdCliente(), objCliente.getNombre(), objCliente.getApellido(), 
                 objCliente.getDocumento(), listVentas));
+        
     }
     
+    @Override
+    public List<ClienteSimpleDto> getClientesSimples() {
+        
+        //Lista que va a contener a todos los clientes en su formato simple
+        List<ClienteSimpleDto> listClientes = new ArrayList<>();
+        
+        //Recorrer los clientes registrados
+        for(Cliente objCliente: getClientes()){
+            
+            /*Llamamos la método que se va a encargar de transformar un Cliente ordinario en uno mas simple.
+            Le mandamos como parametro cada uno de los clientes registrados y vamos agregando a la lista*/
+            listClientes.add(sacarClienteSimple(objCliente));
+        }
+        
+        return listClientes;
+    }
+
     
+    @Override
+    public ClienteSimpleDto findClienteSimple(Long id) {
+        
+        Cliente objCliente = findCliente(id);
+        
+        if(objCliente == null){return null;}
+        
+        //Llamamos la método que se va a encargar de transformar un Cliente ordinario en uno mas simple.
+        return(sacarClienteSimple(objCliente));
+        
+        
+    }
+    
+    //Método privado get normalito
     private List<Cliente> getClientes() {
         return clienteRepository.findAll();
     }
 
-    
+    //Método privado find normalito
     private Cliente findCliente(Long id) {
         Optional<Cliente> objCliente = clienteRepository.findById(id);
         
@@ -166,10 +149,10 @@ public class ClienteService implements IClienteService{
     }
 
     @Override
-    public Cliente updateCliente(Long id, ClienteDto objActualizado) {
+    public ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado) {
         Cliente objCliente = findCliente(id);
         
-        if(objCliente == null){return objCliente;}
+        if(objCliente == null){return null;}
         
         objCliente.setNombre(objActualizado.getNombre());
         objCliente.setApellido(objActualizado.getApellido());
@@ -186,16 +169,16 @@ public class ClienteService implements IClienteService{
         
         clienteRepository.save(objCliente);
         
-        return objCliente;
+        return sacarClienteSimple(objCliente);
         
         
     }
 
     @Override
-    public Cliente patchCliente(Long id, ClienteDto objDto) {
+    public ClienteSimpleDto patchCliente(Long id, ClienteDto objDto) {
         Cliente objCliente = findCliente(id);
         
-        if(objCliente == null){return objCliente;}
+        if(objCliente == null){return null;}
         
         if(objDto.getNombre() != null){objCliente.setNombre(objDto.getNombre());}
         if(objDto.getApellido() != null){objCliente.setApellido(objDto.getApellido());}
@@ -222,7 +205,7 @@ public class ClienteService implements IClienteService{
         
         clienteRepository.save(objCliente);
         
-        return objCliente;
+        return sacarClienteSimple(objCliente);
     }
 
     

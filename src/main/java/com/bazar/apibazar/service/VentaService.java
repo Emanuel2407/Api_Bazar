@@ -1,7 +1,7 @@
 package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.ClienteDeVentaDto;
-import com.bazar.apibazar.dto.GetVentaDto;
+import com.bazar.apibazar.dto.VentaSimpleDto;
 import com.bazar.apibazar.dto.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.VentaDto;
 import com.bazar.apibazar.dto.VentaProductoDto;
@@ -43,6 +43,26 @@ public class VentaService implements IVentaService{
     @Autowired
     IVentaProductoRepository vpRepository;
     
+    /*Método propio para calcular el total final de una venta a partir de cada uno de los subTtotales de 
+    sus productos*/
+    private Double calcularTotalVenta(Venta objVenta){
+        if(objVenta == null){return 0.0;}
+        
+        Double totalFinal = 0.0;
+        for(VentaProducto objVP: objVenta.getListProductos()){totalFinal += objVP.getSubTotalVenta();}
+        
+        return totalFinal;
+    }
+    
+    //Método propio para calcular el total de productos de una venta
+    private Integer calcularCantidadProductos(Venta objVenta){
+        if(objVenta == null){return 0;}
+        
+        Integer totalProductos = 0;
+        for(VentaProducto objVP: objVenta.getListProductos()){totalProductos += objVP.getCantidad();}
+        
+        return totalProductos;
+    }
     
     //Método propio para encontrar el cliente de una determinada Venta
     private ClienteDeVentaDto buscarClienteDeVenta(Long idVenta){
@@ -62,46 +82,19 @@ public class VentaService implements IVentaService{
         return null;
         
     }
-    /*Método propio para saber cual es la cantitad total de productos que hay en una venta. La multiplicidad
-    en los productos cuenta, es decir, un producto que esté repetido 3 veces, cuenta en el total de productos 
-    como 3*/
-    private int calcularCantidadDeProductosEnVenta(List<VentaProductoDto> listProductos){
-        int totalProductos = 0;  
+    
 
-        for(VentaProductoDto objVP: listProductos){      
-            totalProductos += objVP.getCantidad();   
-        }
-        
-        return totalProductos;
-    }
-    
-    //Método propiio para cálcular el total de una determinada venta
-    private Double calcularTotal(List<VentaProductoDto> listProductos){
-        Double total = 0.0;  
-        
-        for(VentaProductoDto objVP: listProductos){
-            
-            Producto objProducto = productoService.findProducto(objVP.getProductoId());
-            
-            if(objProducto != null){
-                total += objProducto.getCosto()*objVP.getCantidad();
-            }
-        }
-        
-        return total;
-    } 
-    
     /*Método propio para elimiar todas las relaciones de una venta con cada uno de los productos asociados en la
     tabla intermedia VentaProducto*/
     private void eliminarRelacionVentaProducto(Venta objVenta){
         
-        //Lista donde se van a guardar los productos con el stock actualizado
+        //Lista donde se van a guardar los productos que van a ser elimados de la venta con el stock actualizado
         List<Producto> listProductosNuevoStock = new ArrayList<>();
         
         /*Primero recorremos la lista VentaProducto de la venta*/
         for(VentaProducto objVP: objVenta.getListProductos()){ 
                 
-            //Encontramos arRelel Producto asociado a la relación
+            //Encontramos cada Producto asociado a la relación
             Producto objProducto = objVP.getProducto();
                 
             //Le devolvemos toda el stock que habia en la relación al producto correspondiente
@@ -120,15 +113,17 @@ public class VentaService implements IVentaService{
         /*Eliminamos todos los Productos de la venta, osea todos los registros relacionados con la venta
         en la tabla intermedia*/
         vpRepository.deleteAll(objVenta.getListProductos());
+        
+        /*Limpiamos la lista de productos del objeto objVenta para evitar que sean buscados cuando se 
+        actualice la venta ya que como fueron eliminados, no serán encontrados y lanzará error*/
+        objVenta.getListProductos().clear();
+      
     }
     
     
     //Método propio para cear la relación entre una venta y cada uno de los productos con los que se va a relacionar
-    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
-                    si nunca se hubiera ejecutado el método*/
     private void crearRelacionVentaProducto(List<VentaProductoDto> listProductos, Venta objVenta){
         
-
         /*Como es una relación ManyToMany entre Venta y Producto y la venta no tiene simples objetos Productos
         sino objetos DTO de la tabla intermedia VentaProducto, para poder hacer la relación lo primero que se
         debe hacer es un bucle for-each para recorrer todos los objetos VentaProductoDto que vienen en la venta*/
@@ -154,9 +149,12 @@ public class VentaService implements IVentaService{
                 que representa la relación entre la venta y cada uno de los productos*/
                 crearRegistroVentaProducto(objVenta, objProducto, cantidadProducto, subTotal);
                 
+                
             }
         }
-       
+        
+        objVenta.setTotalVenta(calcularTotalVenta(objVenta));
+        objVenta.setCantidadTotalProductos(calcularCantidadProductos(objVenta));
     }
     
     
@@ -185,13 +183,43 @@ public class VentaService implements IVentaService{
                 
         //Guardamos el registro de la relación en la tabla intermedia VentaProducto
         vpRepository.save(objRelacion);
+        
+        /*Vamos agregando también cada objeto de la relación al objeto objVenta en memoria para no tener
+        dificultades al momento de llamar a este objeto que está en caché*/
+        objVenta.getListProductos().add(objRelacion);
+    }
+    
+    //Método propio para cambiar los objetos VentaProducto de las ventas por objetos Producto simples
+    private VentaSimpleDto sacarVentaSimple(Venta objVenta){
+        
+        if(objVenta == null){return null;}
+        
+        //Lista que va a contener los productos simplificados de la venta
+        List<ProductoDeVentaDto> listProductos = new ArrayList<>();
+
+        //Bucle for-each para recorrer todos los objetos VentaParoducto de la venta
+        for(VentaProducto objVP: objVenta.getListProductos()){
+            
+            Producto objProducto = objVP.getProducto();
+            
+            //Si el producto es null, no se agrega a la lista
+            if(objProducto == null){continue; }
+            
+            /*La lista se llena con objetos Dtos ya que hay unos datos que nos interesan y otros que no
+            en la clase Producto.*/
+            listProductos.add(new ProductoDeVentaDto(objProducto.getIdProducto(), objProducto.getNombre(),
+                        objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
+        }
+        
+        return new VentaSimpleDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
+                objVenta.getCantidadTotalProductos(), listProductos, buscarClienteDeVenta(objVenta.getIdVenta()));
     }
     
     
     @Override
-    public List<GetVentaDto> getVentasSimples() {
+    public List<VentaSimpleDto> getVentasSimples() {
         
-        List<GetVentaDto> listVentas = new ArrayList<>();
+        List<VentaSimpleDto> listVentas = new ArrayList<>();
         
         //Bucle for-each para recorrer todas las ventas registradas
         for(Venta objVenta: ventaRepository.findAll()){
@@ -209,7 +237,7 @@ public class VentaService implements IVentaService{
                         objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
             }
             
-            listVentas.add(new GetVentaDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
+            listVentas.add(new VentaSimpleDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
                     objVenta.getCantidadTotalProductos(), listProductos, buscarClienteDeVenta(objVenta.getIdVenta())));
         }
         
@@ -217,30 +245,16 @@ public class VentaService implements IVentaService{
     }
 
     @Override
-    public GetVentaDto findVentaSimple(Long id) {
-        Optional<Venta> objVentaOp = ventaRepository.findById(id);
+    public VentaSimpleDto findVentaSimple(Long id) {
+        Venta objVenta = findVenta(id);
         
-        if(objVentaOp.isEmpty()){return null;}
+        if(objVenta == null){return null;}
         
-        Venta objVenta = objVentaOp.get();
-        
-        List<ProductoDeVentaDto> listProductos = new ArrayList<>();
-
-        //Bucle for-each para recorrer todos los objetos VentaParoducto de una determinada venta
-        for(VentaProducto objVP: objVenta.getListProductos()){
-            
-            Producto objProducto = objVP.getProducto();
-            
-            /*La lista se llena con objetos Dtos ya que hay unos datos que nos interesan y otros que no
-                en la clase Producto*/
-            listProductos.add(new ProductoDeVentaDto(objProducto.getIdProducto(), objProducto.getNombre(),
-                        objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
-        }
-        
-        return new GetVentaDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
-                objVenta.getCantidadTotalProductos(), listProductos, buscarClienteDeVenta(objVenta.getIdVenta()));
-  
+        /*e llama al método que se encargue de cambiar todos los productos VentaProducto de una Venta a 
+        productos simples y así evitar recursividad infinita*/
+        return sacarVentaSimple(objVenta);
     }
+    
     
     //Método propio para buscar todas las ventas con listas VentaProducto
     private  List<Venta> getVentas() {
@@ -257,8 +271,6 @@ public class VentaService implements IVentaService{
     }
 
     @Override
-    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
-                    si nunca se hubiera ejecutado el método*/
     public void saveVenta(VentaDto objNuevo) {
         Venta objVenta = new Venta();
         
@@ -272,19 +284,12 @@ public class VentaService implements IVentaService{
         que llegaron como objetos VentaProductoDto en el objeto Dto de venta llamado objNuevo*/
         crearRelacionVentaProducto(objNuevo.getListProductos(), objVenta);
         
-        //Ahora agregamos el total final de la venta a la entidad Venta
-        objVenta.setTotalVenta(calcularTotal(objNuevo.getListProductos()));
-        
-        //Establecemos la cantidad total de todos los productos que hay en la venta
-        objVenta.setCantidadTotalProductos(calcularCantidadDeProductosEnVenta(objNuevo.getListProductos()));
-        
+    
         //Guardamos nuevamente pero ahora con el total de la venta
         ventaRepository.save(objVenta);
     }
 
     @Override
-    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
-                    si nunca se hubiera ejecutado el método*/
     public boolean deleteVenta(Long id) {
         
         Venta objVenta = findVenta(id);
@@ -306,13 +311,11 @@ public class VentaService implements IVentaService{
     }
 
     @Override
-    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
-                    si nunca se hubiera ejecutado el método*/
-    public Venta updateVenta(Long id, VentaDto objActualizado) {
+    public VentaSimpleDto updateVenta(Long id, VentaDto objActualizado) {
         Venta objVenta = findVenta(id);
         
         //Si no existe retornamos null
-        if(objVenta == null){return objVenta;}
+        if(objVenta == null){return null;}
         
         //Actualizamos datos de la venta en cuestion
         objVenta.setFechaVenta(objActualizado.getFechaVenta());
@@ -325,70 +328,119 @@ public class VentaService implements IVentaService{
         uno de los nuevos productos*/
         crearRelacionVentaProducto(objActualizado.getListProductos(), objVenta);
         
-        //Ahora agregamos el total actualizado de la venta a la entidad Venta
-        objVenta.setTotalVenta(calcularTotal(objActualizado.getListProductos()));
-        
-        //Establecemos la cantidad total de todos los productos que hay en la venta
-        objVenta.setCantidadTotalProductos(calcularCantidadDeProductosEnVenta(objActualizado.getListProductos()));
         
         //Actualizamos la venta
         ventaRepository.save(objVenta);
         
-        return objVenta;
+        return sacarVentaSimple(objVenta);
     }
 
     @Override
-    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
-                    si nunca se hubiera ejecutado el método*/
-    public Venta patchVenta(Long id, VentaDto objDto) {
+    public VentaSimpleDto patchVenta(Long id, VentaDto objDto) {
         Venta objVenta = findVenta(id);
         
         //Si no existe retornamos null
-        if(objVenta == null){return objVenta;}
+        if(objVenta == null){return null;}
         
         //Actualizamos fecha de la venta 
-        if(objVenta.getFechaVenta() != null){objVenta.setFechaVenta(objDto.getFechaVenta());}
+        if(objDto.getFechaVenta() != null){objVenta.setFechaVenta(objDto.getFechaVenta());}
         
         if(!objDto.getListProductos().isEmpty()){     
             
             /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
             poder actualizar esas relaciones y que queden con los nuevos productos*/
             eliminarRelacionVentaProducto(objVenta);          
-        
+            
             /*Ahora llamamos al método que se encargue de crear las relaciones actualizadas entre la venta y cada 
             uno de los nuevos productos*/
             crearRelacionVentaProducto(objDto.getListProductos(), objVenta);
         
-            //Ahora agregamos el total actualizado de la venta a la entidad Venta
-            objVenta.setTotalVenta(calcularTotal(objDto.getListProductos()));
-        
-            //Establecemos la cantidad total de todos los productos que hay en la venta
-            objVenta.setCantidadTotalProductos(calcularCantidadDeProductosEnVenta(objDto.getListProductos()));
         
         }
         
         //Actualizamos la venta
         ventaRepository.save(objVenta);
         
-        return objVenta;
+        return sacarVentaSimple(objVenta);
     }
     
     @Override
-    @Transactional /*Con esta annotation si alguna parte del código falla, se revertirán los cambio y es como 
-                    si nunca se hubiera ejecutado el método*/
-    public Venta addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
+    public VentaSimpleDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
         
-        Venta objVenta = ventaRepository.findById(id).orElse(null);
+        //Buscamos venta a realizar la insercción de productos
+        Venta objVenta = findVenta(id);
         
         if(objVenta == null){return null;}
         
-        //Método para crear las nuevas relaciones de venta con los nuevos productos      
-        crearRelacionVentaProducto(productosNuevos, objVenta);
+        /*Si bien los productos que vamos a agregar son los que llegan en "productosNuevos", debemos diferenciar
+        los productos que ya estaban antes en la venta ya que a estos solo se le sumará la cantidad correspondiente
+        a la cantidad comprada y con los que realmente son nuevos se van a crear nuevas relaciones con la venta*/
+        List<VentaProductoDto> realesProductosNuevos = new ArrayList<>();
+        
+        //Recorremos cada uno de los productos que se mandan desde el cliente
+        for(VentaProductoDto objNuevo: productosNuevos){
+            
+            Producto objProducto = productoService.findProducto(objNuevo.getProductoId());
+                
+            //Si el producto asociado a la relación es null o su cantidad es insuficiente, saltaremos al siguiente
+            if(objProducto == null || objProducto.getCantidadDisponible() < objNuevo.getCantidad()){continue;}
+            
+            /*Como hasta el momento no hemos creado una relación entre la venta y objNuevo, no se le ha 
+            asignado un total a la relación, por ende los hacemos de forma manual*/
+            objNuevo.setSubTotalVenta(objProducto.getCosto() * objNuevo.getCantidad());
+            
+            //Con esto determinaremos si el objeto realmete existía o no en la venta
+            boolean yaExiste = false; 
+            
+            //Ahora reacorremos todos los objetos o productos de la venta 
+            for(VentaProducto objVP: objVenta.getListProductos()){
+                 
+                /*Vamos comparando cada objeto de la venta con objNuevo, en caso de que alguno sea igual a
+                objNuevo, el campo "yaExiste" será true*/
+                if(objVP.getProducto().getIdProducto() == objProducto.getIdProducto()){yaExiste = true;}  
+                
+                /*Si en alguna vuelta del bucle "yaExiste" es true, confirmamos que efectivamente la relació
+                entre objNuevo y la venta ya existe, osea que solo hay que hacerle ciertas modificaciones*/
+                if(yaExiste){
+                    
+                    //Acualizamos la cantidad de la relación
+                    objVP.setCantidad(objVP.getCantidad() + objNuevo.getCantidad());
+                    
+                    //Le actualizamos el total a la relación sumando al que ya tenia el nuevo calculado anteriormente
+                    objVP.setSubTotalVenta(objVP.getSubTotalVenta() + objNuevo.getSubTotalVenta());
+                    
+                    //Ahora le debemos descontar la nueva cantidad comprada al producto de la relación
+                    objProducto.setCantidadDisponible(objProducto.getCantidadDisponible() - objNuevo.getCantidad());
+                    
+                    //Actualizamos producto en bd
+                    productoService.saveProducto(objProducto);
+                    
+                    //Actualizamos relación en bd
+                    vpRepository.save(objVP);
+                    
+                    /*Ya no es necesario seguir comparando objNuevo con los demas productos de objVenta asi que
+                    salimos de este bucle para que objNuevo avanze al siguiente*/
+                    break;
+                }
+                
+            }
+            
+            /*Ahora, si cuando termine el bucle, "yaExiste" sigue en false, confirmamos que aún no existe esa 
+            relación y agregamos el producto a la nueva lista para crearla*/
+            if(!yaExiste){realesProductosNuevos.add(objNuevo);}
+        }        
+ 
+        //Método para crear las nuevas relaciones de venta con los nuevos productos que no tenian relación 
+        crearRelacionVentaProducto(realesProductosNuevos, objVenta);
+        
+        //recalculamos el total y la cantidad de productos en la venta, ahora con los productos nuevos
+        objVenta.setTotalVenta(calcularTotalVenta(objVenta));
+        objVenta.setCantidadTotalProductos(calcularCantidadProductos(objVenta));
         
         //Actualizar venta 
         ventaRepository.save(objVenta);
         
-        return objVenta;
+        return sacarVentaSimple(objVenta);
     }
     
     

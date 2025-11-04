@@ -2,7 +2,7 @@ package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.ClienteDto;
 import com.bazar.apibazar.dto.ClienteSimpleDto;
-import com.bazar.apibazar.dto.GetVentaDto;
+import com.bazar.apibazar.dto.VentaSimpleDto;
 import com.bazar.apibazar.model.Cliente;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public interface IClienteService {
     
     boolean deleteCliente(Long id);
     
-    Cliente updateCliente(Long id, ClienteDto objActualizado);
+    ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado);
     
-    Cliente patchCliente(Long id, ClienteDto objDto);
+    ClienteSimpleDto patchCliente(Long id, ClienteDto objDto);
 }

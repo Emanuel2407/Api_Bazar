@@ -18,9 +18,12 @@ public class VentaDto {
     public VentaDto() {
     }
 
-    public VentaDto(LocalDate fechaVenta, Cliente cliente) {
+    public VentaDto(LocalDate fechaVenta, List<VentaProductoDto> listProductos) {
         this.fechaVenta = fechaVenta;
+        this.listProductos = listProductos;
     }
+
+   
 
     
 

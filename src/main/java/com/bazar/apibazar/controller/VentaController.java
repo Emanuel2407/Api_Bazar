@@ -1,6 +1,6 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.GetVentaDto;
+import com.bazar.apibazar.dto.VentaSimpleDto;
 import com.bazar.apibazar.dto.VentaDto;
 import com.bazar.apibazar.dto.VentaProductoDto;
 import com.bazar.apibazar.dto.VentaResumenDto;
@@ -35,14 +35,14 @@ public class VentaController {
     //Traer todos
     @GetMapping("/")
     @ResponseBody
-    public List<GetVentaDto> getVentas(){
+    public List<VentaSimpleDto> getVentas(){
         return ventaService.getVentasSimples();
     }
     
     //Traer uno
     @GetMapping("/{id}")
     public ResponseEntity<?> findVenta(@PathVariable Long id){
-        GetVentaDto objVenta = ventaService.findVentaSimple(id);
+        VentaSimpleDto objVenta = ventaService.findVentaSimple(id);
         
         if(objVenta == null){
             //Si no existe registro, se le envia un error personalizado al usuario indicandoselo
@@ -56,7 +56,7 @@ public class VentaController {
     //Traer productos de una venta
     @GetMapping("/productos/{id}")
     public ResponseEntity<?> productosDeVenta(@PathVariable Long id){
-        GetVentaDto objVenta = ventaService.findVentaSimple(id);
+        VentaSimpleDto objVenta = ventaService.findVentaSimple(id);
         
         if(objVenta == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
@@ -115,7 +115,7 @@ public class VentaController {
     //Actualizamos 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateVenta(@PathVariable Long id, @RequestBody VentaDto objActualizado){
-        Venta objVenta = ventaService.updateVenta(id, objActualizado);
+        VentaSimpleDto objVenta = ventaService.updateVenta(id, objActualizado);
         
         if(objVenta == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
@@ -127,7 +127,7 @@ public class VentaController {
     //Actualización parcial
     @PatchMapping("/{id}")
     public ResponseEntity<?> patchVenta(@PathVariable Long id, @RequestBody VentaDto objDto){
-        Venta objVenta = ventaService.patchVenta(id, objDto);
+        VentaSimpleDto objVenta = ventaService.patchVenta(id, objDto);
         
         if(objVenta == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
@@ -140,7 +140,7 @@ public class VentaController {
     //Agregar productos a Venta existente
     @PatchMapping("/agregarProductos/{id}")
     public ResponseEntity<?> addProductosAventa(@PathVariable Long id, @RequestBody List<VentaProductoDto> productosNuevos){
-        Venta objVenta = ventaService.addProductosAVenta(id, productosNuevos);
+        VentaSimpleDto objVenta = ventaService.addProductosAVenta(id, productosNuevos);
         
         if(objVenta == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
