@@ -443,6 +443,96 @@ public class VentaService implements IVentaService{
         return sacarVentaSimple(objVenta);
     }
     
+    @Override
+    public VentaSimpleDto deleteProductosDeVenta(Long id, List<VentaProductoDto> productosEliminados) {
+        //Buscamos venta a eliminar productos
+        Venta objVenta = findVenta(id);
+        
+        if(objVenta == null){return null;}
+        
+        /*Lista que va a almacenar solo los productos con los que se va a eliminar la relación con venta, ya que
+        hay ciertos productos que solo se les va a descontar a la cantidad comprada*/
+        List<VentaProducto> realesProductosEliminados = new ArrayList<>();
+        
+        //Recorremos los productos a eliminar que llegan del cliente
+        for(VentaProductoDto objBorrar: productosEliminados){
+            
+            //Sacamos producto de la relación
+            Producto objProducto = productoService.findProducto(objBorrar.getProductoId());
+            
+            if(objProducto == null){continue;}
+            
+            //Establecemos el total que se le va a descontar a la relación
+            objBorrar.setSubTotalVenta(objProducto.getCosto() * objBorrar.getCantidad());
+            
+            /*Ahora recorremos los productos de la venta para encontrar las coinsidencias con los objetos mandados
+            a eliminar*/
+            for(VentaProducto objVP: objVenta.getListProductos()){
+                
+                //Comparamos cada producto de la venta con objBorrar
+                if(objVP.getProducto().getIdProducto() == objProducto.getIdProducto()){
+                    
+                    /*Una vez que encontremos el producto que se va a borrar en la venta, la cantidad de este
+                    no puede ser mayor a la cantidad comprada de la venta, si es así salimos del bucle y 
+                    objBorrar avanza al siguiente*/
+                    if(objBorrar.getCantidad() > objVP.getCantidad()){break;}
+                    
+                    /*Ahora, si la cantidad que se desea eliminar es menor a la cantida que ya se habia comprado,
+                    entonces bastará solo con descontarle  a la relación que se mandó a modificar tanto la 
+                    cantidad mandada a eliminar como el subtotal que surge*/
+                    if(objBorrar.getCantidad() < objVP.getCantidad()){
+                        
+                        //Descontamos cantidad
+                        objVP.setCantidad(objVP.getCantidad() - objBorrar.getCantidad());
+                        
+                        //Descontamos subTotal
+                        objVP.setSubTotalVenta(objVP.getSubTotalVenta() - objBorrar.getSubTotalVenta());
+                        
+                        /*Como se le va a descontar una parte de la cantidad comprada a la relación, esa 
+                        parte descontantada se le tiene que aumentar a la cantidad disponible del producto*/
+                        objProducto.setCantidadDisponible(objProducto.getCantidadDisponible() + objVP.getCantidad());
+                        productoService.saveProducto(objProducto);
+                        
+                        //Y actualizamos relación en DB
+                        vpRepository.save(objVP);
+                        
+                    /*Si la cantidad mandada a borrar no es menor ni mayor a la cantidad comprada, entonces será
+                    igual y si es igual debemos eliminar esa relación de la DB*/
+                    }else{ 
+                        
+                        /*Vamos agregando todas esas relaciones a eliminar a la lista de "realesProductosEliminados" para 
+                        después eliminarlas en las DBs*/
+                        realesProductosEliminados.add(objVP); 
+                        
+                        /*Eliminamos objVP de la lista de relaciones de objVenta,esto para que las
+                        modificaciones que se hagan en la DB se vean reflejadas también en el objeto */
+                        objVenta.getListProductos().remove(objVP);
+                        
+                        /*Como se va a elimianar la relación entre la venta y el producto, la cantidad que se
+                        habia comprado deberá ser devuelta al stock del producto de la relación*/
+                        objProducto.setCantidadDisponible(objProducto.getCantidadDisponible() + objVP.getCantidad());
+                        productoService.saveProducto(objProducto);
+                        
+                        break;
+                    }
+                         
+                }
+            }
+        }
+        
+        /*Método para eliminar las relaciones de la venta con los productos a los cuales se les mandaron a 
+        eliminar toda su cantidad comprada*/
+        vpRepository.deleteAll(realesProductosEliminados);
+        
+        //recalculamos el total y la cantidad de productos en la venta, ahora con los productos nuevos
+        objVenta.setTotalVenta(calcularTotalVenta(objVenta));
+        objVenta.setCantidadTotalProductos(calcularCantidadProductos(objVenta));
+        
+        //Actualizar venta 
+        ventaRepository.save(objVenta);
+        
+        return sacarVentaSimple(objVenta);
+    }
     
     @Override
     public List<Producto> productosDeVenta(Long id) {
@@ -528,7 +618,6 @@ public class VentaService implements IVentaService{
         
     }
 
-    
 
     
     

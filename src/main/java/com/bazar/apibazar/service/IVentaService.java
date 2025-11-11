@@ -31,6 +31,9 @@ public interface IVentaService {
     //Método para agregar una cierta cantidad de productos nuevos a una venta sin afectar los que la venta ya tenía    
     VentaSimpleDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos);
             
+    //Método para eliminarle una cierta cantidad  de productos a una venta
+    VentaSimpleDto deleteProductosDeVenta(Long id, List<VentaProductoDto> productosEliminados);
+    
     //Obtener la lista de productos de una determinada venta
     List<Producto> productosDeVenta(Long id);
     
