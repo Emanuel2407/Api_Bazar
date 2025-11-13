@@ -4,6 +4,7 @@ import com.bazar.apibazar.dto.ClienteDto;
 import com.bazar.apibazar.dto.ClienteSimpleDto;
 import com.bazar.apibazar.dto.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.VentaDeClienteDto;
+import com.bazar.apibazar.dto.VentaDto;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.model.Venta;
@@ -22,8 +23,10 @@ public class ClienteService implements IClienteService{
     @Autowired
     IClienteRepository clienteRepository;
     
+    //Inyección de dependencia para ventaService
     @Autowired
-    IVentaService ventaService;
+    IVentaService ventaService; 
+    
     
     /*Método propio que se va a encargar de pasar de un cliente que tiene una serie de ventas y que estas
     ventas tienen objetos VentaProducto a un Cliente que tenga ventas con objetos Producto simples para evitar
@@ -120,8 +123,19 @@ public class ClienteService implements IClienteService{
         objCliente.setNombre(objNuevo.getNombre());
         objCliente.setApellido(objNuevo.getApellido());
         objCliente.setDocumento(objNuevo.getDocumento());
-        objCliente.setListVentas(objNuevo.getListVentas());
         
+        
+        //Recorremos todas las VentaDto que vienen en el objeto
+        for(VentaDto objVentaDto: objNuevo.getListVentas()){
+            
+            /*Cada ventaDto se guarda como una venta normal con el método saveVenta de VentaService y como
+            este método devuelve la venta que se registró, la agregamos directamente a la lista de ventas 
+            del cliente*/
+            objCliente.getListVentas().add(ventaService.saveVenta(objVentaDto));
+                
+        }
+        
+        //Por último guardamos el cliente
         clienteRepository.save(objCliente);
        
     }
@@ -133,12 +147,19 @@ public class ClienteService implements IClienteService{
         
         if(objCliente != null){
             
-            //Primero se elimina todas las venta que estaban asociadas con este cliente
+           /*Como no puede existir una venta sin su cliente, al momento de eliminar al cliente debemos eliminar
+           todas las ventas que este tiene, y al momento de eliminar las ventas debemos eliminar también las 
+           relaciones que cada una de estas tenga con los diferentes productos*/
             for(Venta objVenta: objCliente.getListVentas()){
+               
+                //El método deleteVenta se encarga tanto de borrar las relaciones como de borrar la venta 
                 ventaService.deleteVenta(objVenta.getIdVenta());
             }
-             
-            //Luego eliminamos la venta
+           
+            //Limpiamos la lista del cliente para que quede vacia
+            objCliente.getListVentas().clear();
+           
+            //Luego solo nos falta eliminar al cliente
             clienteRepository.deleteById(id);
             
             return true;
@@ -165,7 +186,7 @@ public class ClienteService implements IClienteService{
         }
         
         //Una vez borradas, se le abre camino a las nuevas ventas
-        objCliente.setListVentas(objActualizado.getListVentas());
+        //objCliente.setListVentas(objActualizado.getListVentas());
         
         clienteRepository.save(objCliente);
         
@@ -197,10 +218,10 @@ public class ClienteService implements IClienteService{
             for(Venta objVenta: objCliente.getListVentas()){listVentas.add(objVenta); }
             
             //Agregamos las nuevas
-            for(Venta objVenta: objDto.getListVentas()){listVentas.add(objVenta);}
+            //for(Venta objVenta: objDto.getListVentas()){listVentas.add(objVenta);}
             
             //Las agregamos todas al cliente
-            objCliente.setListVentas(objDto.getListVentas());
+            //objCliente.setListVentas(objDto.getListVentas());
         }
         
         clienteRepository.save(objCliente);

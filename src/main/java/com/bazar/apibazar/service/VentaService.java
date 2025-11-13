@@ -86,7 +86,7 @@ public class VentaService implements IVentaService{
 
     /*Método propio para elimiar todas las relaciones de una venta con cada uno de los productos asociados en la
     tabla intermedia VentaProducto*/
-    private void eliminarRelacionVentaProducto(Venta objVenta){
+    public void eliminarRelacionVentaProducto(Venta objVenta){
         
         //Lista donde se van a guardar los productos que van a ser elimados de la venta con el stock actualizado
         List<Producto> listProductosNuevoStock = new ArrayList<>();
@@ -257,12 +257,12 @@ public class VentaService implements IVentaService{
     
     
     //Método propio para buscar todas las ventas con listas VentaProducto
-    private  List<Venta> getVentas() {
+    public  List<Venta> getVentas() {
         return ventaRepository.findAll();
     }
 
     //Método propio para buscar una venta en especifico que tenga sus respectivos objetos VentaProducto
-    private Venta findVenta(Long id) {
+    public Venta findVenta(Long id) {
         Optional<Venta> objVenta = ventaRepository.findById(id);
         
         if(objVenta.isEmpty()){return null;}
@@ -271,7 +271,7 @@ public class VentaService implements IVentaService{
     }
 
     @Override
-    public void saveVenta(VentaDto objNuevo) {
+    public Venta saveVenta(VentaDto objNuevo) {
         Venta objVenta = new Venta();
         
         //Migramos datos del objeto Dto al objeto Venta
@@ -287,6 +287,10 @@ public class VentaService implements IVentaService{
     
         //Guardamos nuevamente pero ahora con el total de la venta
         ventaRepository.save(objVenta);
+        
+        /*Retornamos el objeto de la venta que se registró, ya que nos será útil en el método "saveCliente"
+        de la clase "cliente"*/
+        return objVenta;
     }
 
     @Override
