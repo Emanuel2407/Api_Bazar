@@ -68,6 +68,23 @@ public class ClienteService implements IClienteService{
         
     }
     
+    /*Método propio para cambiar las ventas Dto que vienen en un objeto ClienteDto a ventas nomales para 
+    clientes normales*/
+    private void addVentaDtoACliente(Cliente objCliente, List<VentaDto> listVentas){
+        
+        //Recorremos todas las VentaDto que vienen en la lista 
+        for(VentaDto objVentaDto: listVentas){
+            
+            /*Cada ventaDto se guarda como una venta normal con el método saveVenta de VentaService y como
+            este método devuelve la venta que se registró, la agregamos directamente a la lista de ventas 
+            del cliente*/
+            objCliente.getListVentas().add(ventaService.saveVenta(objVentaDto));
+                
+        }
+        
+    } 
+    
+    
     @Override
     public List<ClienteSimpleDto> getClientesSimples() {
         
@@ -123,19 +140,12 @@ public class ClienteService implements IClienteService{
         objCliente.setNombre(objNuevo.getNombre());
         objCliente.setApellido(objNuevo.getApellido());
         objCliente.setDocumento(objNuevo.getDocumento());
-        
-        
-        //Recorremos todas las VentaDto que vienen en el objeto
-        for(VentaDto objVentaDto: objNuevo.getListVentas()){
             
-            /*Cada ventaDto se guarda como una venta normal con el método saveVenta de VentaService y como
-            este método devuelve la venta que se registró, la agregamos directamente a la lista de ventas 
-            del cliente*/
-            objCliente.getListVentas().add(ventaService.saveVenta(objVentaDto));
-                
-        }
+        /*LLammos al método que se encargue de agregar al cliente todas las ventas que corresponden a los 
+        objetos ventaDto que vienen en objNuevo */
+        addVentaDtoACliente(objCliente, objNuevo.getListVentas());
         
-        //Por último guardamos el cliente
+        //Por último guardamos al cliente
         clienteRepository.save(objCliente);
        
     }
@@ -182,12 +192,19 @@ public class ClienteService implements IClienteService{
         /*Para actualizar las ventas de un cliente, primero se deben elimiar las que estaban relacionadas 
         antes con el cliente ya que una venta no puede existir sin un cliente*/
         for(Venta objVenta: objCliente.getListVentas()){
-            ventaService.deleteVenta(objVenta.getIdVenta());
+            ventaService.deleteVenta(objVenta.getIdVenta());      
         }
         
-        //Una vez borradas, se le abre camino a las nuevas ventas
-        //objCliente.setListVentas(objActualizado.getListVentas());
+        /*Se debe limpiar la lista del objeto Cliente en memoria para que no se tengan en cuenta las ventas
+        ya eliminadas*/
+        objCliente.getListVentas().clear();     
         
+        /*Una vez borradas, se le abre camino a las nuevas ventas que viene en forma de objetos VentaDto las 
+        cuales serán convertidas a ventas normales y agregadas a objCiente. Esto lo haremos por medio del 
+        siguiente método:*/
+        addVentaDtoACliente(objCliente, objActualizado.getListVentas());
+        
+        //Actualizamos cliente
         clienteRepository.save(objCliente);
         
         return sacarClienteSimple(objCliente);

@@ -1,6 +1,7 @@
 package com.bazar.apibazar.model;
 
 import com.bazar.apibazar.dto.VentaDeClienteDto;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,8 +24,10 @@ public class Cliente {
     private String nombre;
     private String apellido;
     private String documento;
-    //Relación 1 a n con ventas 
-    @OneToMany
+    /*Relación 1 a n con ventas.
+    Nota: El "cascade" y el "orphanRemoval" se usan para que cuando se modifique un Cliente se mosifique
+    como en cascada también a sus ventas asociadas. En este caso será muy útil en la clase ClienteService*/
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval=true)
     @JoinColumn(name= "cliente_Id", referencedColumnName= "idCliente")
     private List<Venta> listVentas = new ArrayList<>();
 
