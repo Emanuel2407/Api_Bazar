@@ -225,20 +225,15 @@ public class ClienteService implements IClienteService{
         /*La implementación del método path en las ventas del cliente se va a hacer de una forma particular,
         en vez de reemplazar todas las ventas anteriores por nuevas ventas, todas las ventas que lleguen en
         objDto se van a adicionar a las ventas que ya existian, esto para generar un poco más de lógica ya
-        que no tiene mucho sentido cambiar las ventas compradas por un clienete por otras*/
+        que no tiene mucho sentido cambiar las ventas compradas por un clienete por otras
+        NOTA: Las nuevas ventas que se van a asignar deben crearse desde la misma request o petición ya que 
+        por eso la lista de ventas nuevas son puros objetos Dtos. Por otro lado si se quiere hacer la asignación
+        de una venta ya creada al Cliente solo con el id de de la venta, se debe usar el método ""*/
         if(!objDto.getListVentas().isEmpty()){
             
-            //Lista que contendrá tanto las ventas antiguas como las nuevas
-            List<Venta> listVentas = new ArrayList<>();
-            
-            //Agregamos las antiguas
-            for(Venta objVenta: objCliente.getListVentas()){listVentas.add(objVenta); }
-            
-            //Agregamos las nuevas
-            //for(Venta objVenta: objDto.getListVentas()){listVentas.add(objVenta);}
-            
-            //Las agregamos todas al cliente
-            //objCliente.setListVentas(objDto.getListVentas());
+            /*Para esto solo bastará con llamar al método "addVentaDtoACliente" pero en este caso no vamos a 
+            eliminar las ventas o relaciones que existian antes con el cliente*/
+            addVentaDtoACliente(objCliente, objDto.getListVentas());
         }
         
         clienteRepository.save(objCliente);
