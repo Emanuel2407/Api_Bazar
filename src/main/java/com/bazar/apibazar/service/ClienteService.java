@@ -1,5 +1,7 @@
 package com.bazar.apibazar.service;
 
+import com.bazar.apibazar.dto.ClienteAgregarVentasDto;
+import com.bazar.apibazar.dto.ClienteDeVentaDto;
 import com.bazar.apibazar.dto.ClienteDto;
 import com.bazar.apibazar.dto.ClienteSimpleDto;
 import com.bazar.apibazar.dto.ProductoDeVentaDto;
@@ -25,7 +27,7 @@ public class ClienteService implements IClienteService{
     
     //Inyección de dependencia para ventaService
     @Autowired
-    IVentaService ventaService; 
+    VentaService ventaService; 
     
     
     /*Método propio que se va a encargar de pasar de un cliente que tiene una serie de ventas y que estas
@@ -239,6 +241,41 @@ public class ClienteService implements IClienteService{
         clienteRepository.save(objCliente);
         
         return sacarClienteSimple(objCliente);
+    }
+    
+    
+    public ClienteSimpleDto addVentasACliente(Long idCliente, ClienteAgregarVentasDto nuevasVentas){
+        
+        //Buscamos el cliente
+        Cliente objCliente = findCliente(idCliente);
+        
+        if(objCliente == null){return null;}
+        
+        //Si la lista de los ids de las nuevas ventas está vacia, pues devolvemos al cliente con las ventas que ya tenía
+        /*NOTA: La lista de IDs está dentro de la clase ClienteAgregarVentasDto, por lo que al método no va a
+        llegar una lista directa con los IDs sino un objeto de esta clase que la contiene*/
+        if(nuevasVentas.getVentasIds().isEmpty()){sacarClienteSimple(objCliente);}
+        
+        //Si no está vacía la recorremo
+        for(Long idVenta: nuevasVentas.getVentasIds()){
+            
+            //Buscamos cada venta con el id correspondiente
+            Venta objVenta = ventaService.findVenta(idVenta);
+               
+            //Vemos si la venta pertenece o no a un cliente
+            ClienteDeVentaDto clienteDeVenta = ventaService.buscarClienteDeVenta(idVenta);
+            
+            //Verificamos si la Venta existe y si no pertence a ningún cliente
+            if(objVenta == null || clienteDeVenta!=null){continue;}
+            
+            objCliente.getListVentas().add(objVenta);
+            
+            clienteRepository.save(objCliente);
+            
+        }
+        
+        return sacarClienteSimple(objCliente);
+        
     }
 
     

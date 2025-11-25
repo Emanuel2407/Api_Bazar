@@ -32,7 +32,7 @@ public class VentaService implements IVentaService{
     
     //Inyección de dependencia para ProductoService
     @Autowired
-    IProductoService productoService; 
+    ProductoService productoService; 
     
     //Inyección de dependencia para ClienteService
     @Autowired
@@ -65,7 +65,7 @@ public class VentaService implements IVentaService{
     }
     
     //Método propio para encontrar el cliente de una determinada Venta
-    private ClienteDeVentaDto buscarClienteDeVenta(Long idVenta){
+    public ClienteDeVentaDto buscarClienteDeVenta(Long idVenta){
         
         //Recorrer todos los clientes registrados
         for(Cliente objCliente: clienteRepository.findAll()){

@@ -19,7 +19,7 @@ public interface IVentaService {
     
     //Se devuelve objeto Dto con una lista de simples productos
     VentaSimpleDto findVentaSimple(Long id);
-         
+    
     Venta saveVenta(VentaDto objNuevo);
     
     boolean deleteVenta(Long id);

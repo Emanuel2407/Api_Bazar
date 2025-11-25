@@ -1,5 +1,6 @@
 package com.bazar.apibazar.service;
 
+import com.bazar.apibazar.dto.ClienteAgregarVentasDto;
 import com.bazar.apibazar.dto.ClienteDto;
 import com.bazar.apibazar.dto.ClienteSimpleDto;
 import com.bazar.apibazar.dto.VentaSimpleDto;
@@ -25,4 +26,7 @@ public interface IClienteService {
     ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado);
     
     ClienteSimpleDto patchCliente(Long id, ClienteDto objDto);
+    
+    //Método para agregar una cierta cantidad de ventas a un cliente
+    ClienteSimpleDto addVentasACliente(Long idCliente, ClienteAgregarVentasDto nuevasVentas);
 }
