@@ -49,7 +49,7 @@ public class ProductoController {
     }
     
     //Productos con stock < 5
-    @GetMapping("/falta_stock")
+    @GetMapping("/falta-stock")
     public List<Producto> productosPocoStock(){
         return productoService.productosPocoStock();
     }

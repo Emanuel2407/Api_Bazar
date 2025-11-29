@@ -81,7 +81,7 @@ public class VentaController {
         return ResponseEntity.ok(infoVentas);
     }
     
-    @GetMapping("/mayor_venta")
+    @GetMapping("/mayor-venta")
     public ResponseEntity<?> findMayorVenta(){
         VentaResumenDto ventaMayorDto = ventaService.findMayorVenta();
         
@@ -138,7 +138,7 @@ public class VentaController {
     
     
     //Agregar productos a Venta existente
-    @PatchMapping("/agregar_productos/{id}")
+    @PatchMapping("/agregar-productos/{id}")
     public ResponseEntity<?> addProductosAventa(@PathVariable Long id, @RequestBody List<VentaProductoDto> productosNuevos){
         VentaSimpleDto objVenta = ventaService.addProductosAVenta(id, productosNuevos);
         
@@ -150,7 +150,7 @@ public class VentaController {
     }
     
     //Eliminar productos de Venta existente
-    @PatchMapping("/eliminar_productos/{id}")
+    @PatchMapping("/eliminar-productos/{id}")
     ResponseEntity<?> eliminarProductosDeVenta(@PathVariable Long id, @RequestBody List<VentaProductoDto> productosEliminados){
         VentaSimpleDto objVenta = ventaService.deleteProductosDeVenta(id, productosEliminados);
         

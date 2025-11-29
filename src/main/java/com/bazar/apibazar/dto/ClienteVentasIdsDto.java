@@ -7,14 +7,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter  @Setter
-public class ClienteAgregarVentasDto {
+public class ClienteVentasIdsDto {
     
     List<Long> ventasIds = new ArrayList<>();
-
-    public ClienteAgregarVentasDto() {
+//
+    public ClienteVentasIdsDto() {
     }    
     
-    public ClienteAgregarVentasDto(List<Long> ventasIds) {
+    public ClienteVentasIdsDto(List<Long> ventasIds) {
         this.ventasIds = ventasIds;
     } 
 }

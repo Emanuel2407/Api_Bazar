@@ -1,6 +1,6 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.ClienteAgregarVentasDto;
+import com.bazar.apibazar.dto.ClienteVentasIdsDto;
 import com.bazar.apibazar.dto.ClienteDto;
 import com.bazar.apibazar.dto.ClienteSimpleDto;
 import com.bazar.apibazar.model.Cliente;
@@ -89,8 +89,8 @@ public class ClienteController {
         return ResponseEntity.ok(objCliente);
     }
     
-    @PatchMapping("/addVentas/{id}")
-    public ResponseEntity<?> addVentasACliente(@PathVariable Long id, @RequestBody ClienteAgregarVentasDto nuevasVentas){
+    @PatchMapping("/add-ventas/{id}")
+    public ResponseEntity<?> addVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
         ClienteSimpleDto objCliente = clienteService.addVentasACliente(id, nuevasVentas);
         
         if(objCliente == null){
@@ -100,6 +100,17 @@ public class ClienteController {
         return ResponseEntity.ok(objCliente);
     }
     
-    
+    @PatchMapping("/delete-ventas/{id}")
+    public ResponseEntity<?> DropVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
+        ClienteSimpleDto objCliente = clienteService.dropVentasACliente(id, nuevasVentas);
+        
+        if(objCliente == null){
+            
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));    
+            
+        }
+        return ResponseEntity.ok(objCliente);
+        
+    }
     
 }

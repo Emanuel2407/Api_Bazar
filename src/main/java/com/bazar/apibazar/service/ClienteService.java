@@ -1,6 +1,6 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.ClienteAgregarVentasDto;
+import com.bazar.apibazar.dto.ClienteVentasIdsDto;
 import com.bazar.apibazar.dto.ClienteDeVentaDto;
 import com.bazar.apibazar.dto.ClienteDto;
 import com.bazar.apibazar.dto.ClienteSimpleDto;
@@ -244,7 +244,7 @@ public class ClienteService implements IClienteService{
     }
     
     
-    public ClienteSimpleDto addVentasACliente(Long idCliente, ClienteAgregarVentasDto nuevasVentas){
+    public ClienteSimpleDto addVentasACliente(Long idCliente, ClienteVentasIdsDto nuevasVentas){
         
         //Buscamos el cliente
         Cliente objCliente = findCliente(idCliente);
@@ -276,6 +276,47 @@ public class ClienteService implements IClienteService{
         
         return sacarClienteSimple(objCliente);
         
+    }
+
+    @Override
+    public ClienteSimpleDto dropVentasACliente(Long idCliente, ClienteVentasIdsDto ventasAEliminar) {
+        
+        //Buscamos cliente
+        Cliente objCliente = findCliente(idCliente);
+        
+        if(objCliente == null){return null;}
+        
+        //Recorremos todos los ids de las ventas que se mandaron a eliminar 
+        for(Long idVentaAEliminar: ventasAEliminar.getVentasIds()){
+            
+            //Buscamos la venta asociada a cada id que venga en la lista de ventasAEliminar
+            Venta ventaAEliminar = ventaService.findVenta(idVentaAEliminar);
+            
+            //Si esa venta no existe, pasamos a la siguiente
+            if(ventaAEliminar == null){continue;}
+            
+            //Si existe, recorremos todas las ventas asociadas al cliente para irlas comparando con la venta a eliminar
+            for(Venta objVenta: objCliente.getListVentas()){
+                
+                //Buscamos la venta a eliminar entre las ventas de objCliente
+                if(idVentaAEliminar == objVenta.getIdVenta()){
+                    
+                    //Si la encontramos, primero la eliminamos del objeto
+                    objCliente.getListVentas().remove(ventaAEliminar);
+                    
+                    //Eliminamos la venta, ya que no tiene sentido que exista sin un cliente 
+                    ventaService.deleteVenta(idVentaAEliminar);
+                    
+                    //Y luego la eliminamos en la database
+                    clienteRepository.save(objCliente);
+                    
+                    //Cerramos el bucle interno para pasar a la siguiente venta que se desea eliminar
+                    break;
+                }
+            }
+        }
+        
+        return sacarClienteSimple(objCliente);
     }
 
     
