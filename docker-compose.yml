@@ -1,0 +1,31 @@
+services:
+  app_apibazar:
+    build: .
+    mem_limit: 512m
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    restart: always
+    depends_on:
+      db_apibazar:
+        condition: service_healthy
+  db_apibazar:
+    image: mysql:8.0.33 
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_USER_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+    volumes:
+      - db_data:/var/lib/mysql    
+
+volumes:
+  db_data:

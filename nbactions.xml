@@ -15,6 +15,9 @@
                 <exec.appArgs></exec.appArgs>
                 <exec.mainClass>com.bazar.apibazar.ApibazarApplication</exec.mainClass>
                 <exec.executable>java</exec.executable>
+                <Env.DB_URL>jdbc:mysql://localhost:3306/bd_bazar?useSSL=false&amp;createDatabaseIfNotExist=true&amp;serverTimezone=UTC</Env.DB_URL>
+                <Env.DB_USER>Ema</Env.DB_USER>
+                <Env.DB_PASSWORD>2407</Env.DB_PASSWORD>
             </properties>
         </action>
         <action>
