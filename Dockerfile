@@ -12,6 +12,9 @@ COPY .mvn .mvn
 COPY pom.xml .
 COPY src src
 
+#dar permisos de ejecución al Mave-wrapper
+RUN chmod +x mvnw 
+
 # AQUÍ Railway compila y genera el JAR
 RUN ./mvnw clean package -DskipTests
 
