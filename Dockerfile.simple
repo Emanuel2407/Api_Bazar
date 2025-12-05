@@ -1,0 +1,8 @@
+#Docker file simple para Hostings que permitan subir el .jar desde local como DonWeb 
+#(En este caso no se usará, ya que el deploy se desarrollará con Railway)
+
+FROM eclipse-temurin:17-jdk-alpine
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} apibazar.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "apibazar.jar"]
