@@ -38,4 +38,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(buildExceptionResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
+
+    //Handler para excepción VentaNotFound
+    @ExceptionHandler(VentaNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlerVentaNotFound(VentaNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildExceptionResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
 }
