@@ -3,12 +3,9 @@ package com.bazar.apibazar.controller;
 import com.bazar.apibazar.dto.ClienteVentasIdsDto;
 import com.bazar.apibazar.dto.ClienteDto;
 import com.bazar.apibazar.dto.ClienteSimpleDto;
-import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.service.IClienteService;
-import com.bazar.apibazar.utils.ResponseUtil;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/clientes")
 public class ClienteController {
     
-    //Inyección de dependecia para ClienteService
+    //Inyección de dependencia para ClienteService
     @Autowired
     IClienteService clienteService;
     
@@ -39,14 +36,7 @@ public class ClienteController {
     //Traer uno
     @GetMapping("/{id}")
     public ResponseEntity<?> findCliente(@PathVariable Long id){
-        ClienteSimpleDto objCliente = clienteService.findClienteSimple(id);
-        
-        if(objCliente == null){
-            //Si no existe registro, se le envia un error personalizado al usuario indicandoselo
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
-        }
-        
-        return ResponseEntity.ok(objCliente);
+        return ResponseEntity.ok(clienteService.findClienteSimple(id));
         
     }
     
@@ -57,59 +47,30 @@ public class ClienteController {
     //Eliminamos
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCliente(@PathVariable Long id){
-        
-        if(clienteService.deleteCliente(id)){
-            return ResponseEntity.ok().build();
-        }
-        
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
+        clienteService.deleteCliente(id);
+        return ResponseEntity.noContent().build();
     }
     
-    //Actualizamos 
+    //Actualización total
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCliente(@PathVariable Long id, @RequestBody ClienteDto objActualizado){
-        ClienteSimpleDto objCliente = clienteService.updateCliente(id, objActualizado);
-        
-        if(objCliente == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
-        }
-        
-        return ResponseEntity.ok(objCliente);
+        return ResponseEntity.ok(clienteService.updateCliente(id, objActualizado));
     }
     
     //Actualización parcial
     @PatchMapping("/{id}")
     public ResponseEntity<?> patchCliente(@PathVariable Long id, @RequestBody ClienteDto objDto){
-        ClienteSimpleDto objCliente = clienteService.patchCliente(id, objDto);
-        
-        if(objCliente == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
-        }
-        
-        return ResponseEntity.ok(objCliente);
+        return ResponseEntity.ok(clienteService.patchCliente(id, objDto));
     }
     
     @PatchMapping("/add-ventas/{id}")
     public ResponseEntity<?> addVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
-        ClienteSimpleDto objCliente = clienteService.addVentasACliente(id, nuevasVentas);
-        
-        if(objCliente == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));
-        }
-        
-        return ResponseEntity.ok(objCliente);
+        return ResponseEntity.ok(clienteService.addVentasACliente(id, nuevasVentas));
     }
     
     @PatchMapping("/delete-ventas/{id}")
     public ResponseEntity<?> DropVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
-        ClienteSimpleDto objCliente = clienteService.dropVentasACliente(id, nuevasVentas);
-        
-        if(objCliente == null){
-            
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.notFound(id));    
-            
-        }
-        return ResponseEntity.ok(objCliente);
+        return ResponseEntity.ok(clienteService.dropVentasACliente(id, nuevasVentas));
         
     }
     
