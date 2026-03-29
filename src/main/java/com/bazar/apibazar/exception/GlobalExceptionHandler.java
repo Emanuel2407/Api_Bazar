@@ -31,4 +31,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(buildExceptionResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
+
+    //Handler para excepción ProductoNotFound
+    @ExceptionHandler(ProductoNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlerProductoNotFound(ProductoNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildExceptionResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
 }
