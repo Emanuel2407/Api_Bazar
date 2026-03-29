@@ -21,7 +21,7 @@ public interface IClienteService {
     
     void saveCliente(ClienteDto objNuevo);
     
-    boolean deleteCliente(Long id);
+    void deleteCliente(Long id);
     
     ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado);
     

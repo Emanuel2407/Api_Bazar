@@ -7,6 +7,7 @@ import com.bazar.apibazar.dto.ClienteSimpleDto;
 import com.bazar.apibazar.dto.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.VentaDeClienteDto;
 import com.bazar.apibazar.dto.VentaDto;
+import com.bazar.apibazar.exception.ClienteNotFoundException;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.model.Venta;
@@ -40,20 +41,20 @@ public class ClienteService implements IClienteService{
         
         //Lista para almacenar todas las ventas en formato simple del cliente
         List<VentaDeClienteDto> listVentas = new ArrayList<>();
-        
+
+        //Lista para almacenar todos los productos en formato simple de las ventas del cliente
+        List<ProductoDeVentaDto> listProductos = new ArrayList<>();
+
         //Recorrer ventas
         for(Venta objVenta: objCliente.getListVentas()){
-            
-            //Lista para almacenar todos los productos en formato simple de las ventas del cliente
-            List<ProductoDeVentaDto> listProductos = new ArrayList<>();
-            
-            //Recorrer los productos que estan en formato VentaProducto para convertir a formato simple
+
+            //Recorrer los productos que están en formato VentaProducto para convertir a formato simple
             for(VentaProducto objVP: objVenta.getListProductos()){
                     
                 //Sacar el producto asociado a la relación
                 Producto objProducto = objVP.getProducto();
                     
-                //Agregar cadad producto transformado a la lista que los almacena 
+                //Agregar cada producto transformado a la lista que los almacena
                 listProductos.add(new ProductoDeVentaDto(objProducto.getIdProducto(), objProducto.getNombre(),
                         objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));              
             }
@@ -61,6 +62,9 @@ public class ClienteService implements IClienteService{
             //Agregar cada venta simplificada con los productos simples a la lista de ventas 
             listVentas.add(new VentaDeClienteDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
                     objVenta.getCantidadTotalProductos(), listProductos));
+
+            //Vaciamos lista de productos y vamos con la siguiente venta
+            listProductos.clear();
                   
         }
         
@@ -70,7 +74,7 @@ public class ClienteService implements IClienteService{
         
     }
     
-    /*Método propio para cambiar las ventas Dto que vienen en un objeto ClienteDto a ventas nomales para 
+    /*Método propio para cambiar las ventas Dto que vienen en un objeto ClienteDto a ventas normales para
     clientes normales*/
     private void addVentaDtoACliente(Cliente objCliente, List<VentaDto> listVentas){
         
@@ -97,7 +101,7 @@ public class ClienteService implements IClienteService{
         for(Cliente objCliente: getClientes()){
             
             /*Llamamos la método que se va a encargar de transformar un Cliente ordinario en uno mas simple.
-            Le mandamos como parametro cada uno de los clientes registrados y vamos agregando a la lista*/
+            Le mandamos como parámetro cada uno de los clientes registrados y vamos agregando a la lista*/
             listClientes.add(sacarClienteSimple(objCliente));
         }
         
@@ -110,8 +114,6 @@ public class ClienteService implements IClienteService{
         
         Cliente objCliente = findCliente(id);
         
-        if(objCliente == null){return null;}
-        
         //Llamamos la método que se va a encargar de transformar un Cliente ordinario en uno mas simple.
         return(sacarClienteSimple(objCliente));
         
@@ -123,13 +125,12 @@ public class ClienteService implements IClienteService{
         return clienteRepository.findAll();
     }
 
+
     //Método privado find normalito
     private Cliente findCliente(Long id) {
         Optional<Cliente> objCliente = clienteRepository.findById(id);
         
-        if(objCliente.isEmpty()){
-            return null;
-        }
+        if(objCliente.isEmpty()){throw new ClienteNotFoundException("No se encontró cliente con id: " + id);}
         
         return objCliente.get();
         
@@ -143,7 +144,7 @@ public class ClienteService implements IClienteService{
         objCliente.setApellido(objNuevo.getApellido());
         objCliente.setDocumento(objNuevo.getDocumento());
             
-        /*LLammos al método que se encargue de agregar al cliente todas las ventas que corresponden a los 
+        /*Llamamos al método que se encargue de agregar al cliente todas las ventas que corresponden a los
         objetos ventaDto que vienen en objNuevo */
         addVentaDtoACliente(objCliente, objNuevo.getListVentas());
         
@@ -153,48 +154,41 @@ public class ClienteService implements IClienteService{
     }
 
     @Override
-    public boolean deleteCliente(Long id) {
-        
+    public void deleteCliente(Long id) {
+        //Su busca el cliente y se confirma existencia
         Cliente objCliente = findCliente(id);
-        
-        if(objCliente != null){
             
-           /*Como no puede existir una venta sin su cliente, al momento de eliminar al cliente debemos eliminar
+        /*Como no puede existir una venta sin su cliente, al momento de eliminar al cliente debemos eliminar
            todas las ventas que este tiene, y al momento de eliminar las ventas debemos eliminar también las 
            relaciones que cada una de estas tenga con los diferentes productos*/
-            for(Venta objVenta: objCliente.getListVentas()){
-               
-                //El método deleteVenta se encarga tanto de borrar las relaciones como de borrar la venta 
-                ventaService.deleteVenta(objVenta.getIdVenta());
-            }
-           
-            //Limpiamos la lista del cliente para que quede vacia
-            objCliente.getListVentas().clear();
-           
-            //Luego solo nos falta eliminar al cliente
-            clienteRepository.deleteById(id);
-            
-            return true;
-            
+        for (Venta objVenta : objCliente.getListVentas()) {
+
+            //El método deleteVenta se encarga tanto de borrar las relaciones como de borrar la venta
+            ventaService.deleteVenta(objVenta.getIdVenta());
         }
-        
-        return false;
+
+        //Limpiamos la lista del cliente para que quede vacía
+        objCliente.getListVentas().clear();
+
+        //Luego solo nos falta eliminar al cliente
+        clienteRepository.deleteById(id);
+
+
     }
 
     @Override
     public ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado) {
         Cliente objCliente = findCliente(id);
-        
-        if(objCliente == null){return null;}
-        
+
+        //Actualizamos datos del cliente
         objCliente.setNombre(objActualizado.getNombre());
         objCliente.setApellido(objActualizado.getApellido());
         objCliente.setDocumento(objActualizado.getDocumento());
         
-        /*Para actualizar las ventas de un cliente, primero se deben elimiar las que estaban relacionadas 
-        antes con el cliente ya que una venta no puede existir sin un cliente*/
-        for(Venta objVenta: objCliente.getListVentas()){
-            ventaService.deleteVenta(objVenta.getIdVenta());      
+        /*Para actualizar las ventas de un cliente, primero se deben eliminar las que estaban relacionadas
+        antes con el cliente; ya que una venta no puede existir sin un cliente*/
+        for (Venta objVenta : objCliente.getListVentas()) {
+            ventaService.deleteVenta(objVenta.getIdVenta());
         }
         
         /*Se debe limpiar la lista del objeto Cliente en memoria para que no se tengan en cuenta las ventas
@@ -202,13 +196,13 @@ public class ClienteService implements IClienteService{
         objCliente.getListVentas().clear();     
         
         /*Una vez borradas, se le abre camino a las nuevas ventas que viene en forma de objetos VentaDto las 
-        cuales serán convertidas a ventas normales y agregadas a objCiente. Esto lo haremos por medio del 
+        cuales serán convertidas a ventas normales y agregadas a objCliente. Esto lo haremos por medio del
         siguiente método:*/
         addVentaDtoACliente(objCliente, objActualizado.getListVentas());
-        
+
         //Actualizamos cliente
         clienteRepository.save(objCliente);
-        
+
         return sacarClienteSimple(objCliente);
         
         
@@ -217,29 +211,34 @@ public class ClienteService implements IClienteService{
     @Override
     public ClienteSimpleDto patchCliente(Long id, ClienteDto objDto) {
         Cliente objCliente = findCliente(id);
-        
-        if(objCliente == null){return null;}
-        
-        if(objDto.getNombre() != null){objCliente.setNombre(objDto.getNombre());}
-        if(objDto.getApellido() != null){objCliente.setApellido(objDto.getApellido());}
-        if(objDto.getDocumento() != null){objCliente.setDocumento(objDto.getDocumento());}  
+
+        //Actualizamos solo los datos enviados
+        if (objDto.getNombre() != null) {
+            objCliente.setNombre(objDto.getNombre());
+        }
+        if (objDto.getApellido() != null) {
+            objCliente.setApellido(objDto.getApellido());
+        }
+        if (objDto.getDocumento() != null) {
+            objCliente.setDocumento(objDto.getDocumento());
+        }
         
         /*La implementación del método path en las ventas del cliente se va a hacer de una forma particular,
         en vez de reemplazar todas las ventas anteriores por nuevas ventas, todas las ventas que lleguen en
-        objDto se van a adicionar a las ventas que ya existian, esto para generar un poco más de lógica ya
-        que no tiene mucho sentido cambiar las ventas compradas por un clienete por otras
+        objDto se van a adicionar a las ventas que ya existían, esto para generar un poco más de lógica ya
+        que no tiene mucho sentido cambiar las ventas compradas por un cliente.
         NOTA: Las nuevas ventas que se van a asignar deben crearse desde la misma request o petición ya que 
-        por eso la lista de ventas nuevas son puros objetos Dtos. Por otro lado si se quiere hacer la asignación
+        por eso la lista de ventas nuevas son puros objetos DTOs. Por otro lado si se quiere hacer la asignación
         de una venta ya creada al Cliente solo con el id de de la venta, se debe usar el método ""*/
-        if(!objDto.getListVentas().isEmpty()){
+        if (!objDto.getListVentas().isEmpty()) {
             
             /*Para esto solo bastará con llamar al método "addVentaDtoACliente" pero en este caso no vamos a 
-            eliminar las ventas o relaciones que existian antes con el cliente*/
+            eliminar las ventas o relaciones que existían antes con el cliente*/
             addVentaDtoACliente(objCliente, objDto.getListVentas());
         }
-        
+
         clienteRepository.save(objCliente);
-        
+
         return sacarClienteSimple(objCliente);
     }
     
@@ -249,23 +248,21 @@ public class ClienteService implements IClienteService{
         //Buscamos el cliente
         Cliente objCliente = findCliente(idCliente);
         
-        if(objCliente == null){return null;}
-        
-        //Si la lista de los ids de las nuevas ventas está vacia, pues devolvemos al cliente con las ventas que ya tenía
+        //Si la lista de los ids de las nuevas ventas está vacía, pues devolvemos al cliente con las ventas que ya tenía
         /*NOTA: La lista de IDs está dentro de la clase ClienteAgregarVentasDto, por lo que al método no va a
         llegar una lista directa con los IDs sino un objeto de esta clase que la contiene*/
         if(nuevasVentas.getVentasIds().isEmpty()){sacarClienteSimple(objCliente);}
         
-        //Si no está vacía la recorremo
+        //Si no está vacía la recorremos
         for(Long idVenta: nuevasVentas.getVentasIds()){
             
-            //Buscamos cada venta con el id correspondiente
+            //Buscamos cada venta con el ID correspondiente
             Venta objVenta = ventaService.findVenta(idVenta);
                
             //Vemos si la venta pertenece o no a un cliente
             ClienteDeVentaDto clienteDeVenta = ventaService.buscarClienteDeVenta(idVenta);
             
-            //Verificamos si la Venta existe y si no pertence a ningún cliente
+            //Verificamos si la Venta existe y si no pertenece a ningún cliente
             if(objVenta == null || clienteDeVenta!=null){continue;}
             
             objCliente.getListVentas().add(objVenta);
@@ -284,8 +281,6 @@ public class ClienteService implements IClienteService{
         //Buscamos cliente
         Cliente objCliente = findCliente(idCliente);
         
-        if(objCliente == null){return null;}
-        
         //Recorremos todos los ids de las ventas que se mandaron a eliminar 
         for(Long idVentaAEliminar: ventasAEliminar.getVentasIds()){
             
@@ -299,7 +294,7 @@ public class ClienteService implements IClienteService{
             for(Venta objVenta: objCliente.getListVentas()){
                 
                 //Buscamos la venta a eliminar entre las ventas de objCliente
-                if(idVentaAEliminar == objVenta.getIdVenta()){
+                if(idVentaAEliminar.equals(objVenta.getIdVenta())){
                     
                     //Si la encontramos, primero la eliminamos del objeto
                     objCliente.getListVentas().remove(ventaAEliminar);
