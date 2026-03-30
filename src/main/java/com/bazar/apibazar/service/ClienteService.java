@@ -36,11 +36,10 @@ public class ClienteService implements IClienteService{
         //Lista para almacenar todas las ventas en formato simple del cliente
         List<VentaDeClienteDto> listVentas = new ArrayList<>();
 
-        //Lista para almacenar todos los productos en formato simple de las ventas del cliente
-        List<ProductoDeVentaDto> listProductos = new ArrayList<>();
-
         //Recorrer ventas
         for(Venta objVenta: objCliente.getListVentas()){
+            //Lista para almacenar todos los productos en formato simple de las ventas del cliente
+            List<ProductoDeVentaDto> listProductos = new ArrayList<>();
 
             //Recorrer los productos que están en formato VentaProducto para convertir a formato simple
             for(VentaProducto objVP: objVenta.getListProductos()){
@@ -56,9 +55,6 @@ public class ClienteService implements IClienteService{
             //Agregar cada venta simplificada con los productos simples a la lista de ventas 
             listVentas.add(new VentaDeClienteDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
                     objVenta.getCantidadTotalProductos(), listProductos));
-
-            //Vaciamos lista de productos y vamos con la siguiente venta
-            listProductos.clear();
                   
         }
         
