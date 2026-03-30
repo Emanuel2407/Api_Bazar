@@ -292,6 +292,30 @@ public class VentaService implements IVentaService{
         return sacarVentaSimple(objVenta);
     }
 
+    //Método consumido por cliente-service para registrar una venta
+    public Venta guardarVenta(VentaDto objNuevo) {
+        Venta objVenta = new Venta();
+
+        //Migramos datos del objeto Dto. al objeto Venta
+        objVenta.setFechaVenta(objNuevo.getFechaVenta());
+
+        //Primero se guarda la venta sin los productos para obtener su id
+        ventaRepository.save(objVenta);
+
+        /*Llamamos al método que se encargue de crear las relaciones entre la venta y cada uno de los productos
+        que llegaron como objetos VentaProductoDto en el objeto Dto de venta llamado objNuevo*/
+        crearRelacionVentaProducto(objNuevo.getListProductos(), objVenta);
+
+
+        //Guardamos nuevamente pero ahora con el total de la venta
+        ventaRepository.save(objVenta);
+
+        /*Retornamos el objeto de la venta que se registró, ya que nos será útil en el método "saveCliente"
+        de la clase "cliente"*/
+        return objVenta;
+    }
+
+
     @Override
     public void deleteVenta(Long id) {
         //Buscamos venta para validar existencia
