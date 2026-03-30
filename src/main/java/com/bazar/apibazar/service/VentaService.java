@@ -6,13 +6,13 @@ import com.bazar.apibazar.dto.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.VentaDto;
 import com.bazar.apibazar.dto.VentaProductoDto;
 import com.bazar.apibazar.dto.VentaResumenDto;
+import com.bazar.apibazar.exception.VentaNotFoundException;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.model.Venta;
 import com.bazar.apibazar.model.VentaProducto;
 import com.bazar.apibazar.model.VentaProductoId;
 import com.bazar.apibazar.repository.IClienteRepository;
-import com.bazar.apibazar.repository.IProductoRepository;
 import com.bazar.apibazar.repository.IVentaProductoRepository;
 import com.bazar.apibazar.repository.IVentaRepository;
 import jakarta.transaction.Transactional;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class VentaService implements IVentaService{
             
-    //Inyección de dependecia para VentaRepository
+    //Inyección de dependencia para VentaRepository
     @Autowired
     IVentaRepository ventaRepository;
     
@@ -43,7 +43,7 @@ public class VentaService implements IVentaService{
     @Autowired
     IVentaProductoRepository vpRepository;
     
-    /*Método propio para calcular el total final de una venta a partir de cada uno de los subTtotales de 
+    /*Método propio para calcular el total final de una venta a partir de cada uno de los subtotales de
     sus productos*/
     private Double calcularTotalVenta(Venta objVenta){
         if(objVenta == null){return 0.0;}
@@ -73,8 +73,8 @@ public class VentaService implements IVentaService{
             //Recorrer las ventas de cada cliente
             for(Venta objVenta: objCliente.getListVentas()){
                 
-                //Si entontramos el cliente lo retornamos
-                if(objVenta.getIdVenta() == idVenta){return new ClienteDeVentaDto(objCliente.getNombre(),
+                //Si encontramos el cliente lo retornamos
+                if(objVenta.getIdVenta().equals(idVenta)){return new ClienteDeVentaDto(objCliente.getNombre(),
                         objCliente.getApellido(), objCliente.getDocumento());}
             }
         }
@@ -84,11 +84,11 @@ public class VentaService implements IVentaService{
     }
     
 
-    /*Método propio para elimiar todas las relaciones de una venta con cada uno de los productos asociados en la
+    /*Método propio para eliminar todas las relaciones de una venta con cada uno de los productos asociados en la
     tabla intermedia VentaProducto*/
     public void eliminarRelacionVentaProducto(Venta objVenta){
-        
-        //Lista donde se van a guardar los productos que van a ser elimados de la venta con el stock actualizado
+
+        //Lista donde se van a guardar los productos que van a ser eliminados de la venta con el stock actualizado
         List<Producto> listProductosNuevoStock = new ArrayList<>();
         
         /*Primero recorremos la lista VentaProducto de la venta*/
@@ -97,12 +97,12 @@ public class VentaService implements IVentaService{
             //Encontramos cada Producto asociado a la relación
             Producto objProducto = objVP.getProducto();
                 
-            //Le devolvemos toda el stock que habia en la relación al producto correspondiente
+            //Le devolvemos todo el stock que había en la relación al producto correspondiente
             if(objProducto != null){
                 objProducto.setCantidadDisponible(objProducto.getCantidadDisponible() + objVP.getCantidad());
-                
-                //Agregamos productoas a la lista de productos actualizados
-                listProductosNuevoStock.add(objProducto);          
+
+                //Agregamos productos a la lista de productos actualizados
+                listProductosNuevoStock.add(objProducto);
             }    
                 
         }
@@ -110,37 +110,37 @@ public class VentaService implements IVentaService{
         //Actualizamos los productos con un nuevo Stock
         productoService.saveAll(listProductosNuevoStock);
             
-        /*Eliminamos todos los Productos de la venta, osea todos los registros relacionados con la venta
+        /*Eliminamos todos los Productos de la venta, es decir, todos los registros relacionados con la venta
         en la tabla intermedia*/
         vpRepository.deleteAll(objVenta.getListProductos());
         
         /*Limpiamos la lista de productos del objeto objVenta para evitar que sean buscados cuando se 
-        actualice la venta ya que como fueron eliminados, no serán encontrados y lanzará error*/
+        actualice la venta, ya que como fueron eliminados, no serán encontrados y lanzará error*/
         objVenta.getListProductos().clear();
       
     }
     
     
-    //Método propio para cear la relación entre una venta y cada uno de los productos con los que se va a relacionar
+    //Método propio para crear la relación entre una venta y cada uno de los productos con los que se va a relacionar
     private void crearRelacionVentaProducto(List<VentaProductoDto> listProductos, Venta objVenta){
         
-        /*Como es una relación ManyToMany entre Venta y Producto y la venta no tiene simples objetos Productos
+        /*Como es una relación ManyToMany entre Venta y Producto y la venta no tiene simples objetos Productos,
         sino objetos DTO de la tabla intermedia VentaProducto, para poder hacer la relación lo primero que se
         debe hacer es un bucle for-each para recorrer todos los objetos VentaProductoDto que vienen en la venta*/
         for(VentaProductoDto objDto: listProductos){
             
-            //Buscamos el producto relacionado con el id que vino en objDto
+            //Buscamos el producto relacionado con el ID que vino en objDto
             Producto objProducto = productoService.findProducto(objDto.getProductoId());
             
             //Guardamos la cantidad de cada producto que se asignará a la venta en cuestión
             Integer cantidadProducto = objDto.getCantidad();
             
-            /*Para que un productos que llega en objNuevo puedan ser agregado a la relación con la nueva venta,
+            /*Para que un producto (que llega en objNuevo) pueda ser agregado a la relación con la nueva venta,
             tiene que pasar dos filtros que demuestren que efectivamente está disponible, estos filtros se ven
-            claramente en el condicional siguiente:*/
+            claramente en el condicional*/
             if(objProducto != null && objProducto.getCantidadDisponible() >= cantidadProducto){
                 
-                /*Este solo es el sub-total entre una venta y un producto ya que el precio puede variar
+                /*Este solo es el subtotal entre una venta y un producto, ya que el precio puede variar
                 dependiendo de la cantidad que se aparte para la venta. No confundir con el total final de la 
                 venta*/
                 Double subTotal = objProducto.getCosto() * cantidadProducto;
@@ -165,7 +165,7 @@ public class VentaService implements IVentaService{
     private void crearRegistroVentaProducto(Venta objVenta, Producto objProducto, Integer cantidadProducto, Double subTotal){
         VentaProducto objRelacion = new VentaProducto();
             
-        /*Creamos la PK compuesta del registro en cuestión la cual recibe como parámetro las PKs
+        /*Creamos la PK compuesta del registro en cuestión la cual recibe como parámetro las PK
         de las tablas relacionadas (Venta y Producto)*/
         objRelacion.setId(new VentaProductoId(objVenta.getIdVenta(), objProducto.getIdProducto()));
                 
@@ -197,7 +197,7 @@ public class VentaService implements IVentaService{
         //Lista que va a contener los productos simplificados de la venta
         List<ProductoDeVentaDto> listProductos = new ArrayList<>();
 
-        //Bucle for-each para recorrer todos los objetos VentaParoducto de la venta
+        //Bucle for-each para recorrer todos los objetos VentaProducto de la venta
         for(VentaProducto objVP: objVenta.getListProductos()){
             
             Producto objProducto = objVP.getProducto();
@@ -205,7 +205,7 @@ public class VentaService implements IVentaService{
             //Si el producto es null, no se agrega a la lista
             if(objProducto == null){continue; }
             
-            /*La lista se llena con objetos Dtos ya que hay unos datos que nos interesan y otros que no
+            /*La lista se llena con objetos DTO, ya que hay unos datos que nos interesan y otros que no
             en la clase Producto.*/
             listProductos.add(new ProductoDeVentaDto(objProducto.getIdProducto(), objProducto.getNombre(),
                         objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
@@ -231,7 +231,7 @@ public class VentaService implements IVentaService{
                 
                 Producto objProducto = objVP.getProducto();
                 
-                /*La lista se llena con objetos Dtos ya que hay unos datos que nos interesan y otros que no
+                /*La lista se llena con objetos DTO, ya que hay unos datos que nos interesan y otros que no
                 en la clase Producto*/
                 listProductos.add(new ProductoDeVentaDto(objProducto.getIdProducto(), objProducto.getNombre(),
                         objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
@@ -248,8 +248,6 @@ public class VentaService implements IVentaService{
     public VentaSimpleDto findVentaSimple(Long id) {
         Venta objVenta = findVenta(id);
         
-        if(objVenta == null){return null;}
-        
         /*e llama al método que se encargue de cambiar todos los productos VentaProducto de una Venta a 
         productos simples y así evitar recursividad infinita*/
         return sacarVentaSimple(objVenta);
@@ -265,7 +263,7 @@ public class VentaService implements IVentaService{
     public Venta findVenta(Long id) {
         Optional<Venta> objVenta = ventaRepository.findById(id);
         
-        if(objVenta.isEmpty()){return null;}
+        if(objVenta.isEmpty()){throw new VentaNotFoundException("No se encontró venta con id: " + id);}
         
         return objVenta.get();
     }
@@ -274,13 +272,13 @@ public class VentaService implements IVentaService{
     public Venta saveVenta(VentaDto objNuevo) {
         Venta objVenta = new Venta();
         
-        //Migramos datos del objeto Dto al objeto Venta
+        //Migramos datos del objeto Dto. al objeto Venta
         objVenta.setFechaVenta(objNuevo.getFechaVenta());   
         
         //Primero se guarda la venta sin los productos para obtener su id
         ventaRepository.save(objVenta);
         
-        /*LLamamos al método que se encargue de crear las relaciones entre la venta y cada uno de los productos
+        /*Llamamos al método que se encargue de crear las relaciones entre la venta y cada uno de los productos
         que llegaron como objetos VentaProductoDto en el objeto Dto de venta llamado objNuevo*/
         crearRelacionVentaProducto(objNuevo.getListProductos(), objVenta);
         
@@ -295,33 +293,23 @@ public class VentaService implements IVentaService{
 
     @Override
     public boolean deleteVenta(Long id) {
-        
         Venta objVenta = findVenta(id);
-        
-        if(objVenta != null){
             
-            /*LLamamos al método que se va a encargar de borrar las relaciones de la venta con cada uno de los
+        /*Llamamos al método que se va a encargar de borrar las relaciones de la venta con cada uno de los
             productos que tenía asociado*/
-            eliminarRelacionVentaProducto(objVenta);
-            
-            
-            //Ahora si eliminamos la venta 
-            ventaRepository.deleteById(id);
-            
-            return true;
-        }
-        
-        return false;
+        eliminarRelacionVentaProducto(objVenta);
+
+        //Ahora sí eliminamos la venta
+        ventaRepository.deleteById(id);
+
+        return true;
     }
 
     @Override
     public VentaSimpleDto updateVenta(Long id, VentaDto objActualizado) {
         Venta objVenta = findVenta(id);
         
-        //Si no existe retornamos null
-        if(objVenta == null){return null;}
-        
-        //Actualizamos datos de la venta en cuestion
+        //Actualizamos datos de la venta en cuestión
         objVenta.setFechaVenta(objActualizado.getFechaVenta());
 
         /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
@@ -342,9 +330,6 @@ public class VentaService implements IVentaService{
     @Override
     public VentaSimpleDto patchVenta(Long id, VentaDto objDto) {
         Venta objVenta = findVenta(id);
-        
-        //Si no existe retornamos null
-        if(objVenta == null){return null;}
         
         //Actualizamos fecha de la venta 
         if(objDto.getFechaVenta() != null){objVenta.setFechaVenta(objDto.getFechaVenta());}
@@ -370,14 +355,11 @@ public class VentaService implements IVentaService{
     
     @Override
     public VentaSimpleDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
-        
         //Buscamos venta a realizar la insercción de productos
         Venta objVenta = findVenta(id);
         
-        if(objVenta == null){return null;}
-        
         /*Si bien los productos que vamos a agregar son los que llegan en "productosNuevos", debemos diferenciar
-        los productos que ya estaban antes en la venta ya que a estos solo se le sumará la cantidad correspondiente
+        los productos que ya estaban antes en la venta, ya que a estos solo se le sumará la cantidad correspondiente
         a la cantidad comprada y con los que realmente son nuevos se van a crear nuevas relaciones con la venta*/
         List<VentaProductoDto> realesProductosNuevos = new ArrayList<>();
         
@@ -393,24 +375,24 @@ public class VentaService implements IVentaService{
             asignado un total a la relación, por ende los hacemos de forma manual*/
             objNuevo.setSubTotalVenta(objProducto.getCosto() * objNuevo.getCantidad());
             
-            //Con esto determinaremos si el objeto realmete existía o no en la venta
+            //Con esto determinaremos si el objeto realmente existía o no en la venta
             boolean yaExiste = false; 
             
-            //Ahora reacorremos todos los objetos o productos de la venta 
+            //Ahora recorremos todos los objetos o productos de la venta
             for(VentaProducto objVP: objVenta.getListProductos()){
                  
                 /*Vamos comparando cada objeto de la venta con objNuevo, en caso de que alguno sea igual a
                 objNuevo, el campo "yaExiste" será true*/
-                if(objVP.getProducto().getIdProducto() == objProducto.getIdProducto()){yaExiste = true;}  
+                if(objVP.getProducto().getIdProducto().equals(objProducto.getIdProducto())){yaExiste = true;}
                 
-                /*Si en alguna vuelta del bucle "yaExiste" es true, confirmamos que efectivamente la relació
-                entre objNuevo y la venta ya existe, osea que solo hay que hacerle ciertas modificaciones*/
+                /*Si en alguna vuelta del bucle "yaExiste" es true, confirmamos que efectivamente la relación
+                entre objNuevo y la venta ya existe, es decir, que solo hay que hacerle ciertas modificaciones*/
                 if(yaExiste){
                     
-                    //Acualizamos la cantidad de la relación
+                    //Actualizamos la cantidad de la relación
                     objVP.setCantidad(objVP.getCantidad() + objNuevo.getCantidad());
                     
-                    //Le actualizamos el total a la relación sumando al que ya tenia el nuevo calculado anteriormente
+                    //Le actualizamos el total a la relación sumando al que ya tenía el nuevo calculado anteriormente
                     objVP.setSubTotalVenta(objVP.getSubTotalVenta() + objNuevo.getSubTotalVenta());
                     
                     //Ahora le debemos descontar la nueva cantidad comprada al producto de la relación
@@ -422,19 +404,19 @@ public class VentaService implements IVentaService{
                     //Actualizamos relación en bd
                     vpRepository.save(objVP);
                     
-                    /*Ya no es necesario seguir comparando objNuevo con los demas productos de objVenta asi que
-                    salimos de este bucle para que objNuevo avanze al siguiente*/
+                    /*Ya no es necesario seguir comparando objNuevo con los además productos de objVenta asi que
+                    salimos de este bucle para que objNuevo avance al siguiente*/
                     break;
                 }
                 
             }
             
-            /*Ahora, si cuando termine el bucle, "yaExiste" sigue en false, confirmamos que aún no existe esa 
+            /*Ahora, si cuando termine el bucle, "yaExiste" sigue en "false", confirmamos que aún no existe esa
             relación y agregamos el producto a la nueva lista para crearla*/
             if(!yaExiste){realesProductosNuevos.add(objNuevo);}
         }        
  
-        //Método para crear las nuevas relaciones de venta con los nuevos productos que no tenian relación 
+        //Método para crear las nuevas relaciones de venta con los nuevos productos que no tenían relación
         crearRelacionVentaProducto(realesProductosNuevos, objVenta);
         
         //recalculamos el total y la cantidad de productos en la venta, ahora con los productos nuevos
@@ -452,8 +434,6 @@ public class VentaService implements IVentaService{
         //Buscamos venta a eliminar productos
         Venta objVenta = findVenta(id);
         
-        if(objVenta == null){return null;}
-        
         /*Lista que va a almacenar solo los productos con los que se va a eliminar la relación con venta, ya que
         hay ciertos productos que solo se les va a descontar a la cantidad comprada*/
         List<VentaProducto> realesProductosEliminados = new ArrayList<>();
@@ -469,20 +449,20 @@ public class VentaService implements IVentaService{
             //Establecemos el total que se le va a descontar a la relación
             objBorrar.setSubTotalVenta(objProducto.getCosto() * objBorrar.getCantidad());
             
-            /*Ahora recorremos los productos de la venta para encontrar las coinsidencias con los objetos mandados
+            /*Ahora recorremos los productos de la venta para encontrar las coincidencias con los objetos mandados
             a eliminar*/
             for(VentaProducto objVP: objVenta.getListProductos()){
                 
                 //Comparamos cada producto de la venta con objBorrar
-                if(objVP.getProducto().getIdProducto() == objProducto.getIdProducto()){
+                if(objVP.getProducto().getIdProducto().equals(objProducto.getIdProducto())){
                     
                     /*Una vez que encontremos el producto que se va a borrar en la venta, la cantidad de este
                     no puede ser mayor a la cantidad comprada de la venta, si es así salimos del bucle y 
                     objBorrar avanza al siguiente*/
                     if(objBorrar.getCantidad() > objVP.getCantidad()){break;}
                     
-                    /*Ahora, si la cantidad que se desea eliminar es menor a la cantida que ya se habia comprado,
-                    entonces bastará solo con descontarle  a la relación que se mandó a modificar tanto la 
+                    /*Ahora, si la cantidad que se desea eliminar es menor a la cantida que ya se había comprado,
+                    entonces bastará solo con descontarle a la relación que se mandó a modificar tanto la
                     cantidad mandada a eliminar como el subtotal que surge*/
                     if(objBorrar.getCantidad() < objVP.getCantidad()){
                         
@@ -505,15 +485,15 @@ public class VentaService implements IVentaService{
                     }else{ 
                         
                         /*Vamos agregando todas esas relaciones a eliminar a la lista de "realesProductosEliminados" para 
-                        después eliminarlas en las DBs*/
+                        después eliminarlas en las DB*/
                         realesProductosEliminados.add(objVP); 
                         
-                        /*Eliminamos objVP de la lista de relaciones de objVenta,esto para que las
+                        /*Eliminamos objVP de la lista de relaciones de objVenta, esto para que las
                         modificaciones que se hagan en la DB se vean reflejadas también en el objeto */
                         objVenta.getListProductos().remove(objVP);
                         
-                        /*Como se va a elimianar la relación entre la venta y el producto, la cantidad que se
-                        habia comprado deberá ser devuelta al stock del producto de la relación*/
+                        /*Como se va a eliminar la relación entre la venta y el producto, la cantidad que se
+                        había comprado deberá ser devuelta al stock del producto de la relación*/
                         objProducto.setCantidadDisponible(objProducto.getCantidadDisponible() + objVP.getCantidad());
                         productoService.saveProducto(objProducto);
                         
@@ -542,9 +522,6 @@ public class VentaService implements IVentaService{
     public List<Producto> productosDeVenta(Long id) {
         Venta objVenta = findVenta(id);
         
-        //Si no se encuentra la venta, se retorna una lista vacía
-        if(objVenta == null){return new ArrayList<>();}
-        
         //Lista que almacenará todos los productos de la venta
         List<Producto> listProductos = new ArrayList<>();
                 
@@ -562,7 +539,7 @@ public class VentaService implements IVentaService{
         
         for(Venta objVenta: getVentas()){
             
-            //Comparamos la fecha de cada Venta a ver si coincide con la que viene en parametro
+            //Comparamos la fecha de cada Venta a ver si coincide con la que viene en parámetro
             if(objVenta.getFechaVenta().equals(fechaVenta)){
                 total += objVenta.getTotalVenta();
                 contVentas++;
@@ -609,7 +586,7 @@ public class VentaService implements IVentaService{
         mayorVentaDto.setTotal(mayorVenta.getTotalVenta());
         mayorVentaDto.setCantProductos(mayorVenta.getCantidadTotalProductos());
         
-        //Buscamo el cliente de la Mayor venta
+        //Buscamos el cliente de la Mayor venta
         ClienteDeVentaDto objCliente = buscarClienteDeVenta(mayorVenta.getIdVenta());
         
         if(objCliente != null){
@@ -621,8 +598,5 @@ public class VentaService implements IVentaService{
         return mayorVentaDto;  
         
     }
-
-
-    
     
 }
