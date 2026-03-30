@@ -30,8 +30,8 @@ public class ClienteController {
     //Traer todos
     @GetMapping("/")
     @ResponseBody
-    public List<ClienteSimpleDto> getClientes(){
-        return clienteService.getClientesSimples();
+    public ResponseEntity<List<ClienteSimpleDto>> getClientes(){
+        return ResponseEntity.ok(clienteService.getClientesSimples());
     }
     
     //Traer uno
