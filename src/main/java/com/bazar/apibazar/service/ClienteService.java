@@ -70,7 +70,7 @@ public class ClienteService implements IClienteService{
     
     /*Método propio para cambiar las ventas Dto que vienen en un objeto ClienteDto a ventas normales para
     clientes normales*/
-    private void addVentaDtoACliente(Cliente objCliente, List<VentaDto> listVentas){
+    private  void addVentaDtoACliente(Cliente objCliente, List<VentaDto> listVentas){
         
         //Recorremos todas las VentaDto que vienen en la lista 
         for(VentaDto objVentaDto: listVentas){
@@ -78,7 +78,7 @@ public class ClienteService implements IClienteService{
             /*Cada ventaDto se guarda como una venta normal con el método saveVenta de VentaService y como
             este método devuelve la venta que se registró, la agregamos directamente a la lista de ventas 
             del cliente*/
-            objCliente.getListVentas().add(ventaService.saveVenta(objVentaDto));
+            objCliente.getListVentas().add(ventaService.guardarVenta(objVentaDto));
                 
         }
         
