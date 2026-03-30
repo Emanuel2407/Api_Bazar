@@ -374,6 +374,9 @@ public class VentaService implements IVentaService{
     
     @Override
     public VentaSimpleDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
+        //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
+        productoService.validarStockProductos(productosNuevos);
+
         //Buscamos venta a realizar la inserción de productos
         Venta objVenta = findVenta(id);
         
@@ -574,7 +577,7 @@ public class VentaService implements IVentaService{
         }
         
         //Si no existe la venta lanzamos excepción indicándolo
-        throw new VentaNotFoundException("No se encontró venta con fecha:" + fechaVenta);
+        throw new VentaNotFoundException("No se encontró venta con fecha: " + fechaVenta);
         
     }
 
