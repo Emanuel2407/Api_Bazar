@@ -79,9 +79,7 @@ public class VentaService implements IVentaService{
                         objCliente.getApellido(), objCliente.getDocumento());}
             }
         }
-        
-        throw new ClienteNotFoundException("No se encontró cliente para venta con id: " + idVenta);
-        
+        return null;
     }
     
 
