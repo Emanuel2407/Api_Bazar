@@ -270,7 +270,7 @@ public class VentaService implements IVentaService{
     }
 
     @Override
-    public Venta saveVenta(VentaDto objNuevo) {
+    public VentaSimpleDto saveVenta(VentaDto objNuevo) {
         Venta objVenta = new Venta();
         
         //Migramos datos del objeto Dto. al objeto Venta
@@ -289,11 +289,12 @@ public class VentaService implements IVentaService{
         
         /*Retornamos el objeto de la venta que se registró, ya que nos será útil en el método "saveCliente"
         de la clase "cliente"*/
-        return objVenta;
+        return sacarVentaSimple(objVenta);
     }
 
     @Override
-    public boolean deleteVenta(Long id) {
+    public void deleteVenta(Long id) {
+        //Buscamos venta para validar existencia
         Venta objVenta = findVenta(id);
             
         /*Llamamos al método que se va a encargar de borrar las relaciones de la venta con cada uno de los
@@ -301,9 +302,7 @@ public class VentaService implements IVentaService{
         eliminarRelacionVentaProducto(objVenta);
 
         //Ahora sí eliminamos la venta
-        ventaRepository.deleteById(id);
-
-        return true;
+        ventaRepository.delete(objVenta);
     }
 
     @Override

@@ -20,9 +20,9 @@ public interface IVentaService {
     //Se devuelve objeto Dto con una lista de simples productos
     VentaSimpleDto findVentaSimple(Long id);
     
-    Venta saveVenta(VentaDto objNuevo);
+    VentaSimpleDto saveVenta(VentaDto objNuevo);
     
-    boolean deleteVenta(Long id);
+    void deleteVenta(Long id);
     
     VentaSimpleDto updateVenta(Long id, VentaDto objActualizado);
     
@@ -37,7 +37,7 @@ public interface IVentaService {
     //Obtener la lista de productos de una determinada venta
     List<Producto> productosDeVenta(Long id);
     
-    //Obteber el monto total y la cantidad de ventas que se hicieron en una determinada fecha
+    //Obtener el monto total y la cantidad de ventas que se hicieron en una determinada fecha
     String  ventasDelDia(LocalDate fechaVenta);
     
     //Obtener la venta con mayor monto total usando el objeto DTO VentaResumenDto
