@@ -32,9 +32,8 @@ public class VentaController {
     
     //Traer todos
     @GetMapping("/")
-    @ResponseBody
-    public List<VentaSimpleDto> getVentas(){
-        return ventaService.getVentasSimples();
+    public ResponseEntity<List<VentaSimpleDto>> getVentas(){
+        return ResponseEntity.ok(ventaService.getVentasSimples());
     }
     
     //Traer uno
