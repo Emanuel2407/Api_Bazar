@@ -19,7 +19,7 @@ public interface IClienteService {
     //Se devuelve objeto Dto con un Cliente que tiene ventas con simples productos
     ClienteSimpleDto findClienteSimple(Long id);
     
-    void saveCliente(ClienteDto objNuevo);
+    ClienteSimpleDto saveCliente(ClienteDto objNuevo);
     
     void deleteCliente(Long id);
     

@@ -1,12 +1,6 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.ClienteVentasIdsDto;
-import com.bazar.apibazar.dto.ClienteDeVentaDto;
-import com.bazar.apibazar.dto.ClienteDto;
-import com.bazar.apibazar.dto.ClienteSimpleDto;
-import com.bazar.apibazar.dto.ProductoDeVentaDto;
-import com.bazar.apibazar.dto.VentaDeClienteDto;
-import com.bazar.apibazar.dto.VentaDto;
+import com.bazar.apibazar.dto.*;
 import com.bazar.apibazar.exception.ClienteNotFoundException;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Producto;
@@ -137,7 +131,7 @@ public class ClienteService implements IClienteService{
     }
 
     @Override
-    public void saveCliente(ClienteDto objNuevo) {
+    public ClienteSimpleDto saveCliente(ClienteDto objNuevo) {
         Cliente objCliente = new Cliente();
         
         objCliente.setNombre(objNuevo.getNombre());
@@ -150,7 +144,8 @@ public class ClienteService implements IClienteService{
         
         //Por último guardamos al cliente
         clienteRepository.save(objCliente);
-       
+
+        return sacarClienteSimple(objCliente);
     }
 
     @Override
