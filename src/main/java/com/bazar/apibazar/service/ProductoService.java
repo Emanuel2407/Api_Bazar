@@ -34,7 +34,7 @@ public class ProductoService implements IProductoService{
     }
 
     @Override
-    public void saveProducto(ProductoDto objNuevo) {
+    public Producto saveProducto(ProductoDto objNuevo) {
         Producto objProducto = new Producto();
 
         objProducto.setNombre(objNuevo.getNombre());
@@ -43,6 +43,8 @@ public class ProductoService implements IProductoService{
         objProducto.setCantidadDisponible(objNuevo.getCantidadDisponible());
 
         productoRepository.save(objProducto);
+
+        return objProducto;
 
     }
 
@@ -53,16 +55,9 @@ public class ProductoService implements IProductoService{
     public void saveAll(List<Producto> listProducto) {productoRepository.saveAll(listProducto);}
 
     @Override
-    public boolean deleteProducto(Long id) {
-
-        if(productoRepository.existsById(id)){
-            productoRepository.deleteById(id);
-
-            return true;
-
-        }
-
-        return false;
+    public void deleteProducto(Long id) {
+        Producto objProducto = findProducto(id);
+        productoRepository.delete(objProducto);
     }
 
     @Override

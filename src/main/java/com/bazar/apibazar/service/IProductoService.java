@@ -10,9 +10,9 @@ public interface IProductoService {
     
     Producto findProducto(Long id);
     
-    void saveProducto(ProductoDto objNuevo);
+    Producto saveProducto(ProductoDto objNuevo);
     
-    boolean deleteProducto(Long id);
+    void deleteProducto(Long id);
     
     Producto updateProducto(Long id, ProductoDto objActualizado);
     
