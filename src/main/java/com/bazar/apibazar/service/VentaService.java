@@ -122,9 +122,6 @@ public class VentaService implements IVentaService{
     
     //Método propio para crear la relación entre una venta y cada uno de los productos con los que se va a relacionar
     private void crearRelacionVentaProducto(List<VentaProductoDto> listProductos, Venta objVenta){
-        //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
-        productoService.validarStockProductos(listProductos);
-
         /*Como es una relación ManyToMany entre Venta y Producto y la venta no tiene simples objetos Productos,
         sino objetos DTO de la tabla intermedia VentaProducto, para poder hacer la relación lo primero que se
         debe hacer es un bucle for-each para recorrer todos los objetos VentaProductoDto que vienen en la venta*/
@@ -263,6 +260,9 @@ public class VentaService implements IVentaService{
 
     @Override
     public VentaSimpleDto saveVenta(VentaDto objNuevo) {
+        //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
+        productoService.validarStockProductos(objNuevo.getListProductos());
+
         Venta objVenta = new Venta();
         
         //Migramos datos del objeto Dto. al objeto Venta
@@ -286,6 +286,9 @@ public class VentaService implements IVentaService{
 
     //Método consumido por cliente-service para registrar una venta
     public Venta guardarVenta(VentaDto objNuevo) {
+        //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
+        productoService.validarStockProductos(objNuevo.getListProductos());
+
         Venta objVenta = new Venta();
 
         //Migramos datos del objeto Dto. al objeto Venta
