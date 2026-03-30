@@ -87,13 +87,13 @@ public class VentaController {
     }
     
     //Agregar productos a Venta existente
-    @PatchMapping("/agregar-productos/{id}")
+    @PostMapping("/agregar-productos/{id}")
     public ResponseEntity<VentaSimpleDto> addProductosAventa(@PathVariable Long id, @RequestBody List<VentaProductoDto> productosNuevos) {
         return ResponseEntity.ok(ventaService.addProductosAVenta(id, productosNuevos));
     }
     
     //Eliminar productos de Venta existente
-    @PatchMapping("/eliminar-productos/{id}")
+    @DeleteMapping("/eliminar-productos/{id}")
     ResponseEntity<?> eliminarProductosDeVenta(@PathVariable Long id, @RequestBody List<VentaProductoDto> productosEliminados){
         return ResponseEntity.ok(ventaService.deleteProductosDeVenta(id, productosEliminados));
     }
