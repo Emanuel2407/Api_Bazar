@@ -36,7 +36,7 @@ public class ClienteController {
     
     //Traer uno
     @GetMapping("/{id}")
-    public ResponseEntity<?> findCliente(@PathVariable Long id){
+    public ResponseEntity<ClienteSimpleDto> findCliente(@PathVariable Long id){
         return ResponseEntity.ok(clienteService.findClienteSimple(id));
         
     }
@@ -50,30 +50,30 @@ public class ClienteController {
     
     //Eliminamos
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCliente(@PathVariable Long id){
+    public ResponseEntity<Void> deleteCliente(@PathVariable Long id){
         clienteService.deleteCliente(id);
         return ResponseEntity.noContent().build();
     }
     
     //Actualización total
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCliente(@PathVariable Long id, @RequestBody ClienteDto objActualizado){
+    public ResponseEntity<ClienteSimpleDto> updateCliente(@PathVariable Long id, @RequestBody ClienteDto objActualizado){
         return ResponseEntity.ok(clienteService.updateCliente(id, objActualizado));
     }
     
     //Actualización parcial
     @PatchMapping("/{id}")
-    public ResponseEntity<?> patchCliente(@PathVariable Long id, @RequestBody ClienteDto objDto){
+    public ResponseEntity<ClienteSimpleDto> patchCliente(@PathVariable Long id, @RequestBody ClienteDto objDto){
         return ResponseEntity.ok(clienteService.patchCliente(id, objDto));
     }
     
     @PatchMapping("/add-ventas/{id}")
-    public ResponseEntity<?> addVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
+    public ResponseEntity<ClienteSimpleDto> addVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
         return ResponseEntity.ok(clienteService.addVentasACliente(id, nuevasVentas));
     }
     
     @PatchMapping("/delete-ventas/{id}")
-    public ResponseEntity<?> DropVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
+    public ResponseEntity<ClienteSimpleDto> DropVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
         return ResponseEntity.ok(clienteService.dropVentasACliente(id, nuevasVentas));
         
     }
