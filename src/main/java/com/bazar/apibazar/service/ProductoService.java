@@ -46,11 +46,10 @@ public class ProductoService implements IProductoService{
 
     }
 
-    //Sobrecarg del método saveProducto que será útil en el desarrollo interno del programa
-    @Override
+    //Sobrecarg del método saveProducto que será útil en venta-service para registrar un producto desde allá
     public void saveProducto(Producto objNuevo) {productoRepository.save(objNuevo);}
 
-    @Override
+    //Método usado por venta-service para registrar una lista de productos
     public void saveAll(List<Producto> listProducto) {productoRepository.saveAll(listProducto);}
 
     @Override
