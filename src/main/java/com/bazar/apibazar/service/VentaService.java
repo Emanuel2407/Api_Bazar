@@ -6,6 +6,7 @@ import com.bazar.apibazar.dto.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.VentaDto;
 import com.bazar.apibazar.dto.VentaProductoDto;
 import com.bazar.apibazar.dto.VentaResumenDto;
+import com.bazar.apibazar.exception.ClienteNotFoundException;
 import com.bazar.apibazar.exception.VentaNotFoundException;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Producto;
@@ -79,7 +80,7 @@ public class VentaService implements IVentaService{
             }
         }
         
-        return null;
+        throw new ClienteNotFoundException("No se encontró cliente para venta con id: " + idVenta);
         
     }
     
@@ -554,8 +555,8 @@ public class VentaService implements IVentaService{
                     + "Y se ha hecho un total de " + contVentas + " venta(s).";
         }
         
-        //Si no existe la venta se retorna null
-        return null;
+        //Si no existe la venta lanzamos excepción indicándolo
+        throw new VentaNotFoundException("No se encontró venta con fecha:" + fechaVenta);
         
     }
 
@@ -566,7 +567,7 @@ public class VentaService implements IVentaService{
         List<Venta> listVentas = getVentas();
         
         //Si no hay ventas registradas, retornamos null
-        if(listVentas.isEmpty()){return null;}
+        if(listVentas.isEmpty()){throw new VentaNotFoundException("No hay ventas registradas");}
         
         //Le damos el valor de la primera venta de la lista para empezar a comparar
         Venta mayorVenta = listVentas.get(0);      
@@ -588,13 +589,10 @@ public class VentaService implements IVentaService{
         
         //Buscamos el cliente de la Mayor venta
         ClienteDeVentaDto objCliente = buscarClienteDeVenta(mayorVenta.getIdVenta());
-        
-        if(objCliente != null){
-            mayorVentaDto.setNombreCliente(objCliente.getNombre());
-            mayorVentaDto.setApellidoCliente(objCliente.getApellido());
-        }
-        
-       
+
+        mayorVentaDto.setNombreCliente(objCliente.getNombre());
+        mayorVentaDto.setApellidoCliente(objCliente.getApellido());
+
         return mayorVentaDto;  
         
     }
