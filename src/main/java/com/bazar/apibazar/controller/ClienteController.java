@@ -67,12 +67,12 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.patchCliente(id, objDto));
     }
     
-    @PatchMapping("/add-ventas/{id}")
+    @PostMapping("/add-ventas/{id}")
     public ResponseEntity<ClienteSimpleDto> addVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
         return ResponseEntity.ok(clienteService.addVentasACliente(id, nuevasVentas));
     }
     
-    @PatchMapping("/delete-ventas/{id}")
+    @DeleteMapping("/delete-ventas/{id}")
     public ResponseEntity<ClienteSimpleDto> DropVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
         return ResponseEntity.ok(clienteService.dropVentasACliente(id, nuevasVentas));
         
