@@ -63,7 +63,10 @@ public class VentaController {
     
     //Ingresamos venta
     @PostMapping("/")
-    public void saveVenta(@RequestBody VentaDto objNuevo){ventaService.saveVenta(objNuevo);}
+    public ResponseEntity<VentaSimpleDto> saveVenta(@RequestBody VentaDto objNuevo){
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ventaService.saveVenta(objNuevo));
+    }
     
     //Eliminamos
     @DeleteMapping("/{id}")
