@@ -124,7 +124,9 @@ public class VentaService implements IVentaService{
     
     //Método propio para crear la relación entre una venta y cada uno de los productos con los que se va a relacionar
     private void crearRelacionVentaProducto(List<VentaProductoDto> listProductos, Venta objVenta){
-        
+        //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
+        productoService.validarStockProductos(listProductos);
+
         /*Como es una relación ManyToMany entre Venta y Producto y la venta no tiene simples objetos Productos,
         sino objetos DTO de la tabla intermedia VentaProducto, para poder hacer la relación lo primero que se
         debe hacer es un bucle for-each para recorrer todos los objetos VentaProductoDto que vienen en la venta*/
@@ -135,23 +137,15 @@ public class VentaService implements IVentaService{
             
             //Guardamos la cantidad de cada producto que se asignará a la venta en cuestión
             Integer cantidadProducto = objDto.getCantidad();
-            
-            /*Para que un producto (que llega en objNuevo) pueda ser agregado a la relación con la nueva venta,
-            tiene que pasar dos filtros que demuestren que efectivamente está disponible, estos filtros se ven
-            claramente en el condicional*/
-            if(objProducto != null && objProducto.getCantidadDisponible() >= cantidadProducto){
                 
-                /*Este solo es el subtotal entre una venta y un producto, ya que el precio puede variar
-                dependiendo de la cantidad que se aparte para la venta. No confundir con el total final de la 
-                venta*/
-                Double subTotal = objProducto.getCosto() * cantidadProducto;
+            /*Este solo es el subtotal entre una venta y un producto, ya que el precio puede variar
+              dependiendo de la cantidad que se aparte para la venta. No confundir con el total final de la venta*/
+            Double subTotal = objProducto.getCosto() * cantidadProducto;
                 
-                /*Una vez el producto pase los filtros llamamos al método que se encargue de crear el registro
+             /*Una vez el producto pase los filtros llamamos al método que se encargue de crear el registro
                 que representa la relación entre la venta y cada uno de los productos*/
-                crearRegistroVentaProducto(objVenta, objProducto, cantidadProducto, subTotal);
-                
-                
-            }
+            crearRegistroVentaProducto(objVenta, objProducto, cantidadProducto, subTotal);
+
         }
         
         objVenta.setTotalVenta(calcularTotalVenta(objVenta));
@@ -379,7 +373,7 @@ public class VentaService implements IVentaService{
     
     @Override
     public VentaSimpleDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
-        //Buscamos venta a realizar la insercción de productos
+        //Buscamos venta a realizar la inserción de productos
         Venta objVenta = findVenta(id);
         
         /*Si bien los productos que vamos a agregar son los que llegan en "productosNuevos", debemos diferenciar
