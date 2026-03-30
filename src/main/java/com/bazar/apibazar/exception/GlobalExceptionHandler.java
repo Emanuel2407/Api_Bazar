@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
     }
 
     //Handler para excepción ProductoStockInsuficiente
-    @ExceptionHandler(ProductoNotFoundException.class)
+    @ExceptionHandler(ProductoStockInsuficienteException.class)
     public ResponseEntity<Map<String, Object>> handlerProductoStockInsuficiente(ProductoStockInsuficienteException ex){
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(buildExceptionResponse(HttpStatus.CONFLICT, ex.getMessage()));
