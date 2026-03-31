@@ -29,9 +29,7 @@ Una API REST construida con **Spring Boot** para manejar operaciones críticas d
 
 ---
 
-
 ## 📁 Estructura del Proyecto
-
 ```text
 apibazar/
 ├── src/
@@ -44,9 +42,10 @@ apibazar/
 ├── pom.xml              # Gestión de dependencias Maven
 ├── .env.example         # Plantilla de variables de entorno
 └── README.md            # Documentación del proyecto
-
 ```
+
 ---
+
 ## 🚀 Cómo ejecutar el proyecto
 
 ### 🔧 Prerrequisitos
@@ -63,8 +62,7 @@ cd apibazar
 
 ### ⚙️ Definir variables de entorno
 
-**Puedes basarte en el archivo .env.example:**
-
+Puedes basarte en el archivo `.env.example`:
 ```bash
 # Credenciales de base de datos
 DB_URL=
@@ -73,18 +71,13 @@ DB_PASSWORD=
 ```
 
 ### ▶️ Ejecución local
-
 ```bash
-# Ejecutar la aplicación
 ./mvnw spring-boot:run
 ```
 
 ### 🐳 Ejecución con Docker
-
 ```bash
-# Construir y levantar contenedores
 docker-compose up --build
-
 ```
 
 ---
@@ -93,34 +86,55 @@ docker-compose up --build
 
 El proyecto soporta:
 
-- ##### 🧪 H2 (en memoria) → Ideal para desarrollo
-- ##### 🐬 MySQL → Para entornos más reales
+- 🧪 **H2 (en memoria)** → Ideal para desarrollo
+- 🐬 **MySQL** → Para entornos más reales
 
-**Configurable desde application.properties.**
+Configurable desde `application.properties`.
 
 ---
 
 ## 📡 Endpoints
-
-### Ejemplos:
-
-```bash
-GET    /productos/                  #Treaer todos los productos
-GET    /productos/{id}              #Traer un producto por su ID
-POST   /ventas/                     #Traer todas las ventas
-PATCH  /clientes/add-ventas/{id}    #Asignar venta a cliente
-GET    /ventas/productos/{id}       #Traer productos de una venta
-PUT    /productos/{id}              #Actualizar totalmente un producto
-PATCH  /productos/{id}              #Actualizar parcialmente un producto
-DELETE /clientes/{id}               #Eliminar cliente por su ID
+```http
+GET    /productos/                  # Traer todos los productos
+GET    /productos/{id}              # Traer un producto por su ID
+POST   /ventas/                     # Traer todas las ventas
+PATCH  /clientes/add-ventas/{id}    # Asignar venta a cliente
+GET    /ventas/productos/{id}       # Traer productos de una venta
+PUT    /productos/{id}              # Actualizar totalmente un producto
+PATCH  /productos/{id}              # Actualizar parcialmente un producto
+DELETE /clientes/{id}               # Eliminar cliente por su ID
 ```
 
 ---
 
+## ⚠️ Manejo de errores
+
+Se implementa un manejador global de excepciones mediante `@RestControllerAdvice`.
+
+### Excepciones manejadas:
+
+| Excepción | Status |
+|---|---|
+| `ClienteNotFoundException` | `404 NOT_FOUND` |
+| `ProductoNotFoundException` | `404 NOT_FOUND` |
+| `VentaNotFoundException` | `404 NOT_FOUND` |
+| `ProductoStockInsuficienteException` | `409 CONFLICT` |
+
+### Estructura de respuesta de error:
+```json
+{
+  "timestamp": "2026-03-28T12:00:00",
+  "status": 404,
+  "error": "Not Found",
+  "mensaje": "Cliente no encontrado con id: 1"
+}
+```
+
+---
 
 ## 🧪 Testing
 ```bash
- ./mvnw test
+./mvnw test
 ```
 
 ---
@@ -133,14 +147,15 @@ DELETE /clientes/{id}               #Eliminar cliente por su ID
 ---
 
 ## 🧠 Buenas prácticas aplicadas
-- **Separación por capas (Controller, Service, Repository)**
-- **Uso de DTOs**
-- **Manejo de errores**
-- **Configuración desacoplada**
+
+- Separación por capas (Controller, Service, Repository)
+- Uso de DTOs para entrada y salida de datos
+- Manejo global de excepciones con `@RestControllerAdvice`
+- Configuración desacoplada
 
 ---
 
-## ‍💻 Autor
+## 💻 Autor
 
 **Desarrollado por Emanuel Atencia 🚀**
 
@@ -149,5 +164,3 @@ DELETE /clientes/{id}               #Eliminar cliente por su ID
 ## 📄 Licencia
 
 Este proyecto es de uso académico / personal.
-
----
