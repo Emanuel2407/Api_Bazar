@@ -154,12 +154,8 @@ public class VentaService implements IVentaService{
                     si nunca se hubiera ejecutado el método*/
     private void crearRegistroVentaProducto(Venta objVenta, Producto objProducto, Integer cantidadProducto, Double subTotal){
         VentaProducto objRelacion = new VentaProducto();
-            
-        /*Creamos la PK compuesta del registro en cuestión la cual recibe como parámetro las PK
-        de las tablas relacionadas (Venta y Producto)*/
-        objRelacion.setId(new VentaProductoId(objVenta.getIdVenta(), objProducto.getIdProducto()));
-                
-        //Agregamos el resto de datos de la relación
+
+        //Agregamos los datos de la relación (Gracias a @MapsId definida en las relaciones, Hibernate crea automaticamente la PK compuesta basandose en los IDs de los objetos)
         objRelacion.setProducto(objProducto);
         objRelacion.setVenta(objVenta);
         objRelacion.setCantidad(cantidadProducto);
