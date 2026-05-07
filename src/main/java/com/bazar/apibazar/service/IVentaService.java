@@ -1,11 +1,11 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.VentaSimpleDto;
-import com.bazar.apibazar.dto.VentaDto;
-import com.bazar.apibazar.dto.VentaProductoDto;
-import com.bazar.apibazar.dto.VentaResumenDto;
+import com.bazar.apibazar.dto.venta.VentaSimpleDto;
+import com.bazar.apibazar.dto.venta.VentaDto;
+import com.bazar.apibazar.dto.venta.VentaProductoDto;
+import com.bazar.apibazar.dto.venta.VentaResumenDto;
 import com.bazar.apibazar.model.Producto;
-import com.bazar.apibazar.model.Venta;
+
 import java.time.LocalDate;
 import java.util.List;
 

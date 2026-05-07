@@ -1,6 +1,5 @@
 package com.bazar.apibazar.model;
 
-import com.bazar.apibazar.dto.VentaDeClienteDto;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

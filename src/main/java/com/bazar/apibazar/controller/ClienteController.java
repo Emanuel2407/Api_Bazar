@@ -1,8 +1,8 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.ClienteVentasIdsDto;
-import com.bazar.apibazar.dto.ClienteDto;
-import com.bazar.apibazar.dto.ClienteSimpleDto;
+import com.bazar.apibazar.dto.cliente.ClienteVentasIdsDto;
+import com.bazar.apibazar.dto.cliente.ClienteDto;
+import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
 import com.bazar.apibazar.service.IClienteService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

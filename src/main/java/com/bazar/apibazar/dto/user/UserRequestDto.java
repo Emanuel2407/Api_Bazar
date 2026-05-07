@@ -1,4 +1,4 @@
-package com.bazar.apibazar.dto;
+package com.bazar.apibazar.dto.user;
 
 import java.util.List;
 

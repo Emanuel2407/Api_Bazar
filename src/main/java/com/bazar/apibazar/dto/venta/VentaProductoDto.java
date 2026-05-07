@@ -1,7 +1,5 @@
-package com.bazar.apibazar.dto;
+package com.bazar.apibazar.dto.venta;
 
-import com.bazar.apibazar.model.Producto;
-import com.bazar.apibazar.model.Venta;
 import lombok.Getter;
 import lombok.Setter;
 

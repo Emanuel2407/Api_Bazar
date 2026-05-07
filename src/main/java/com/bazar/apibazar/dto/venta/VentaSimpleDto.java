@@ -1,29 +1,37 @@
-package com.bazar.apibazar.dto;
+package com.bazar.apibazar.dto.venta;
 
 import java.time.LocalDate;
 import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter  @Setter
-public class VentaDeClienteDto {
+
+@Getter @Setter
+public class VentaSimpleDto {
     
     private Long idVenta;
     private LocalDate fechaVenta;
     private Double totalVenta;
     private Integer cantidadTotalProductos;
-    private List<ProductoDeVentaDto> listProductos; 
+    private List<ProductoDeVentaDto> listProductos;
+    private ClienteDeVentaDto cliente;
 
-    public VentaDeClienteDto() {
+    public VentaSimpleDto() {
     }
 
-    public VentaDeClienteDto(Long idVenta, LocalDate fechaVenta, Double totalVenta, Integer cantidadTotalProductos, List<ProductoDeVentaDto> listProductos) {
+    public VentaSimpleDto(Long idVenta, LocalDate fechaVenta, Double totalVenta, Integer cantidadTotalProductos, List<ProductoDeVentaDto> listProductos, ClienteDeVentaDto cliente) {
         this.idVenta = idVenta;
         this.fechaVenta = fechaVenta;
         this.totalVenta = totalVenta;
         this.cantidadTotalProductos = cantidadTotalProductos;
         this.listProductos = listProductos;
+        this.cliente = cliente;
     }
+
+    
+   
+    
     
     
 }

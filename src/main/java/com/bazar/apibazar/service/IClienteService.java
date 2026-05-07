@@ -1,10 +1,9 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.ClienteVentasIdsDto;
-import com.bazar.apibazar.dto.ClienteDto;
-import com.bazar.apibazar.dto.ClienteSimpleDto;
-import com.bazar.apibazar.dto.VentaSimpleDto;
-import com.bazar.apibazar.model.Cliente;
+import com.bazar.apibazar.dto.cliente.ClienteVentasIdsDto;
+import com.bazar.apibazar.dto.cliente.ClienteDto;
+import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
+
 import java.util.List;
 
 public interface IClienteService {

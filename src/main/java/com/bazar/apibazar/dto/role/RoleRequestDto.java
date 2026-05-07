@@ -1,4 +1,4 @@
-package com.bazar.apibazar.dto;
+package com.bazar.apibazar.dto.role;
 
 import java.util.List;
 

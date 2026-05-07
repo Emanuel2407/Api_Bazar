@@ -1,18 +1,16 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.ClienteDeVentaDto;
-import com.bazar.apibazar.dto.VentaSimpleDto;
-import com.bazar.apibazar.dto.ProductoDeVentaDto;
-import com.bazar.apibazar.dto.VentaDto;
-import com.bazar.apibazar.dto.VentaProductoDto;
-import com.bazar.apibazar.dto.VentaResumenDto;
-import com.bazar.apibazar.exception.ClienteNotFoundException;
+import com.bazar.apibazar.dto.venta.ClienteDeVentaDto;
+import com.bazar.apibazar.dto.venta.VentaSimpleDto;
+import com.bazar.apibazar.dto.venta.ProductoDeVentaDto;
+import com.bazar.apibazar.dto.venta.VentaDto;
+import com.bazar.apibazar.dto.venta.VentaProductoDto;
+import com.bazar.apibazar.dto.venta.VentaResumenDto;
 import com.bazar.apibazar.exception.VentaNotFoundException;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.model.Venta;
 import com.bazar.apibazar.model.VentaProducto;
-import com.bazar.apibazar.model.VentaProductoId;
 import com.bazar.apibazar.repository.IClienteRepository;
 import com.bazar.apibazar.repository.IVentaProductoRepository;
 import com.bazar.apibazar.repository.IVentaRepository;

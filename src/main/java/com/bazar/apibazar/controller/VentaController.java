@@ -1,9 +1,9 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.VentaSimpleDto;
-import com.bazar.apibazar.dto.VentaDto;
-import com.bazar.apibazar.dto.VentaProductoDto;
-import com.bazar.apibazar.dto.VentaResumenDto;
+import com.bazar.apibazar.dto.venta.VentaSimpleDto;
+import com.bazar.apibazar.dto.venta.VentaDto;
+import com.bazar.apibazar.dto.venta.VentaProductoDto;
+import com.bazar.apibazar.dto.venta.VentaResumenDto;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.service.IVentaService;
 import java.time.LocalDate;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

@@ -1,4 +1,4 @@
-package com.bazar.apibazar.dto;
+package com.bazar.apibazar.dto.cliente;
 
 //Esta clase ayudará a agregarle Ventas a un Cliente por medio de los IDs de estas
 import java.util.ArrayList;

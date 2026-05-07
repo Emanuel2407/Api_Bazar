@@ -1,6 +1,6 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.ProductoDto;
+import com.bazar.apibazar.dto.producto.ProductoDto;
 import com.bazar.apibazar.model.Producto;
 import java.util.List;
 

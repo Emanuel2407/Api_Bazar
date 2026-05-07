@@ -1,8 +1,5 @@
-package com.bazar.apibazar.dto;
+package com.bazar.apibazar.dto.venta;
 
-import com.bazar.apibazar.model.Cliente;
-import com.bazar.apibazar.model.Producto;
-import com.bazar.apibazar.model.VentaProducto;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

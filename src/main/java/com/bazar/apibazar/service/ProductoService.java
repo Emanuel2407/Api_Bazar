@@ -1,7 +1,7 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.ProductoDto;
-import com.bazar.apibazar.dto.VentaProductoDto;
+import com.bazar.apibazar.dto.producto.ProductoDto;
+import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.exception.ProductoNotFoundException;
 import com.bazar.apibazar.exception.ProductoStockInsuficienteException;
 import com.bazar.apibazar.model.Producto;

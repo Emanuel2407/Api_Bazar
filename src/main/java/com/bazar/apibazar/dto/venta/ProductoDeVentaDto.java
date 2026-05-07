@@ -1,4 +1,4 @@
-package com.bazar.apibazar.dto;
+package com.bazar.apibazar.dto.venta;
 
 import lombok.Getter;
 import lombok.Setter;

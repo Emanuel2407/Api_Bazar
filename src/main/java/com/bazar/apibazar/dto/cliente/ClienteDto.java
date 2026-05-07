@@ -1,7 +1,9 @@
-package com.bazar.apibazar.dto;
+package com.bazar.apibazar.dto.cliente;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.bazar.apibazar.dto.venta.VentaDto;
 import lombok.Getter;
 import lombok.Setter;
 

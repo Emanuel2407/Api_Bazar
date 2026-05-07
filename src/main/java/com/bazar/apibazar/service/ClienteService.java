@@ -1,6 +1,12 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.*;
+import com.bazar.apibazar.dto.cliente.VentaDeClienteDto;
+import com.bazar.apibazar.dto.venta.ClienteDeVentaDto;
+import com.bazar.apibazar.dto.cliente.ClienteDto;
+import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
+import com.bazar.apibazar.dto.cliente.ClienteVentasIdsDto;
+import com.bazar.apibazar.dto.venta.ProductoDeVentaDto;
+import com.bazar.apibazar.dto.venta.VentaDto;
 import com.bazar.apibazar.exception.ClienteNotFoundException;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Producto;

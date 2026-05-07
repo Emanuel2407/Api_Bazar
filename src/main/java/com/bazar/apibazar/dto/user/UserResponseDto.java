@@ -1,4 +1,6 @@
-package com.bazar.apibazar.dto;
+package com.bazar.apibazar.dto.user;
+
+import com.bazar.apibazar.dto.role.RoleResponseDto;
 
 import java.util.List;
 
