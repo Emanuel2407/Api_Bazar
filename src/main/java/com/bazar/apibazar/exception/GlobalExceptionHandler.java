@@ -52,4 +52,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(buildExceptionResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
+
+    //Handler para excepción UserNotFound
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlerUserNotFound(UserNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildExceptionResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    //Handler para excepción RoleNotFound
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlerRoleNotFound(RoleNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildExceptionResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    //Handler para excepción PermissionNotFound
+    @ExceptionHandler(PermissionNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlerPermissionNotFound(PermissionNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildExceptionResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
 }
