@@ -31,22 +31,28 @@ public class PermissionService implements IPermissionService{
     private Permission findPermission(Long id){
         return permissionRepo.findById(id)
                 .orElseThrow(
+                        //Programación funcional para simplificar el proceso
                         () -> new PermissionNotFoundException("No se encontró permiso con id: " + id)
                 );
+    }
+
+    //Método propio para construir objetos DTO de respuesta para exponerlos creados a partir de una lista de permisos
+    protected List<PermissionResponseDto> buildPermissionsResponse(List<Permission> listPermissions){
+        List<PermissionResponseDto> permisosExponer = new ArrayList<>();
+
+        //Recorremos la lista y usamos programación funcional para construir cada objeto DTO a partir de los datos de cada permiso
+        listPermissions.forEach(
+                permission -> permisosExponer.add(buildPermissionResponse(permission))
+        );
+
+        return permisosExponer;
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<PermissionResponseDto> findAllPermissions() {
-        //Lista de permisos a exponer
-        List<PermissionResponseDto> permissionsResponse = new ArrayList<>();
-
-        //Vamos creando los DTO de los permisos a exponer
-        for(Permission objPermission: permissionRepo.findAll()){
-            permissionsResponse.add(buildPermissionResponse(objPermission));
-        }
-
-        return permissionsResponse;
+        //Usamos el método que construya la lista de DTO a partir de los permisos registrados
+        return buildPermissionsResponse(permissionRepo.findAll());
     }
 
     @Transactional(readOnly = true)
