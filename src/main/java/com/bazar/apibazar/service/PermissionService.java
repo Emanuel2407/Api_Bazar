@@ -37,7 +37,7 @@ public class PermissionService implements IPermissionService{
     }
 
     //Método propio para construir objetos DTO de respuesta para exponerlos creados a partir de una lista de permisos
-    protected List<PermissionResponseDto> buildPermissionsResponse(List<Permission> listPermissions){
+    public List<PermissionResponseDto> buildPermissionsResponse(List<Permission> listPermissions){
         List<PermissionResponseDto> permisosExponer = new ArrayList<>();
 
         //Recorremos la lista y usamos programación funcional para construir cada objeto DTO a partir de los datos de cada permiso
@@ -46,6 +46,16 @@ public class PermissionService implements IPermissionService{
         );
 
         return permisosExponer;
+    }
+
+    //Método para consultar una lista de permisos por sus ids
+    public List<Permission> findAllRolesById(List<Long> rolesIds){
+        List<Permission> foundPermissions = permissionRepo.findAllById(rolesIds);
+
+        //En caso de que no se encuentren todos los permisos que se consultaron, excepción indicándolo
+        if(foundPermissions.size() < rolesIds.size()){throw new PermissionNotFoundException("Uno o varios permisos no fueron encontrados");}
+
+        return foundPermissions;
     }
 
     @Transactional(readOnly = true)
