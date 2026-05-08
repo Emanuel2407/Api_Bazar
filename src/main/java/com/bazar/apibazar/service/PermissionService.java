@@ -37,6 +37,7 @@ public class PermissionService implements IPermissionService{
     }
 
     //Método propio para construir objetos DTO de respuesta para exponerlos creados a partir de una lista de permisos
+    @Override
     public List<PermissionResponseDto> buildPermissionsResponse(List<Permission> listPermissions){
         List<PermissionResponseDto> permisosExponer = new ArrayList<>();
 
@@ -49,6 +50,7 @@ public class PermissionService implements IPermissionService{
     }
 
     //Método para consultar una lista de permisos por sus ids
+    @Override
     public List<Permission> findAllPermissionsById(List<Long> rolesIds){
         List<Permission> foundPermissions = permissionRepo.findAllById(rolesIds);
 
