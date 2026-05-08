@@ -55,6 +55,7 @@ public class RoleService implements IRoleService{
     }
 
     //Método para consultar los datos de un role por su id y en caso de no encontrarlo lanzar excepción personalizada
+    @Transactional(readOnly = true)
     private Role findRole(Long id){
         return roleRepo.findById(id)
                 .orElseThrow(
@@ -63,6 +64,8 @@ public class RoleService implements IRoleService{
                 );
     }
 
+    @Transactional(readOnly = true)
+    @Override
     public List<Role> findAllRolesById(List<Long> rolesIds){
         //Lista de roles encontrados
         List<Role> foundRoles = roleRepo.findAllById(rolesIds);
