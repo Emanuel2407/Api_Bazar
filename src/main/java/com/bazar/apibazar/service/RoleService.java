@@ -19,7 +19,7 @@ public class RoleService implements IRoleService{
     //Inyección de dependencia para el repositorio de persistencia de <<Role>>
     private final IRoleRepository roleRepo;
     //Inyección de dependencia para PermissionService
-    private final PermissionService permissionService;
+    private final IPermissionService permissionService;
     //Inyección de dependencia por constructor
     public RoleService(IRoleRepository roleRepo, PermissionService permissionService){
         this.roleRepo = roleRepo;
