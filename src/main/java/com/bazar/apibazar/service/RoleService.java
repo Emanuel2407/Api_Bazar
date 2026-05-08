@@ -2,7 +2,6 @@ package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.role.RoleRequestDto;
 import com.bazar.apibazar.dto.role.RoleResponseDto;
-import com.bazar.apibazar.exception.PermissionNotFoundException;
 import com.bazar.apibazar.exception.RoleNotFoundException;
 import com.bazar.apibazar.model.Role;
 import com.bazar.apibazar.repository.IRoleRepository;
@@ -102,7 +101,7 @@ public class RoleService implements IRoleService{
                 new LinkedHashSet<>(
                         /*Como el DTO "RoleRequestDto" tiene dentro una lista de ids de permisos que le vamos a asignar a
                           este rol, debemos buscar esos permisos*/
-                        permissionService.findAllRolesById(newRole.permissionsIds()))
+                        permissionService.findAllPermissionsById(newRole.permissionsIds()))
         );
 
         //Persistimos objeto
@@ -141,7 +140,7 @@ public class RoleService implements IRoleService{
 
         //Buscamos y agregamos nueva lista de permisos al rol
         objRole.getListPermissions().addAll(
-                permissionService.findAllRolesById(newPermissionsIds)
+                permissionService.findAllPermissionsById(newPermissionsIds)
         );
 
         //Exponemos rol actualizado
@@ -150,21 +149,18 @@ public class RoleService implements IRoleService{
 
     @Transactional
     @Override
-    public RoleResponseDto removePermissionFromRole(Long idRole, Long idPermissionEliminar) {
+    public RoleResponseDto removePermissionsFromRole(Long idRole, List<Long> removePermissionsIds) {
         //Buscamos rol para confirmar existencia
         Role objRole = findRole(idRole);
 
-        //Buscamos permission para confirmar existencia
-        permissionService.findPermissionById(idPermissionEliminar);
+        //Buscamos permissions para confirmar existencia de todos
+        permissionService.findAllPermissionsById(removePermissionsIds);
 
-        //Usamos el método .removeIf() y una función lambda para eliminar todo permiso que cumpla la condición definida
-        //.removeIf() devuelve un valor booleano indicando si se eliminó algo o no
-        boolean removed = objRole.getListPermissions().removeIf(
-                permission -> permission.getId().equals(idPermissionEliminar)
+        /*Usamos el método .removeIf() y una función lambda para eliminar todo permiso que cumpla la condición definida:
+           Si el id del permiso en cuestión hace parte de la lista de ids de permisos que se mandaron a eliminar*/
+        objRole.getListPermissions().removeIf(
+                permission -> removePermissionsIds.contains(permission.getId())
         ) ;
-
-        //Si no existe el permiso dentro del rol -> Lo indicamos con excepción personalizada
-        if(!removed){throw new PermissionNotFoundException("No existe permiso dentro del rol con id: " + idPermissionEliminar);}
 
         return buildRoleResponse(objRole);
     }
