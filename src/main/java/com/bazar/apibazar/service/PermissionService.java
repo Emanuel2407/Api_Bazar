@@ -49,7 +49,7 @@ public class PermissionService implements IPermissionService{
     }
 
     //Método para consultar una lista de permisos por sus ids
-    public List<Permission> findAllRolesById(List<Long> rolesIds){
+    public List<Permission> findAllPermissionsById(List<Long> rolesIds){
         List<Permission> foundPermissions = permissionRepo.findAllById(rolesIds);
 
         //En caso de que no se encuentren todos los permisos que se consultaron, excepción indicándolo
