@@ -12,4 +12,7 @@ public interface IUserRepository extends JpaRepository<UserSec, Long> {
 
     //Definimos método que Spring Data interpreta (por la sintaxis del nombre) para traer un usuario por su username
     Optional<UserSec> findByUsername(String username);
+
+    //Método que Spring-Data-Jpa interpreta para verificar sin un username está registrado y asociado a algún usuario
+    boolean existsByUsername(String username);
 }
