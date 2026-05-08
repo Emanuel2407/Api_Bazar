@@ -63,6 +63,18 @@ public class RoleService implements IRoleService{
                 );
     }
 
+    public List<Role> findAllRolesById(List<Long> rolesIds){
+        //Lista de roles encontrados
+        List<Role> foundRoles = roleRepo.findAllById(rolesIds);
+
+        //Validamos que se haya hecho la carga total de los roles solicitados
+        if(foundRoles.size() < rolesIds.size()){
+            throw new RoleNotFoundException("Uno o varios roles no fueron encontrados");
+        }
+
+        return foundRoles;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<RoleResponseDto> findAllRole() {
