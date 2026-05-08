@@ -40,6 +40,7 @@ public class RoleService implements IRoleService{
     }
 
     //Método para construir una lista de objetos DTO de respuesta a partir de los datos de una lista de <<Roles>>
+    @Override
     public List<RoleResponseDto> buildRolesResponse(List<Role> listRoles){
         //Lista de objetos DTO a exponer
         List<RoleResponseDto> rolesExponer = new ArrayList<>();
@@ -54,7 +55,6 @@ public class RoleService implements IRoleService{
     }
 
     //Método para consultar los datos de un role por su id y en caso de no encontrarlo lanzar excepción personalizada
-    @Transactional(readOnly = true)
     private Role findRole(Long id){
         return roleRepo.findById(id)
                 .orElseThrow(
