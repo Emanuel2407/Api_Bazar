@@ -5,6 +5,7 @@ import com.bazar.apibazar.dto.role.RoleResponseDto;
 import com.bazar.apibazar.exception.RoleNotFoundException;
 import com.bazar.apibazar.model.Role;
 import com.bazar.apibazar.repository.IRoleRepository;
+import com.bazar.apibazar.repository.IUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +21,13 @@ public class RoleService implements IRoleService{
     private final IRoleRepository roleRepo;
     //Inyección de dependencia para PermissionService
     private final IPermissionService permissionService;
+    //Inyección de dependencia para el repositorio de persistencia de usuarios
+    private final IUserRepository userRepo;
     //Inyección de dependencia por constructor
-    public RoleService(IRoleRepository roleRepo, PermissionService permissionService){
+    public RoleService(IRoleRepository roleRepo, PermissionService permissionService, IUserRepository userRepo){
         this.roleRepo = roleRepo;
         this.permissionService = permissionService;
+        this.userRepo = userRepo;
     }
 
     //Método para construir, a partir de los datos de un <<Role>>, un DTO para exponer ese <<Role>>
@@ -116,6 +120,15 @@ public class RoleService implements IRoleService{
         //Buscamos rol para verificar existencia
         Role objRole = findRole(id);
 
+        //Debemos eliminar las relaciones que este rol tenga con los usuarios (registros en la tabla intermedia)
+        /*Para ello simplemente removemos este rol de la lista de roles de los usuarios con los que está relacionado,
+          el contexto de persistencia detectará el cambio y al final de la transacción Hibernate eliminará las relaciones*/
+        userRepo.findByListRoles_id(id).forEach(
+                //Creamos función lambda para que se remueva el rol de cada usuario que lo contiene en su "listRoles"
+                user -> user.getListRoles().remove(objRole)
+        );
+
+        //Finalmente, podremos eliminar el rol
         roleRepo.delete(objRole);
     }
 
