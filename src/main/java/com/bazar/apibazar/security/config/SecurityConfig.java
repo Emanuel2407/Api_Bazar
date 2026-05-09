@@ -11,8 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration
-@EnableWebSecurity
+@Configuration  //Definimos que en esta clase se registran Beans de configuración
+@EnableWebSecurity  //Activamos la integración de la aplicación con Spring Security
 public class SecurityConfig {
 
     @Bean  //Bean que registra la cadena de filtros de seguridad que interceptan cada request
@@ -30,4 +30,11 @@ public class SecurityConfig {
                 //Construcción de la cadena de filtros de seguridad con base a las reglas anteriores
                 .build();
     }
+
+    @Bean  //Registramos Bean con authenticationManager que es el encargado de orquestar los diferentes AuthenticationProviders (mecanismos de autenticación) que puedan haber para autenticar al usuario
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        //Sacamos el authenticationManager otorgado por AuthenticationConfiguration
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
 }
