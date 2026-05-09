@@ -14,13 +14,13 @@ import com.bazar.apibazar.model.VentaProducto;
 import com.bazar.apibazar.repository.IClienteRepository;
 import com.bazar.apibazar.repository.IVentaProductoRepository;
 import com.bazar.apibazar.repository.IVentaRepository;
-import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class VentaService implements IVentaService{
@@ -64,6 +64,7 @@ public class VentaService implements IVentaService{
     }
     
     //Método propio para encontrar el cliente de una determinada Venta
+    @Transactional
     public ClienteDeVentaDto buscarClienteDeVenta(Long idVenta){
         
         //Recorrer todos los clientes registrados
@@ -198,8 +199,8 @@ public class VentaService implements IVentaService{
         return new VentaSimpleDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
                 objVenta.getCantidadTotalProductos(), listProductos, buscarClienteDeVenta(objVenta.getIdVenta()));
     }
-    
-    
+
+    @Transactional(readOnly = true)
     @Override
     public List<VentaSimpleDto> getVentasSimples() {
         
@@ -228,6 +229,7 @@ public class VentaService implements IVentaService{
         return listVentas;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public VentaSimpleDto findVentaSimple(Long id) {
         Venta objVenta = findVenta(id);
@@ -244,6 +246,7 @@ public class VentaService implements IVentaService{
     }
 
     //Método propio para buscar una venta en especifico que tenga sus respectivos objetos VentaProducto
+    @Transactional(readOnly = true)
     public Venta findVenta(Long id) {
         Optional<Venta> objVenta = ventaRepository.findById(id);
         
@@ -252,6 +255,7 @@ public class VentaService implements IVentaService{
         return objVenta.get();
     }
 
+    @Transactional
     @Override
     public VentaSimpleDto saveVenta(VentaDto objNuevo) {
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
@@ -279,6 +283,7 @@ public class VentaService implements IVentaService{
     }
 
     //Método consumido por cliente-service para registrar una venta
+    @Transactional
     public Venta guardarVenta(VentaDto objNuevo) {
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
         productoService.validarStockProductos(objNuevo.getListProductos());
@@ -305,6 +310,7 @@ public class VentaService implements IVentaService{
     }
 
 
+    @Transactional
     @Override
     public void deleteVenta(Long id) {
         //Buscamos venta para validar existencia
@@ -318,6 +324,7 @@ public class VentaService implements IVentaService{
         ventaRepository.delete(objVenta);
     }
 
+    @Transactional
     @Override
     public VentaSimpleDto updateVenta(Long id, VentaDto objActualizado) {
         Venta objVenta = findVenta(id);
@@ -340,6 +347,7 @@ public class VentaService implements IVentaService{
         return sacarVentaSimple(objVenta);
     }
 
+    @Transactional
     @Override
     public VentaSimpleDto patchVenta(Long id, VentaDto objDto) {
         Venta objVenta = findVenta(id);
@@ -365,7 +373,8 @@ public class VentaService implements IVentaService{
         
         return sacarVentaSimple(objVenta);
     }
-    
+
+    @Transactional
     @Override
     public VentaSimpleDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
@@ -444,7 +453,8 @@ public class VentaService implements IVentaService{
         
         return sacarVentaSimple(objVenta);
     }
-    
+
+    @Transactional
     @Override
     public VentaSimpleDto deleteProductosDeVenta(Long id, List<VentaProductoDto> productosEliminados) {
         //Buscamos venta a eliminar productos
@@ -533,7 +543,8 @@ public class VentaService implements IVentaService{
         
         return sacarVentaSimple(objVenta);
     }
-    
+
+    @Transactional(readOnly = true)
     @Override
     public List<Producto> productosDeVenta(Long id) {
         Venta objVenta = findVenta(id);
@@ -548,6 +559,7 @@ public class VentaService implements IVentaService{
         return listProductos;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public String ventasDelDia(LocalDate fechaVenta) {
         double total = 0;
@@ -575,6 +587,7 @@ public class VentaService implements IVentaService{
         
     }
 
+    @Transactional(readOnly = true)
     @Override
     public VentaResumenDto findMayorVenta() {
         

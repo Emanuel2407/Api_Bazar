@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductoService implements IProductoService{
@@ -36,11 +37,13 @@ public class ProductoService implements IProductoService{
         } //Si llega el final del bucle y no hay excepciones -> Los productos son válidos para vender
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Producto> getProductos() {
         return productoRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Producto findProducto(Long id) {
         Optional<Producto> objProducto = productoRepository.findById(id);
@@ -51,6 +54,7 @@ public class ProductoService implements IProductoService{
 
     }
 
+    @Transactional
     @Override
     public Producto saveProducto(ProductoDto objNuevo) {
         Producto objProducto = new Producto();
@@ -66,18 +70,22 @@ public class ProductoService implements IProductoService{
 
     }
 
+    @Transactional
     //Sobre-carga del método saveProducto que será útil en venta-service para registrar un producto desde allá
     public void saveProducto(Producto objNuevo) {productoRepository.save(objNuevo);}
 
     //Método usado por venta-service para registrar una lista de productos
+    @Transactional
     public void saveAll(List<Producto> listProducto) {productoRepository.saveAll(listProducto);}
 
+    @Transactional
     @Override
     public void deleteProducto(Long id) {
         Producto objProducto = findProducto(id);
         productoRepository.delete(objProducto);
     }
 
+    @Transactional
     @Override
     public Producto updateProducto(Long id, ProductoDto objActualizado) {
         Producto objProducto = findProducto(id);
@@ -94,6 +102,7 @@ public class ProductoService implements IProductoService{
 
     }
 
+    @Transactional
     @Override
     public Producto patchProducto(Long id, ProductoDto objDto) {
         Producto objProducto = findProducto(id);
@@ -108,6 +117,7 @@ public class ProductoService implements IProductoService{
         return objProducto;
     }
 
+    @Transactional
     @Override
     public List<Producto> productosPocoStock() {
 

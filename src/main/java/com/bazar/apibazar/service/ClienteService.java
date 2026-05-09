@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ClienteService implements IClienteService{
@@ -84,9 +85,9 @@ public class ClienteService implements IClienteService{
                 
         }
         
-    } 
-    
-    
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public List<ClienteSimpleDto> getClientesSimples() {
         
@@ -104,7 +105,7 @@ public class ClienteService implements IClienteService{
         return listClientes;
     }
 
-    
+    @Transactional(readOnly = true)
     @Override
     public ClienteSimpleDto findClienteSimple(Long id) {
         
@@ -132,6 +133,7 @@ public class ClienteService implements IClienteService{
         
     }
 
+    @Transactional
     @Override
     public ClienteSimpleDto saveCliente(ClienteDto objNuevo) {
         Cliente objCliente = new Cliente();
@@ -150,6 +152,7 @@ public class ClienteService implements IClienteService{
         return sacarClienteSimple(objCliente);
     }
 
+    @Transactional
     @Override
     public void deleteCliente(Long id) {
         //Su busca el cliente y se confirma existencia
@@ -173,6 +176,7 @@ public class ClienteService implements IClienteService{
 
     }
 
+    @Transactional
     @Override
     public ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado) {
         Cliente objCliente = findCliente(id);
@@ -205,6 +209,7 @@ public class ClienteService implements IClienteService{
         
     }
 
+    @Transactional
     @Override
     public ClienteSimpleDto patchCliente(Long id, ClienteDto objDto) {
         Cliente objCliente = findCliente(id);
@@ -238,8 +243,9 @@ public class ClienteService implements IClienteService{
 
         return sacarClienteSimple(objCliente);
     }
-    
-    
+
+    @Transactional
+    @Override
     public ClienteSimpleDto addVentasACliente(Long idCliente, ClienteVentasIdsDto nuevasVentas){
         
         //Buscamos el cliente
@@ -272,6 +278,7 @@ public class ClienteService implements IClienteService{
         
     }
 
+    @Transactional
     @Override
     public ClienteSimpleDto dropVentasACliente(Long idCliente, ClienteVentasIdsDto ventasAEliminar) {
         
