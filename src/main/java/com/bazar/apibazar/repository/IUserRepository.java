@@ -4,6 +4,7 @@ import com.bazar.apibazar.model.UserSec;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 //Definimos contrato con Spring Data Jpa para tener a los diferentes métodos de persistencia de la interfaz JpaRepository<>
@@ -15,4 +16,7 @@ public interface IUserRepository extends JpaRepository<UserSec, Long> {
 
     //Método que Spring-Data-Jpa interpreta para verificar sin un username está registrado y asociado a algún usuario
     boolean existsByUsername(String username);
+
+    //Definimos método para traer los usuarios que tengan dentro (o asignado) al role cuyo id es el mandado por parámetro
+    List<UserSec> findByListRoles_id(Long roleId);
 }
