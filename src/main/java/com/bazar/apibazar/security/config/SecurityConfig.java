@@ -20,12 +20,9 @@ public class SecurityConfig {
 
     //Inyección de dependencia para implementación de UserDetailsService
     private final UserDetailsService userDetailsService;
-    //Inyección de dependencia para PasswordEncoder utilizado (BCryptPasswordEncoder)
-    private final PasswordEncoder passwordEncoder;
     //Inyección de dependencia por constructor
-    public SecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -64,7 +61,7 @@ public class SecurityConfig {
         //Como el provider va a comparar contra la base de datos, necesitamos definir el UserDetailsService para consultar los datos del usuario
         provider.setUserDetailsService(userDetailsService);
         //Como usamos un mecanismo de hash para guardar la contraseña, necesitamos ese mismo mecanismo para "hashear" la contraseña que mandó el cliente y poder comparar
-        provider.setPasswordEncoder(passwordEncoder);
+        provider.setPasswordEncoder(passwordEncoder());
 
         //Retornamos AuthenticationProvider
         return provider;
