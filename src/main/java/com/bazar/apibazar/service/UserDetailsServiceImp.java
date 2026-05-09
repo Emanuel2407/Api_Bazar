@@ -8,11 +8,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 //Implementación de UserDetailsService para buscar y traer los datos de un determinado usuario desde una base de datos
+@Service
 public class UserDetailsServiceImp implements UserDetailsService {
 
     //Inyección de dependencia para el repositorio de usuario
