@@ -36,7 +36,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> saveUser(@PathVariable UserRequestDto newUser){
+    public ResponseEntity<UserResponseDto> saveUser(@RequestBody UserRequestDto newUser){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.saveUser(newUser));
     }
