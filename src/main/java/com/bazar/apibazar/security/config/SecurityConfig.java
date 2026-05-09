@@ -2,13 +2,14 @@ package com.bazar.apibazar.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,6 +17,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration  //Definimos que en esta clase se registran Beans de configuración
 @EnableWebSecurity  //Activamos la integración de la aplicación con Spring Security
 public class SecurityConfig {
+
+    //Inyección de dependencia para implementación de UserDetailsService
+    private final UserDetailsService userDetailsService;
+    //Inyección de dependencia para PasswordEncoder utilizado (BCryptPasswordEncoder)
+    private final PasswordEncoder passwordEncoder;
+    //Inyección de dependencia por constructor
+    public SecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
 
     @Bean  //Bean que registra la cadena de filtros de seguridad que interceptan cada request
     public SecurityFilterChain securityFilter(HttpSecurity httpSecurity) throws Exception {
@@ -42,6 +54,20 @@ public class SecurityConfig {
     @Bean //Registramos Bean con mecanismo de hash para la contraseña del usuario
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean //Registramos Bean con mecanismo de autenticación que compara el nombre de usuario y la contraseña del usuario con las del usuario recuperado con el UserDetailsService
+    public AuthenticationProvider authenticationProvider(){
+        //Definimos AuthenticationProvider a utilizar
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+
+        //Como el provider va a comparar contra la base de datos, necesitamos definir el UserDetailsService para consultar los datos del usuario
+        provider.setUserDetailsService(userDetailsService);
+        //Como usamos un mecanismo de hash para guardar la contraseña, necesitamos ese mismo mecanismo para "hashear" la contraseña que mandó el cliente y poder comparar
+        provider.setPasswordEncoder(passwordEncoder);
+
+        //Retornamos AuthenticationProvider
+        return provider;
     }
 
 }
