@@ -83,7 +83,7 @@ public class RoleService implements IRoleService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<RoleResponseDto> findAllRole() {
+    public List<RoleResponseDto> findAllRoles() {
         return buildRolesResponse(roleRepo.findAll());
     }
 
@@ -116,7 +116,7 @@ public class RoleService implements IRoleService{
 
     @Transactional
     @Override
-    public void deleteRol(Long id) {
+    public void deleteRole(Long id) {
         //Buscamos rol para verificar existencia
         Role objRole = findRole(id);
 

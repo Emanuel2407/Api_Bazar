@@ -10,7 +10,7 @@ import java.util.List;
 public interface IRoleService {
 
     //Traer todos
-    List<RoleResponseDto> findAllRole();
+    List<RoleResponseDto> findAllRoles();
 
     //Traer lista de roles por sus ids
     List<Role> findAllRolesById(List<Long> rolesIds);
@@ -25,7 +25,7 @@ public interface IRoleService {
     RoleResponseDto saveRole(RoleRequestDto newRole);
 
     //Eliminar rol por id
-    void deleteRol(Long id);
+    void deleteRole(Long id);
 
     //Actualizar rol
     RoleResponseDto updateRole(Long idRole, RoleRequestDto updatedRol);

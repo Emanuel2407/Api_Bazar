@@ -23,7 +23,7 @@ public class RoleController {
 
     @GetMapping
     public ResponseEntity<List<RoleResponseDto>> findAllRoles() {
-        return ResponseEntity.ok(roleService.findAllRole());
+        return ResponseEntity.ok(roleService.findAllRoles());
     }
 
     @GetMapping("/{id}")
@@ -39,7 +39,7 @@ public class RoleController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
-        roleService.deleteRol(id);
+        roleService.deleteRole(id);
         return ResponseEntity.noContent().build();
     }
 
