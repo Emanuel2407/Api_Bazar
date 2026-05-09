@@ -59,7 +59,7 @@ public class RoleService implements IRoleService{
         return roleRepo.findById(id)
                 .orElseThrow(
                         //Creamos función lambda para retornar la excepción en caso de que no se encuentre el rol
-                        () -> new RoleNotFoundException("No se encontró role con Id: + id")
+                        () -> new RoleNotFoundException("No se encontró role con Id: " + id)
                 );
     }
 
