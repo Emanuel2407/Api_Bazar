@@ -4,7 +4,9 @@ import com.bazar.apibazar.dto.permission.PermissionRequestDto;
 import com.bazar.apibazar.dto.permission.PermissionResponseDto;
 import com.bazar.apibazar.exception.PermissionNotFoundException;
 import com.bazar.apibazar.model.Permission;
+import com.bazar.apibazar.model.Role;
 import com.bazar.apibazar.repository.IPermissionRepository;
+import com.bazar.apibazar.repository.IRoleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +19,12 @@ public class PermissionService implements IPermissionService{
 
     //Inyección de dependencia para el repositorio de Permission
     private final IPermissionRepository permissionRepo;
+    //Inyección de dependencia para acceder a consultas simples de persistencia del componente <<Role>>
+    private final IRoleRepository rolRepo;
     //Inyección de dependencia por constructor
-    public PermissionService(IPermissionRepository permissionRepo) {
+    public PermissionService(IPermissionRepository permissionRepo, IRoleRepository rolRepo) {
         this.permissionRepo = permissionRepo;
+        this.rolRepo = rolRepo;
     }
 
     //Método propio para exponer los datos de un permiso por medio del DTO: "PermissionResponse"
@@ -97,6 +102,13 @@ public class PermissionService implements IPermissionService{
         //Buscamos permiso para verificar existencia
         Permission objPermission = findPermission(id);
 
+        //Buscamos roles relacionados con este permiso para eliminar cada una de las asociaciones
+        rolRepo.findByListPermissions_id(id).forEach(
+                //Usamos función lambda para sacar de cada rol el permiso que vamos a eliminar y asi se eliminará el registro de la relación en la tabla intermedia
+                role -> role.getListPermissions().remove(objPermission)
+        );
+
+        //Después de eliminar los registros de relación en la tabla intermedia, podremos eliminar el permiso
         permissionRepo.delete(objPermission);
     }
 
