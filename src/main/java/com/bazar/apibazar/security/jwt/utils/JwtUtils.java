@@ -1,10 +1,13 @@
 package com.bazar.apibazar.security.jwt.utils;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -14,6 +17,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 //Creamos clase con utilidades JWT donde se ejecutan acciones como crear token JWT, validar token, sacar username del usuario desde el token, etc.
+@Component //Registramos instancia de esta clase como Bean para que Spring lo pueda inyectar cuando se necesite
 public class JwtUtils {
 
     //Inyectamos clave secreta con la que se firma el token
@@ -58,5 +62,20 @@ public class JwtUtils {
                 )
                 .withClaim("authorities", authorities)  //Claim adicional que contiene las autoridades del usuario
                 .sign(algorithm);  //Finalmente, firmamos el token con el algoritmo de firma definido anteriormente
+    }
+
+    //Método para validar la autenticidad y veracidad de un token
+    public DecodedJWT validateToken(String token){
+        //Definimos algoritmo para reconstruir la firma y validar
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+
+        //Definimos verificador de JWT pasándole el algoritmo de firma y la clave secreta
+        JWTVerifier verifier = JWT.require(algorithm)
+                .withIssuer(userGenerator)  //Le indicamos que además valide la veracidad del usuario que generó el token (Issuer)
+                .build();  //Construimos el verificador
+
+        //Con los parámetros anteriores le decimos al verificador que valide el token y devolvemos token decodificado
+        return verifier.verify(token);
+
     }
 }
