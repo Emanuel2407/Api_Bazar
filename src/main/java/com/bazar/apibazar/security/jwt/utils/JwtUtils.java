@@ -3,6 +3,7 @@ package com.bazar.apibazar.security.jwt.utils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Base64;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 //Creamos clase con utilidades JWT donde se ejecutan acciones como crear token JWT, validar token, sacar username del usuario desde el token, etc.
@@ -78,4 +77,20 @@ public class JwtUtils {
         return verifier.verify(token);
 
     }
+
+    //Método para sacar el username del usuario del token decodificado
+    public String extractUsername(DecodedJWT decodedJWT){
+        return decodedJWT.getSubject();  //En el momento de la creación, establecimos el subject como el username del usuario
+    }
+
+    //Método para encontrar un Claim es especifico por su nombre
+    public Claim findClaim(String claimName, DecodedJWT decodedJWT){
+        return decodedJWT.getClaim(claimName);
+    }
+
+    //Método para traer todos los claims
+    public Map<String, Claim> findAllClaims(DecodedJWT decodedJWT){
+        return decodedJWT.getClaims();
+    }
+
 }
