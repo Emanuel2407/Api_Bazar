@@ -3,6 +3,7 @@ package com.bazar.apibazar.controller;
 import com.bazar.apibazar.dto.user.UserRequestDto;
 import com.bazar.apibazar.dto.user.UserResponseDto;
 import com.bazar.apibazar.service.IUserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> saveUser(@RequestBody UserRequestDto newUser){
+    public ResponseEntity<UserResponseDto> saveUser(@Valid @RequestBody UserRequestDto newUser){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.saveUser(newUser));
     }
