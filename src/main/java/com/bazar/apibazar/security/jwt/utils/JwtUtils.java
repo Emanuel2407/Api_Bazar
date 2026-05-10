@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class JwtUtils {
 
     //Inyectamos clave secreta con la que se firma el token
-    @Value("${security.jwt.seceret}")
+    @Value("${security.jwt.secret}")
     private String secretKey;
     //Inyectamos usuario que genera el token
     @Value("${security.jwt.user.generator}")
