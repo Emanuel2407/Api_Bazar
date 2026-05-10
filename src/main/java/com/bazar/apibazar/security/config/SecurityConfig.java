@@ -1,5 +1,6 @@
 package com.bazar.apibazar.security.config;
 
+import com.bazar.apibazar.security.jwt.filters.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration  //Definimos que en esta clase se registran Beans de configuración
 @EnableWebSecurity  //Activamos la integración de la aplicación con Spring Security
@@ -20,9 +22,12 @@ public class SecurityConfig {
 
     //Inyección de dependencia para implementación de UserDetailsService
     private final UserDetailsService userDetailsService;
+    //Inyección de dependencia para filtro personalizado JWT
+    private final JwtAuthenticationFilter jwtFilter;
     //Inyección de dependencia por constructor
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationFilter jwtFilter) {
         this.userDetailsService = userDetailsService;
+        this.jwtFilter = jwtFilter;
     }
 
 
@@ -38,6 +43,9 @@ public class SecurityConfig {
                     //Inicialmente, se define que todas las request serán públicas
                     auth.anyRequest().permitAll();
                 })
+                //Agregamos filtro de validación JWT a la SecurityFilterChain
+                //En necesario definir la posición de ejecución, en este caso el filtro se ejecutará antes de los filtros de autenticación de Spring Security
+                .addFilterBefore(jwtFilter, BasicAuthenticationFilter.class)
                 //Construcción de la cadena de filtros de seguridad con base a las reglas anteriores
                 .build();
     }
