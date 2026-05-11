@@ -36,7 +36,7 @@ public class JwtUtils {
         );
 
         //Sacamos username del objeto Authentication
-        String username = authentication.getPrincipal().toString();
+        String username = authentication.getName();
 
         //Sacamos autoridades del usuario y las convertimos a cadena de texto con las autoridades separadas por coma
         String authorities = authentication.getAuthorities()
