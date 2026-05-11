@@ -45,7 +45,11 @@ public class SecurityConfig {
                 .sessionManagement(sesion -> sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 //Autorización de peticiones
                 .authorizeHttpRequests(auth -> {
-                    //Inicialmente, se define que todas las request serán públicas
+                    //El usuario que quiera ingresar a las rutas de los componentes: users, roles, permissions debe ser administrador
+                    auth.requestMatchers("/permissions/**").hasRole("ADMIN");
+                    auth.requestMatchers("/roles/**").hasRole("ADMIN");
+                    auth.requestMatchers("/users/**").hasRole("ADMIN");
+                    //Cualquier acceso será público
                     auth.anyRequest().permitAll();
                 })
                 //Agregamos filtro de validación JWT a la SecurityFilterChain
