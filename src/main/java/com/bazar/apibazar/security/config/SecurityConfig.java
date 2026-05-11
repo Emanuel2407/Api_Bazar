@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 @Configuration  //Definimos que en esta clase se registran Beans de configuración
 @EnableWebSecurity  //Activamos la integración de la aplicación con Spring Security
+@EnableMethodSecurity  //Permitimos el control de acceso a los end-points a nivel de método (Controller)
 public class SecurityConfig {
 
     //Inyección de dependencia para implementación de UserDetailsService
