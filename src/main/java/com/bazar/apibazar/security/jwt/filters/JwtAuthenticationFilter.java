@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //Usamos try-catch{} por si ocurre algún problema en la validación del token
         try {
             //Sacamos, del Header de la Response, el token que normalmente viene con el nombre: AUTHORIZATION
-            String token = response.getHeader(HttpHeaders.AUTHORIZATION);
+            String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
             //Filtramos que el token no sea null y que empiece con el esquema: Bearer
             if (token != null && token.startsWith("Bearer ")) {
@@ -89,7 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         """);
 
         //Finalizamos filtro
-        return;
+            return;
 
         }
 
