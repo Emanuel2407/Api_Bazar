@@ -66,7 +66,8 @@ public class JwtUtils {
     //Método para validar la autenticidad y veracidad de un token
     public DecodedJWT validateToken(String token){
         //Definimos algoritmo para reconstruir la firma y validar
-        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        //Como guardamos la clave secreta codificada en Base64, debemos decodificarla para correcta reconstrucción de la firma
+        Algorithm algorithm = Algorithm.HMAC256(Base64.getDecoder().decode(secretKey));
 
         //Definimos verificador de JWT pasándole el algoritmo de firma y la clave secreta
         JWTVerifier verifier = JWT.require(algorithm)
