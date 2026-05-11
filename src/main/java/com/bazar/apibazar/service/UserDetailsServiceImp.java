@@ -41,7 +41,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
         //Recorremos lista de roles del usuario para almacenar cada uno en la lista de autoridades (authorities)
         user.getListRoles().forEach(
                 //Usamos función lambda para crear y agregar objeto SimpleGrantedAuthority (implementación de GrantedAuthority) a partir del nombre de cada rol
-                role -> authorities.add(new SimpleGrantedAuthority(role.getName()))
+                role -> authorities.add((new SimpleGrantedAuthority("ROLE_".concat(role.getName()))))
         );
 
         //Agregamos los permisos (que están dentro de cada rol) a la lista de autoridades (authorities)
