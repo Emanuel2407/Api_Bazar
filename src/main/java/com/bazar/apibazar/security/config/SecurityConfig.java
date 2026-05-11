@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,6 +37,8 @@ public class SecurityConfig {
         return  httpSecurity
                 // Se desactiva CSRF (común en APIs REST que no usan cookies/sesiones)
                 .csrf(csrf -> csrf.disable())
+                //Usamos BasicAuth como mecanismo adicional de autenticación para hacer uso de su EntryPoint que establece un plan de acción ante errores de autenticación (AuthenticationException)
+                .httpBasic(Customizer.withDefaults())
                 // Configurar la gestión de sesiones como Stateless
                 .sessionManagement(sesion -> sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 //Autorización de peticiones
