@@ -1,7 +1,7 @@
 package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
-import com.bazar.apibazar.dto.venta.VentaSimpleDto;
+import com.bazar.apibazar.dto.venta.VentaResponseDto;
 import com.bazar.apibazar.dto.venta.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.venta.VentaDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
@@ -155,7 +155,7 @@ public class VentaService implements IVentaService{
     }
     
     //Método propio para cambiar los objetos VentaProducto de las ventas por objetos Producto simples
-    private VentaSimpleDto sacarVentaSimple(Venta objVenta){
+    private VentaResponseDto sacarVentaSimple(Venta objVenta){
         
         if(objVenta == null){return null;}
         
@@ -176,7 +176,7 @@ public class VentaService implements IVentaService{
                         objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
         }
         
-        return new VentaSimpleDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
+        return new VentaResponseDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
                 objVenta.getCantidadTotalProductos(), listProductos, clienteService.sacarClienteSimple(
                         objVenta.getCliente())
         );
@@ -184,9 +184,9 @@ public class VentaService implements IVentaService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<VentaSimpleDto> getVentasSimples() {
+    public List<VentaResponseDto> getVentasSimples() {
         
-        List<VentaSimpleDto> listVentas = new ArrayList<>();
+        List<VentaResponseDto> listVentas = new ArrayList<>();
         
         //Bucle for-each para recorrer todas las ventas registradas
         for(Venta objVenta: ventaRepository.findAll()){
@@ -204,7 +204,7 @@ public class VentaService implements IVentaService{
                         objProducto.getMarca(), objProducto.getCosto(), objVP.getCantidad(), objVP.getSubTotalVenta()));
             }
             
-            listVentas.add(new VentaSimpleDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
+            listVentas.add(new VentaResponseDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
                     objVenta.getCantidadTotalProductos(), listProductos, clienteService.sacarClienteSimple(
                             objVenta.getCliente())
             ));
@@ -215,7 +215,7 @@ public class VentaService implements IVentaService{
 
     @Transactional(readOnly = true)
     @Override
-    public VentaSimpleDto findVentaSimple(Long id) {
+    public VentaResponseDto findVentaSimple(Long id) {
         Venta objVenta = findVenta(id);
         
         /*e llama al método que se encargue de cambiar todos los productos VentaProducto de una Venta a 
@@ -241,7 +241,7 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaSimpleDto saveVenta(VentaDto objNuevo) {
+    public VentaResponseDto saveVenta(VentaDto objNuevo) {
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
         productoService.validarStockProductos(objNuevo.getListProductos());
 
@@ -283,7 +283,7 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaSimpleDto updateVenta(Long id, VentaDto objActualizado) {
+    public VentaResponseDto updateVenta(Long id, VentaDto objActualizado) {
         Venta objVenta = findVenta(id);
         
         //Actualizamos datos de la venta en cuestión
@@ -306,7 +306,7 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaSimpleDto patchVenta(Long id, VentaDto objDto) {
+    public VentaResponseDto patchVenta(Long id, VentaDto objDto) {
         Venta objVenta = findVenta(id);
         
         //Actualizamos fecha de la venta 
@@ -333,7 +333,7 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaSimpleDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
+    public VentaResponseDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
         productoService.validarStockProductos(productosNuevos);
 
@@ -413,7 +413,7 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaSimpleDto deleteProductosDeVenta(Long id, List<VentaProductoDto> productosEliminados) {
+    public VentaResponseDto deleteProductosDeVenta(Long id, List<VentaProductoDto> productosEliminados) {
         //Buscamos venta a eliminar productos
         Venta objVenta = findVenta(id);
         

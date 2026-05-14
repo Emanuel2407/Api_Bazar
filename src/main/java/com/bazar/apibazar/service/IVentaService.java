@@ -1,6 +1,6 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.venta.VentaSimpleDto;
+import com.bazar.apibazar.dto.venta.VentaResponseDto;
 import com.bazar.apibazar.dto.venta.VentaDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.dto.venta.VentaResumenDto;
@@ -15,24 +15,24 @@ public interface IVentaService {
     respectiva Venta y no la lista completa de la tabla intermedia VentaProducto. Entonces para lograsr esto
     hacemos la implementacion de una clase Dto que devuelva lo mismo que la clase Venta normal excepto que la
     lista de VentaProducto se va a cambiar por una lista de productos normalita*/
-    List<VentaSimpleDto> getVentasSimples();
+    List<VentaResponseDto> getVentasSimples();
     
     //Se devuelve objeto Dto con una lista de simples productos
-    VentaSimpleDto findVentaSimple(Long id);
+    VentaResponseDto findVentaSimple(Long id);
     
-    VentaSimpleDto saveVenta(VentaDto objNuevo);
+    VentaResponseDto saveVenta(VentaDto objNuevo);
     
     void deleteVenta(Long id);
     
-    VentaSimpleDto updateVenta(Long id, VentaDto objActualizado);
+    VentaResponseDto updateVenta(Long id, VentaDto objActualizado);
     
-    VentaSimpleDto patchVenta(Long id, VentaDto objDto);
+    VentaResponseDto patchVenta(Long id, VentaDto objDto);
     
     //Método para agregar una cierta cantidad de productos nuevos a una venta sin afectar los que la venta ya tenía    
-    VentaSimpleDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos);
+    VentaResponseDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos);
             
     //Método para eliminarle una cierta cantidad  de productos a una venta
-    VentaSimpleDto deleteProductosDeVenta(Long id, List<VentaProductoDto> productosEliminados);
+    VentaResponseDto deleteProductosDeVenta(Long id, List<VentaProductoDto> productosEliminados);
     
     //Obtener la lista de productos de una determinada venta
     List<Producto> productosDeVenta(Long id);

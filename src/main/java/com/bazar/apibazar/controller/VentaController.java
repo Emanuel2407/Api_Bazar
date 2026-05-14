@@ -1,6 +1,6 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.venta.VentaSimpleDto;
+import com.bazar.apibazar.dto.venta.VentaResponseDto;
 import com.bazar.apibazar.dto.venta.VentaDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.dto.venta.VentaResumenDto;
@@ -31,13 +31,13 @@ public class VentaController {
     
     //Traer todos
     @GetMapping("/")
-    public ResponseEntity<List<VentaSimpleDto>> getVentas(){
+    public ResponseEntity<List<VentaResponseDto>> getVentas(){
         return ResponseEntity.ok(ventaService.getVentasSimples());
     }
     
     //Traer uno
     @GetMapping("/{id}")
-    public ResponseEntity<VentaSimpleDto> findVenta(@PathVariable Long id){
+    public ResponseEntity<VentaResponseDto> findVenta(@PathVariable Long id){
         return ResponseEntity.ok(ventaService.findVentaSimple(id));
     }
     
@@ -61,7 +61,7 @@ public class VentaController {
     
     //Ingresamos venta
     @PostMapping("/")
-    public ResponseEntity<VentaSimpleDto> saveVenta(@RequestBody VentaDto objNuevo){
+    public ResponseEntity<VentaResponseDto> saveVenta(@RequestBody VentaDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ventaService.saveVenta(objNuevo));
     }
@@ -75,19 +75,19 @@ public class VentaController {
     
     //Actualizamos 
     @PutMapping("/{id}")
-    public ResponseEntity<VentaSimpleDto> updateVenta(@PathVariable Long id, @RequestBody VentaDto objActualizado){
+    public ResponseEntity<VentaResponseDto> updateVenta(@PathVariable Long id, @RequestBody VentaDto objActualizado){
         return ResponseEntity.ok(ventaService.updateVenta(id, objActualizado));
     }
     
     //Actualización parcial
     @PatchMapping("/{id}")
-    public ResponseEntity<VentaSimpleDto> patchVenta(@PathVariable Long id, @RequestBody VentaDto objDto){
+    public ResponseEntity<VentaResponseDto> patchVenta(@PathVariable Long id, @RequestBody VentaDto objDto){
         return ResponseEntity.ok(ventaService.patchVenta(id, objDto));
     }
     
     //Agregar productos a Venta existente
     @PostMapping("/agregar-productos/{id}")
-    public ResponseEntity<VentaSimpleDto> addProductosAventa(@PathVariable Long id, @RequestBody List<VentaProductoDto> productosNuevos) {
+    public ResponseEntity<VentaResponseDto> addProductosAventa(@PathVariable Long id, @RequestBody List<VentaProductoDto> productosNuevos) {
         return ResponseEntity.ok(ventaService.addProductosAVenta(id, productosNuevos));
     }
     
