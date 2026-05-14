@@ -1,6 +1,5 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.cliente.ClienteVentasIdsDto;
 import com.bazar.apibazar.dto.cliente.ClienteDto;
 import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
 
