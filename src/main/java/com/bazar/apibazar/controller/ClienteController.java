@@ -1,6 +1,5 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.cliente.ClienteVentasIdsDto;
 import com.bazar.apibazar.dto.cliente.ClienteDto;
 import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
 import com.bazar.apibazar.service.IClienteService;
@@ -65,17 +64,6 @@ public class ClienteController {
     @PatchMapping("/{id}")
     public ResponseEntity<ClienteSimpleDto> patchCliente(@PathVariable Long id, @RequestBody ClienteDto objDto){
         return ResponseEntity.ok(clienteService.patchCliente(id, objDto));
-    }
-    
-    @PostMapping("/add-ventas/{id}")
-    public ResponseEntity<ClienteSimpleDto> addVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
-        return ResponseEntity.ok(clienteService.addVentasACliente(id, nuevasVentas));
-    }
-    
-    @DeleteMapping("/delete-ventas/{id}")
-    public ResponseEntity<ClienteSimpleDto> DropVentasACliente(@PathVariable Long id, @RequestBody ClienteVentasIdsDto nuevasVentas){
-        return ResponseEntity.ok(clienteService.dropVentasACliente(id, nuevasVentas));
-        
     }
     
 }

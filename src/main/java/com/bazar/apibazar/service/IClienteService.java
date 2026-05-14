@@ -25,10 +25,5 @@ public interface IClienteService {
     ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado);
     
     ClienteSimpleDto patchCliente(Long id, ClienteDto objDto);
-    
-    //Método para agregar una cierta cantidad de ventas a un cliente
-    ClienteSimpleDto addVentasACliente(Long idCliente, ClienteVentasIdsDto nuevasVentas);
-    
-    //Método para eliminarle una cierta cantidad de ventas a un cliente
-    ClienteSimpleDto dropVentasACliente(Long idCliente, ClienteVentasIdsDto ventasAEliminar);
+
 }
