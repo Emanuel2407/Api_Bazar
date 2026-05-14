@@ -21,7 +21,8 @@ public class ClienteService implements IClienteService{
 
 
     /*Método de construir el DTO para exponer a un cliente*/
-    private ClienteSimpleDto sacarClienteSimple(Cliente objCliente){
+    @Override
+    public ClienteSimpleDto sacarClienteSimple(Cliente objCliente){
 
         return new ClienteSimpleDto(objCliente.getIdCliente(), objCliente.getNombre(), objCliente.getApellido(),
                 objCliente.getDocumento());

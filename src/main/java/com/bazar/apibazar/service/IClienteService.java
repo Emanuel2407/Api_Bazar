@@ -2,6 +2,7 @@ package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.cliente.ClienteDto;
 import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
+import com.bazar.apibazar.model.Cliente;
 
 import java.util.List;
 
@@ -16,7 +17,10 @@ public interface IClienteService {
     
     //Se devuelve objeto Dto con un Cliente que tiene ventas con simples productos
     ClienteSimpleDto findClienteSimple(Long id);
-    
+
+    //Método para construir un DTO de exposición de un cliente a partir de los datos que este tenga guardado en la base de datos
+    ClienteSimpleDto sacarClienteSimple(Cliente objCliente);
+
     ClienteSimpleDto saveCliente(ClienteDto objNuevo);
     
     void deleteCliente(Long id);
