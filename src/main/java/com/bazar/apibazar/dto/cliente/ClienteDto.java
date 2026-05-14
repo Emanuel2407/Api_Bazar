@@ -1,31 +1,7 @@
 package com.bazar.apibazar.dto.cliente;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import com.bazar.apibazar.dto.venta.VentaDto;
-import lombok.Getter;
-import lombok.Setter;
-
-@Setter  @Getter
-public class ClienteDto {
-    
-    private String nombre;
-    private String apellido;
-    private String documento;
-    private List<VentaDto> listVentas = new ArrayList<>();
-    
-    public ClienteDto() {
-    }
-
-    public ClienteDto(String nombre, String apellido, String documento, List<VentaDto> listVentas) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.documento = documento;
-        this.listVentas = listVentas;
-    }
-
-    
-    
-    
-}
+//DTO para recibir los datos de un cliente cuando se va a hacer un registro o una modificación de este
+public record ClienteDto(String nombre,
+                         String apellido,
+                         String documento){}
