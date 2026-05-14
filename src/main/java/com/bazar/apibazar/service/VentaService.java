@@ -1,17 +1,15 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.venta.ClienteDeVentaDto;
+import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
 import com.bazar.apibazar.dto.venta.VentaSimpleDto;
 import com.bazar.apibazar.dto.venta.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.venta.VentaDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.dto.venta.VentaResumenDto;
 import com.bazar.apibazar.exception.VentaNotFoundException;
-import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.model.Venta;
 import com.bazar.apibazar.model.VentaProducto;
-import com.bazar.apibazar.repository.IClienteRepository;
 import com.bazar.apibazar.repository.IVentaProductoRepository;
 import com.bazar.apibazar.repository.IVentaRepository;
 import java.time.LocalDate;
@@ -35,9 +33,9 @@ public class VentaService implements IVentaService{
     
     //Inyección de dependencia para ClienteService
     @Autowired
-    IClienteRepository clienteRepository;
+    IClienteService clienteService;
     
-    /*Inyección de dependencia para la interfaz IventaProductoRepository que contiene todos los métodos necesarios
+    /*Inyección de dependencia para la interfaz IVentaProductoRepository que contiene todos los métodos necesarios
     para manejar la relación entre las tablas Venta y Producto*/
     @Autowired
     IVentaProductoRepository vpRepository;
@@ -62,25 +60,7 @@ public class VentaService implements IVentaService{
         
         return totalProductos;
     }
-    
-    //Método propio para encontrar el cliente de una determinada Venta
-    @Transactional
-    public ClienteDeVentaDto buscarClienteDeVenta(Long idVenta){
-        
-        //Recorrer todos los clientes registrados
-        for(Cliente objCliente: clienteRepository.findAll()){
-            
-            //Recorrer las ventas de cada cliente
-            for(Venta objVenta: objCliente.getListVentas()){
-                
-                //Si encontramos el cliente lo retornamos
-                if(objVenta.getIdVenta().equals(idVenta)){return new ClienteDeVentaDto(objCliente.getNombre(),
-                        objCliente.getApellido(), objCliente.getDocumento());}
-            }
-        }
-        return null;
-    }
-    
+
 
     /*Método propio para eliminar todas las relaciones de una venta con cada uno de los productos asociados en la
     tabla intermedia VentaProducto*/
@@ -154,7 +134,7 @@ public class VentaService implements IVentaService{
     private void crearRegistroVentaProducto(Venta objVenta, Producto objProducto, Integer cantidadProducto, Double subTotal){
         VentaProducto objRelacion = new VentaProducto();
 
-        //Agregamos los datos de la relación (Gracias a @MapsId definida en las relaciones, Hibernate crea automaticamente la PK compuesta basandose en los IDs de los objetos)
+        //Agregamos los datos de la relación (Gracias a @MapsId definida en las relaciones, Hibernate crea automáticamente la PK compuesta basándose en los ID de los objetos)
         objRelacion.setProducto(objProducto);
         objRelacion.setVenta(objVenta);
         objRelacion.setCantidad(cantidadProducto);
@@ -197,7 +177,9 @@ public class VentaService implements IVentaService{
         }
         
         return new VentaSimpleDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
-                objVenta.getCantidadTotalProductos(), listProductos, buscarClienteDeVenta(objVenta.getIdVenta()));
+                objVenta.getCantidadTotalProductos(), listProductos, clienteService.sacarClienteSimple(
+                        objVenta.getCliente())
+        );
     }
 
     @Transactional(readOnly = true)
@@ -223,7 +205,9 @@ public class VentaService implements IVentaService{
             }
             
             listVentas.add(new VentaSimpleDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
-                    objVenta.getCantidadTotalProductos(), listProductos, buscarClienteDeVenta(objVenta.getIdVenta())));
+                    objVenta.getCantidadTotalProductos(), listProductos, clienteService.sacarClienteSimple(
+                            objVenta.getCliente())
+            ));
         }
         
         return listVentas;
@@ -280,33 +264,6 @@ public class VentaService implements IVentaService{
         /*Retornamos el objeto de la venta que se registró, ya que nos será útil en el método "saveCliente"
         de la clase "cliente"*/
         return sacarVentaSimple(objVenta);
-    }
-
-    //Método consumido por cliente-service para registrar una venta
-    @Transactional
-    public Venta guardarVenta(VentaDto objNuevo) {
-        //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
-        productoService.validarStockProductos(objNuevo.getListProductos());
-
-        Venta objVenta = new Venta();
-
-        //Migramos datos del objeto Dto. al objeto Venta
-        objVenta.setFechaVenta(objNuevo.getFechaVenta());
-
-        //Primero se guarda la venta sin los productos para obtener su id
-        ventaRepository.save(objVenta);
-
-        /*Llamamos al método que se encargue de crear las relaciones entre la venta y cada uno de los productos
-        que llegaron como objetos VentaProductoDto en el objeto Dto de venta llamado objNuevo*/
-        crearRelacionVentaProducto(objNuevo.getListProductos(), objVenta);
-
-
-        //Guardamos nuevamente pero ahora con el total de la venta
-        ventaRepository.save(objVenta);
-
-        /*Retornamos el objeto de la venta que se registró, ya que nos será útil en el método "saveCliente"
-        de la clase "cliente"*/
-        return objVenta;
     }
 
 
@@ -616,10 +573,10 @@ public class VentaService implements IVentaService{
         mayorVentaDto.setCantProductos(mayorVenta.getCantidadTotalProductos());
         
         //Buscamos el cliente de la Mayor venta
-        ClienteDeVentaDto objCliente = buscarClienteDeVenta(mayorVenta.getIdVenta());
+        ClienteSimpleDto objCliente = clienteService.sacarClienteSimple(mayorVenta.getCliente());
 
-        mayorVentaDto.setNombreCliente(objCliente.getNombre());
-        mayorVentaDto.setApellidoCliente(objCliente.getApellido());
+        mayorVentaDto.setNombreCliente(objCliente.nombre());
+        mayorVentaDto.setApellidoCliente(objCliente.apellido());
 
         return mayorVentaDto;  
         
