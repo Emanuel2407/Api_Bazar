@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 //Service para desarrollar toda la lógica de negocio que respecta al dominio <<Role>>
 @Service
@@ -69,12 +70,12 @@ public class RoleService implements IRoleService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<Role> findAllRolesById(List<Long> rolesIds){
+    public List<Role> findAllRolesByNames(Set<String> rolesNames){
         //Lista de roles encontrados
-        List<Role> foundRoles = roleRepo.findAllById(rolesIds);
+        List<Role> foundRoles = roleRepo.findAllByNameIn(rolesNames);
 
         //Validamos que se haya hecho la carga total de los roles solicitados
-        if(foundRoles.size() < rolesIds.size()){
+        if(foundRoles.size() < rolesNames.size()){
             throw new RoleNotFoundException("Uno o varios roles no fueron encontrados");
         }
 

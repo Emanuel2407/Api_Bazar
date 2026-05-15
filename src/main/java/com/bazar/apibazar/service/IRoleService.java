@@ -5,6 +5,7 @@ import com.bazar.apibazar.dto.role.RoleResponseDto;
 import com.bazar.apibazar.model.Role;
 
 import java.util.List;
+import java.util.Set;
 
 //Interfaz donde se definen las operaciones de lógica de negocio para el dominio <<Role>> que serán usadas por diferentes clientes (controllers, otros service, etc)
 public interface IRoleService {
@@ -12,8 +13,8 @@ public interface IRoleService {
     //Traer todos
     List<RoleResponseDto> findAllRoles();
 
-    //Traer lista de roles por sus ids
-    List<Role> findAllRolesById(List<Long> rolesIds);
+    //Traer lista de roles por sus nombres
+    List<Role> findAllRolesByNames(Set<String> rolesNames);
 
     //Mapear objetos Roles a DTOs de respuesta para exposición
     List<RoleResponseDto> buildRolesResponse(List<Role> listRoles);

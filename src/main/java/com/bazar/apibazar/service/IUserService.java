@@ -23,10 +23,10 @@ public interface IUserService {
     void deleteUser(Long id);
 
     //Agregar roles nuevos a un usuario en particular
-    UserResponseDto addRolesToUser(Long userId, List<Long> newRolesIds);
+    UserResponseDto addRolesToUser(Long userId, List<String> newRolesNames);
 
     //Eliminar roles asignados a un usuario
-    UserResponseDto removeRolesFromUser(Long userId, List<Long> removeRolesIds);
+    UserResponseDto removeRolesFromUser(Long userId, List<String> removeRolesNames);
 
 //    //---Operaciones sensibles---
 //    /*Nota: La identidad de este se saca del token JWT y no por parámetros, ya que así nos aseguramos que la cuenta a

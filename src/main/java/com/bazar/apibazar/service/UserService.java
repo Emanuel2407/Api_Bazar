@@ -4,15 +4,17 @@ import com.bazar.apibazar.dto.user.UserRequestDto;
 import com.bazar.apibazar.dto.user.UserResponseDto;
 import com.bazar.apibazar.exception.UserNotFoundException;
 import com.bazar.apibazar.exception.UsernameAlreadyExistsException;
+import com.bazar.apibazar.model.Role;
 import com.bazar.apibazar.model.UserSec;
+import com.bazar.apibazar.repository.IRoleRepository;
 import com.bazar.apibazar.repository.IUserRepository;
+import org.apache.coyote.BadRequestException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 //Implementamos operaciones de dominio para definir y ejecutar la lógica de dominio
 @Service
@@ -22,11 +24,14 @@ public class UserService implements IUserService {
     private final IUserRepository userRepo;
     //Inyección de dependencia para el contrato del service de Role
     private final IRoleService roleService;
+    //Inyección de dependencia para el repository del componente "role"
+    private final IRoleRepository roleRepo;
 
     //Inyección de dependencia por constructor
-    public UserService(IUserRepository userRepo, RoleService roleService) {
+    public UserService(IUserRepository userRepo, RoleService roleService, IRoleRepository roleRepo) {
         this.userRepo = userRepo;
         this.roleService = roleService;
+        this.roleRepo = roleRepo;
     }
 
     //Método para construir un DTO para la exposición de un usuario
@@ -95,7 +100,7 @@ public class UserService implements IUserService {
         objUser.setListRoles(
                 new LinkedHashSet<>(
                         //Buscamos por medio de RoleService los roles que se le quieren asignar al usuario
-                        roleService.findAllRolesById(newUser.rolesIds())
+                        roleService.findAllRolesByNames(new LinkedHashSet<>(newUser.rolesNames()))
                 )
         );
 
@@ -116,13 +121,13 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
-    public UserResponseDto addRolesToUser(Long userId, List<Long> newRolesIds) {
+    public UserResponseDto addRolesToUser(Long userId, List<String> newRolesNames) {
         //Buscamos user por si id, en caso de que no exista -> Excepción personalizada
         UserSec user = findUser(userId);
 
         //Buscamos y agregamos los nuevos roles a la lista roles del usuario
         user.getListRoles().addAll(
-                roleService.findAllRolesById(newRolesIds)
+                roleService.findAllRolesByNames(new LinkedHashSet<>(newRolesNames))
         );
 
         return buildUserResponse(user);
@@ -130,18 +135,18 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
-    public UserResponseDto removeRolesFromUser(Long userId, List<Long> removeRolesIds) {
+    public UserResponseDto removeRolesFromUser(Long userId, List<String> removeRolesNames) {
         //Buscamos usuario y confirmamos existencia
         UserSec objUser = findUser(userId);
 
         //Validamos que la lista de roles que se quieren eliminar del usuario realmente existen en la BD
-        roleService.findAllRolesById(removeRolesIds);
+        roleService.findAllRolesByNames(new LinkedHashSet<>(removeRolesNames));
 
         /*Recorremos la lista de Roles del usuario y con el método .removeIf(..) garantizamos que se eliminen, de esa lista,
           de forma segura, los roles que cumplan la condición (el id de estos está dentro de "removeRolesIds")*/
         objUser.getListRoles().removeIf(
                 //Usamos función lambda para verificar si el rol en cuestión se mandó a eliminar
-                role -> removeRolesIds.contains(role.getId())
+                role -> removeRolesNames.contains(role.getName())
         );
 
         //Retornamos usuario con roles actualizados

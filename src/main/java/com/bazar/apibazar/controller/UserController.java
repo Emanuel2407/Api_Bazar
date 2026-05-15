@@ -50,13 +50,13 @@ public class UserController {
 
     //Agregar roles al usuario
     @PostMapping("/{userId}/add-roles")
-    public ResponseEntity<UserResponseDto> addRolesToUser(@PathVariable Long userId, @RequestBody List<Long> newRolesIds){
-        return ResponseEntity.ok(userService.addRolesToUser(userId, newRolesIds));
+    public ResponseEntity<UserResponseDto> addRolesToUser(@PathVariable Long userId, @RequestBody List<String> newRolesNames){
+        return ResponseEntity.ok(userService.addRolesToUser(userId, newRolesNames));
     }
 
     //Eliminar roles de un usuario
     @DeleteMapping("/{userId}/remove-roles")
-    public ResponseEntity<UserResponseDto> removeRoles(@PathVariable Long userId, @RequestBody List<Long> rolesIds){
-        return ResponseEntity.ok(userService.removeRolesFromUser(userId, rolesIds));
+    public ResponseEntity<UserResponseDto> removeRoles(@PathVariable Long userId, @RequestBody List<String> rolesNames){
+        return ResponseEntity.ok(userService.removeRolesFromUser(userId, rolesNames));
     }
 }
