@@ -98,6 +98,16 @@ public class RoleService implements IRoleService{
         return buildRoleResponse(objRole);
     }
 
+    @Override
+    public Role findRoleByName(String roleName) {
+        //Buscamos rol con el método definido en el repositorio y en caso de que exista lo devolvemos
+        return roleRepo.findByName(roleName)
+                .orElseThrow(
+                        //Si no se encuentra rol con ese nombre, indicamos con una excepción personalizada
+                        () -> new RoleNotFoundException("No se encontró rol con nombre: " + roleName)
+                );
+    }
+
     @Transactional
     @Override
     public RoleResponseDto saveRole(RoleRequestDto newRole) {

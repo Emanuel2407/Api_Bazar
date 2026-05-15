@@ -4,6 +4,7 @@ import com.bazar.apibazar.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -17,4 +18,7 @@ public interface IRoleRepository extends JpaRepository<Role, Long> {
 
     //Definimos método de consulta personalizado para consultar los datos de un grupo de roles consultando por sus nombres
     List<Role> findAllByNameIn(Set<String> rolesNames);
+
+    //Definimos método de consulta personalizada para traer un rol por su nombre
+    Optional<Role> findByName(String roleName);
 }

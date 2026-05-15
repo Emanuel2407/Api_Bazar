@@ -22,6 +22,9 @@ public interface IRoleService {
     //Traer por ID
     RoleResponseDto findRoleById(Long id);
 
+    //Traer rol por nombre
+    Role findRoleByName(String roleName);
+
     //Registro de un rol
     RoleResponseDto saveRole(RoleRequestDto newRole);
 
