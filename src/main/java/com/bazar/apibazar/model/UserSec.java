@@ -9,6 +9,8 @@ import lombok.Setter;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static jakarta.persistence.CascadeType.*;
+
 //Entidad para el registro de usuarios
 @Getter  @Setter
 @AllArgsConstructor
@@ -24,11 +26,10 @@ public class UserSec {
     @Column(unique = true)
     private String username;
     private String password;
-    //Columnas para gestionar el estado del usuario (Al momento de la creación todas serán positivas)
-    private boolean enabled=true;  //Si no ha sido eliminado o deshabilitado
-    private boolean accountNotExpired=true; //Si la cuenta no ha expirado
-    private boolean accountNotLocked=true;  //Si la cuenta no está bloqueada
-    private boolean credentialNotExpired=true;  //Si las credenciales no han expirado
+    //Relación uno a uno entre clientes y usuarios para identificar a qué cliente de negocio corresponde un usuario cuando este tiene el rol: "ROLE_CLIENTE"
+    @OneToOne
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
     //Relación ManyToMany con tipo de carga ansiosa (Cuando se carga un usuario, se cargan sus roles)
     @ManyToMany(fetch = FetchType.EAGER)
     //Definimos propiedades de tabla intermedia
@@ -38,5 +39,10 @@ public class UserSec {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     Set<Role> listRoles = new LinkedHashSet<>();
 
+    //Columnas para gestionar el estado del usuario (Al momento de la creación todas serán positivas)
+    private boolean enabled=true;  //Si no ha sido eliminado o deshabilitado
+    private boolean accountNotExpired=true; //Si la cuenta no ha expirado
+    private boolean accountNotLocked=true;  //Si la cuenta no está bloqueada
+    private boolean credentialNotExpired=true;  //Si las credenciales no han expirado
 
 }
