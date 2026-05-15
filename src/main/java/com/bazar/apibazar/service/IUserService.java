@@ -16,7 +16,8 @@ public interface IUserService {
     //Traemos por ID
     UserResponseDto findUserById(Long id);
 
-    //Registrar usuario
+    /*Registrar usuarios administrativos.
+      NOTA: no se registran usuario que son clientes por este método*/
     UserResponseDto saveUser(UserRequestDto newUser);
 
     //Eliminar usuario por su id

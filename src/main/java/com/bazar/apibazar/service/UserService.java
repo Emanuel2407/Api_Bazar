@@ -2,6 +2,7 @@ package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.user.UserRequestDto;
 import com.bazar.apibazar.dto.user.UserResponseDto;
+import com.bazar.apibazar.exception.InvalidRoleAssignmentException;
 import com.bazar.apibazar.exception.UserNotFoundException;
 import com.bazar.apibazar.exception.UsernameAlreadyExistsException;
 import com.bazar.apibazar.model.Role;
@@ -86,6 +87,11 @@ public class UserService implements IUserService {
         //Validamos que el username que se quiere asociar al usuario no esté registrado
         if (userRepo.existsByUsername(newUser.username())) {
             throw new UsernameAlreadyExistsException("Ya existe usuario con username: " + newUser.username() + ", intente con otro");
+        }
+
+        //En este método no se registran usuarios que son clientes, solo registros administrativos (empleados, administradores, etc)
+        if(newUser.rolesNames().contains("CLIENTE")){
+            throw new InvalidRoleAssignmentException("Los usuarios con el rol CLIENTE deben registrarse a través del flujo de registro de clientes");
         }
 
         //Creamos objeto que almacena los datos del usuario a persistir
