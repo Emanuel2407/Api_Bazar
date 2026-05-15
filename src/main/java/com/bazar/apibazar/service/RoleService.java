@@ -106,7 +106,7 @@ public class RoleService implements IRoleService{
                 new LinkedHashSet<>(
                         /*Como el DTO "RoleRequestDto" tiene dentro una lista de ids de permisos que le vamos a asignar a
                           este rol, debemos buscar esos permisos*/
-                        permissionService.findAllPermissionsById(newRole.permissionsIds()))
+                        permissionService.findAllPermissionsByNames(new LinkedHashSet<>(newRole.permissionsNames())))
         );
 
         //Persistimos objeto
@@ -148,13 +148,13 @@ public class RoleService implements IRoleService{
 
     @Transactional
     @Override
-    public RoleResponseDto addPermissionsToRole(Long idRole, List<Long> newPermissionsIds) {
+    public RoleResponseDto addPermissionsToRole(Long idRole, List<String> newPermissionsNames) {
         //Buscamos rol para confirmar existencia
         Role objRole = findRole(idRole);
 
         //Buscamos y agregamos nueva lista de permisos al rol
         objRole.getListPermissions().addAll(
-                permissionService.findAllPermissionsById(newPermissionsIds)
+                permissionService.findAllPermissionsByNames(new LinkedHashSet<>(newPermissionsNames))
         );
 
         //Exponemos rol actualizado
@@ -163,17 +163,17 @@ public class RoleService implements IRoleService{
 
     @Transactional
     @Override
-    public RoleResponseDto removePermissionsFromRole(Long idRole, List<Long> removePermissionsIds) {
+    public RoleResponseDto removePermissionsFromRole(Long idRole, List<String> removePermissionsNames) {
         //Buscamos rol para confirmar existencia
         Role objRole = findRole(idRole);
 
         //Buscamos permissions para confirmar existencia de todos
-        permissionService.findAllPermissionsById(removePermissionsIds);
+        permissionService.findAllPermissionsByNames(new LinkedHashSet<>(removePermissionsNames));
 
         /*Usamos el método .removeIf() y una función lambda para eliminar todo permiso que cumpla la condición definida:
            Si el id del permiso en cuestión hace parte de la lista de ids de permisos que se mandaron a eliminar*/
         objRole.getListPermissions().removeIf(
-                permission -> removePermissionsIds.contains(permission.getId())
+                permission -> removePermissionsNames.contains(permission.getName())
         ) ;
 
         return buildRoleResponse(objRole);

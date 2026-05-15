@@ -50,15 +50,15 @@ public class RoleController {
 
     //Definimos end-point para agregar una lista de permisos dentro de un rol
     @PostMapping("/{idRole}/add-permissions")
-    public ResponseEntity<RoleResponseDto> addPermissionToRole(@PathVariable Long idRole, @RequestBody List<Long> newPermissionsIds){
-        return ResponseEntity.ok(roleService.addPermissionsToRole(idRole, newPermissionsIds));
+    public ResponseEntity<RoleResponseDto> addPermissionToRole(@PathVariable Long idRole, @RequestBody List<String> newPermissionsNames){
+        return ResponseEntity.ok(roleService.addPermissionsToRole(idRole, newPermissionsNames));
     }
 
     //End-point para eliminar una lista de permisos dentro de un rol
     @DeleteMapping("/{idRole}/delete-permissions")
-    public ResponseEntity<RoleResponseDto> deletePermissionsFromRole(@PathVariable Long idRole, @RequestBody List<Long> removePermissionsIds){
+    public ResponseEntity<RoleResponseDto> deletePermissionsFromRole(@PathVariable Long idRole, @RequestBody List<String> removePermissionsNames){
         return ResponseEntity.ok(
-                roleService.removePermissionsFromRole(idRole, removePermissionsIds)
+                roleService.removePermissionsFromRole(idRole, removePermissionsNames)
         );
     }
 }

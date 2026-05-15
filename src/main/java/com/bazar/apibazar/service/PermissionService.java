@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 //Service donde se lleva a cambo la implementación de las operaciones de dominio y se define la lógica de negocio para los permisos
 @Service
@@ -57,11 +58,11 @@ public class PermissionService implements IPermissionService{
     //Método para consultar una lista de permisos por sus ids
     @Transactional(readOnly = true)
     @Override
-    public List<Permission> findAllPermissionsById(List<Long> rolesIds){
-        List<Permission> foundPermissions = permissionRepo.findAllById(rolesIds);
+    public List<Permission> findAllPermissionsByNames(Set<String> rolesNames){
+        List<Permission> foundPermissions = permissionRepo.findAllByNameIn(rolesNames);
 
         //En caso de que no se encuentren todos los permisos que se consultaron, excepción indicándolo
-        if(foundPermissions.size() < rolesIds.size()){throw new PermissionNotFoundException("Uno o varios permisos no fueron encontrados");}
+        if(foundPermissions.size() < rolesNames.size()){throw new PermissionNotFoundException("Uno o varios permisos no fueron encontrados");}
 
         return foundPermissions;
     }

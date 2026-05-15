@@ -32,9 +32,9 @@ public interface IRoleService {
     RoleResponseDto updateRole(Long idRole, RoleRequestDto updatedRol);
 
     //Método para asignarle uno o varios permisos nuevos al role
-    RoleResponseDto addPermissionsToRole(Long idRole, List<Long> newPermissionsIds);
+    RoleResponseDto addPermissionsToRole(Long idRole, List<String> newPermissionsNames);
 
     //Eliminar una lista de permisos dentro de un rol
-    RoleResponseDto removePermissionsFromRole(Long idRole, List<Long> removePermissionsIds);
+    RoleResponseDto removePermissionsFromRole(Long idRole, List<String> removePermissionsNames);
 
 }

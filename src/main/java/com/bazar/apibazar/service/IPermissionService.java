@@ -5,6 +5,7 @@ import com.bazar.apibazar.dto.permission.PermissionResponseDto;
 import com.bazar.apibazar.model.Permission;
 
 import java.util.List;
+import java.util.Set;
 
 //Interfaz para definir las operaciones del dominio de 'Permission'
 public interface IPermissionService {
@@ -15,8 +16,8 @@ public interface IPermissionService {
     //Traer todos
     List<PermissionResponseDto>  findAllPermissions();
 
-    //Traer una lista de permisos por sus ids
-    List<Permission> findAllPermissionsById(List<Long> permissionIds);
+    //Traer una lista de permisos por sus nombres
+        List<Permission> findAllPermissionsByNames(Set<String> permissionNames);
 
     //Encontrar por ID
     PermissionResponseDto findPermissionById(Long id);
