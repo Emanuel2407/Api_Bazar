@@ -27,7 +27,9 @@ public class UserSec {
     private String username;
     private String password;
     //Relación uno a uno entre clientes y usuarios para identificar a qué cliente de negocio corresponde un usuario cuando este tiene el rol: "ROLE_CLIENTE"
-    @OneToOne
+    //Establecemos CascadeType.PERSIST para que cuando Hibernate persista un usuario, si hay un objeto cliente dentro de este y no está registrado, se persista también
+    //CascadeType.MERGE se usa en este caso para que cuando se actualice el objeto Cliente dentro de un usuario, también se actualice ese registro en la entidad de clientes
+    @OneToOne(cascade = {PERSIST, MERGE})
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
     //Relación ManyToMany con tipo de carga ansiosa (Cuando se carga un usuario, se cargan sus roles)
