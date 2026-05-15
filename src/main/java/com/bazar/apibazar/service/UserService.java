@@ -1,10 +1,12 @@
 package com.bazar.apibazar.service;
 
+import com.bazar.apibazar.dto.user.UserPublicDto;
 import com.bazar.apibazar.dto.user.UserRequestDto;
 import com.bazar.apibazar.dto.user.UserResponseDto;
 import com.bazar.apibazar.exception.InvalidRoleAssignmentException;
 import com.bazar.apibazar.exception.UserNotFoundException;
 import com.bazar.apibazar.exception.UsernameAlreadyExistsException;
+import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.Role;
 import com.bazar.apibazar.model.UserSec;
 import com.bazar.apibazar.repository.IRoleRepository;
@@ -27,12 +29,15 @@ public class UserService implements IUserService {
     private final IRoleService roleService;
     //Inyección de dependencia para el repository del componente "role"
     private final IRoleRepository roleRepo;
+    //Inyección de dependencia para el "hasheador" de contraseñas
+    private final BCryptPasswordEncoder passwordEncoder;
 
     //Inyección de dependencia por constructor
-    public UserService(IUserRepository userRepo, RoleService roleService, IRoleRepository roleRepo) {
+    public UserService(IUserRepository userRepo, RoleService roleService, IRoleRepository roleRepo, BCryptPasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.roleService = roleService;
         this.roleRepo = roleRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     //Método para construir un DTO para la exposición de un usuario
@@ -101,7 +106,7 @@ public class UserService implements IUserService {
         //Username
         objUser.setUsername(newUser.username());
         //Guardamos contraseña hasheada con el algoritmo de hash: BCrypt
-        objUser.setPassword(new BCryptPasswordEncoder().encode(newUser.password()));
+        objUser.setPassword(passwordEncoder.encode(newUser.password()));
         //Agregamos roles del usuario
         objUser.setListRoles(
                 new LinkedHashSet<>(
