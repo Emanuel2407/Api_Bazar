@@ -1,6 +1,7 @@
 package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.user.*;
+import com.bazar.apibazar.model.UserSec;
 
 import java.util.List;
 
@@ -12,6 +13,9 @@ public interface IUserService {
 
     //Traemos por ID
     UserResponseDto findUserById(Long id);
+
+    //Buscar usuario por cliente asociado
+    UserSec findByClient(Long clientId);
 
     /*Registrar usuarios administrativos.
       NOTA: no se registran usuario que son clientes por este método*/

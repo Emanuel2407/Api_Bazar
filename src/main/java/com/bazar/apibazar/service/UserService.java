@@ -92,6 +92,14 @@ public class UserService implements IUserService {
         );
     }
 
+    @Override
+    public UserSec findByClient(Long clientId) {
+        return userRepo.findByCliente_idCliente(clientId)
+                .orElseThrow(
+                        () -> new UserNotFoundException("No se encontró usuario asociado a cliente con id: " + clientId)
+                );
+    }
+
     @Transactional
     @Override
     public UserResponseDto saveUser(UserRequestDto newUser) {

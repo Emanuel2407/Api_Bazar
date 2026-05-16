@@ -19,4 +19,7 @@ public interface IUserRepository extends JpaRepository<UserSec, Long> {
 
     //Definimos método para traer los usuarios que tengan dentro (o asignado) al role cuyo id es el mandado por parámetro
     List<UserSec> findByListRoles_id(Long roleId);
+
+    //Definimos método de consulta personalizada para traer un usuario identificándolo por su cliente asociado
+    Optional<UserSec> findByCliente_idCliente(Long clienteId);
 }
