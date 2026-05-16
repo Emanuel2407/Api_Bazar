@@ -21,6 +21,8 @@ public class Producto {
     private String marca;
     private Double costo;
     private Integer cantidadDisponible;
+    //Cuando un producto se mande a retirar del mercado, no se eliminarán sus datos sino que se marcará como "available=false" (SoftDelete)
+    private boolean available=true;
 
     public Producto() {
     }

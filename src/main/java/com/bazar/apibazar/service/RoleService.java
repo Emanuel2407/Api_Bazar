@@ -116,7 +116,8 @@ public class RoleService implements IRoleService{
                 new LinkedHashSet<>(
                         /*Como el DTO "RoleRequestDto" tiene dentro una lista de ids de permisos que le vamos a asignar a
                           este rol, debemos buscar esos permisos*/
-                        permissionService.findAllPermissionsByNames(new LinkedHashSet<>(newRole.permissionsNames())))
+                        permissionService.findAllPermissionsByNames(new LinkedHashSet<>(newRole.permissionsNames()))),
+                true
         );
 
         //Persistimos objeto
