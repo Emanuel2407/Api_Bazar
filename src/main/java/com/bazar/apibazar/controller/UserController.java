@@ -1,5 +1,6 @@
 package com.bazar.apibazar.controller;
 
+import com.bazar.apibazar.dto.user.ClientUserRequestDto;
 import com.bazar.apibazar.dto.user.UserRequestDto;
 import com.bazar.apibazar.dto.user.UserResponseDto;
 import com.bazar.apibazar.service.IUserService;
@@ -36,10 +37,18 @@ public class UserController {
         );
     }
 
+    //Registro administrativo de usuarios
     @PostMapping
     public ResponseEntity<UserResponseDto> saveUser(@Valid @RequestBody UserRequestDto newUser){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.saveUser(newUser));
+    }
+
+    //Endpoint de registro público de usuarios
+    @PostMapping("/register")
+    public ResponseEntity<UserResponseDto> saveClientUser(@Valid @RequestBody ClientUserRequestDto newClientUser){
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userService.registerClientUser(newClientUser));
     }
 
     @DeleteMapping("/{id}")

@@ -1,18 +1,14 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.user.UserPublicDto;
+import com.bazar.apibazar.dto.user.ClientUserRequestDto;
 import com.bazar.apibazar.dto.user.UserRequestDto;
 import com.bazar.apibazar.dto.user.UserResponseDto;
 import com.bazar.apibazar.exception.InvalidRoleAssignmentException;
 import com.bazar.apibazar.exception.UserNotFoundException;
 import com.bazar.apibazar.exception.UsernameAlreadyExistsException;
 import com.bazar.apibazar.model.Cliente;
-import com.bazar.apibazar.model.Role;
 import com.bazar.apibazar.model.UserSec;
-import com.bazar.apibazar.repository.IRoleRepository;
 import com.bazar.apibazar.repository.IUserRepository;
-import org.apache.coyote.BadRequestException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,26 +23,28 @@ public class UserService implements IUserService {
     private final IUserRepository userRepo;
     //Inyección de dependencia para el contrato del service de Role
     private final IRoleService roleService;
-    //Inyección de dependencia para el repository del componente "role"
-    private final IRoleRepository roleRepo;
     //Inyección de dependencia para el "hasheador" de contraseñas
     private final BCryptPasswordEncoder passwordEncoder;
 
     //Inyección de dependencia por constructor
-    public UserService(IUserRepository userRepo, RoleService roleService, IRoleRepository roleRepo, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(IUserRepository userRepo, RoleService roleService, BCryptPasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.roleService = roleService;
-        this.roleRepo = roleRepo;
         this.passwordEncoder = passwordEncoder;
     }
 
     //Método para construir un DTO para la exposición de un usuario
     private UserResponseDto buildUserResponse(UserSec objUser) {
-        //Creamos objeto "UserResponseDto" con los datos de "objUser"
+        //Si el usuario es cliente, sacamos el ID del cliente asociado para agregarlo al DTO de respuesta, si no establecemos el ID como null
+        Long clientId = null;
+        if(objUser.getCliente() != null){clientId = objUser.getCliente().getIdCliente();}
+
+        // Creamos objeto "UserResponseDto" con los datos de "objUser"
         return new UserResponseDto(objUser.getId(), objUser.getUsername(),
                 //Con el método "buildRolesResponse(..) transformamos una lista de roles a ResponseDto para exponerlos"
                 roleService.buildRolesResponse(
-                        new ArrayList<>(objUser.getListRoles()))
+                        new ArrayList<>(objUser.getListRoles())),
+                clientId
         );
     }
 
@@ -72,6 +70,14 @@ public class UserService implements IUserService {
                 );
     }
 
+    //Método propio para validar si un username asignado a un usario no existe ya en la bd
+    private void validarUsername(String username){
+        //Validamos que el username que se quiere asociar al usuario no esté registrado
+        if (userRepo.existsByUsername(username)) {
+            throw new UsernameAlreadyExistsException("Ya existe usuario con username: " + username + ", intente con otro");
+        }
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<UserResponseDto> findAll() {
@@ -89,13 +95,12 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public UserResponseDto saveUser(UserRequestDto newUser) {
-        //Validamos que el username que se quiere asociar al usuario no esté registrado
-        if (userRepo.existsByUsername(newUser.username())) {
-            throw new UsernameAlreadyExistsException("Ya existe usuario con username: " + newUser.username() + ", intente con otro");
-        }
+
+        //Validamos que el username no exista
+        validarUsername(newUser.username());
 
         //En este método no se registran usuarios que son clientes, solo registros administrativos (empleados, administradores, etc)
-        if(newUser.rolesNames().contains("CLIENTE")){
+        if(newUser.rolesNames().contains("CLIENT")){
             throw new InvalidRoleAssignmentException("Los usuarios con el rol CLIENTE deben registrarse a través del flujo de registro de clientes");
         }
 
@@ -119,6 +124,39 @@ public class UserService implements IUserService {
         UserSec savedUser = userRepo.save(objUser);
 
         return buildUserResponse(savedUser);
+    }
+
+    @Transactional
+    @Override
+    public UserResponseDto registerClientUser(ClientUserRequestDto clientUserDTO) {
+        //Validamos que el username no esté registrado
+        validarUsername(clientUserDTO.username());
+
+        //Construimos objeto Cliente para persistirlo junto al usuario
+        Cliente newCliente = new Cliente(null,
+                clientUserDTO.clientData().nombre(),
+                clientUserDTO.clientData().apellido(),
+                clientUserDTO.clientData().documento()
+        );
+
+        //Construimos objeto UserSec para persistir
+        UserSec newClientUser = new UserSec();
+
+        //Agregamos los datos del usuario y le asignamos el cliente construido anteriormente y el rol CLIENTE
+        newClientUser.setUsername(clientUserDTO.username());
+        newClientUser.setPassword(passwordEncoder.encode(clientUserDTO.password()));
+        newClientUser.setCliente(newCliente);
+        //Agregamos rol CLIENTE automáticamente
+        newClientUser.setListRoles(new LinkedHashSet<>(
+                List.of(roleService.findRoleByName("CLIENT"))
+        ));
+
+        //Persistimos usuario con el cliente correspondiente
+        /* Como en la entidad UserSec definimos CascadeType.PERSIST, Hibernate detectará que el cliente dentro del usuario
+           no existe y lo registrará automáticamente en la bd sin necesidad de usar el repo de Cliente */
+        userRepo.save(newClientUser);
+
+        return buildUserResponse(newClientUser);
     }
 
     @Transactional

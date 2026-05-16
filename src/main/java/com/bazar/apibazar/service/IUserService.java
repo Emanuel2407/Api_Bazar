@@ -1,9 +1,6 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.user.UpdatePasswordRequestDto;
-import com.bazar.apibazar.dto.user.UpdateUsernameRequestDto;
-import com.bazar.apibazar.dto.user.UserRequestDto;
-import com.bazar.apibazar.dto.user.UserResponseDto;
+import com.bazar.apibazar.dto.user.*;
 
 import java.util.List;
 
@@ -19,6 +16,9 @@ public interface IUserService {
     /*Registrar usuarios administrativos.
       NOTA: no se registran usuario que son clientes por este método*/
     UserResponseDto saveUser(UserRequestDto newUser);
+
+    //Método de registro público de usuarios, cuyos usuarios registrados será catalogados con rol CLIENTE automáticamente
+    UserResponseDto registerClientUser(ClientUserRequestDto clientUserDTO);
 
     //Eliminar usuario por su id
     void deleteUser(Long id);
