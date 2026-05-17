@@ -96,6 +96,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             //Formamos respuesta con StatusCode 401-UNAUTHORIZED
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            //Le damos formato Json al mensaje de error
+            response.setContentType("application/json");
             //Enviamos mensaje informando el fallo de verificación
             response.getWriter().write("""  
         {
