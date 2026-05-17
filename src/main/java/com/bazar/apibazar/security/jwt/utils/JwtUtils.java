@@ -7,10 +7,13 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bazar.apibazar.model.UserSec;
 import com.bazar.apibazar.repository.IUserRepository;
+import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
 import com.bazar.apibazar.service.IUserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -117,6 +120,35 @@ public class JwtUtils {
     //Método para traer todos los claims
     public Map<String, Claim> findAllClaims(DecodedJWT decodedJWT){
         return decodedJWT.getClaims();
+    }
+
+    public Authentication buildAuthentication(DecodedJWT decodedJWT){
+        //Extraemos username del token
+        String username = this.extractUsername(decodedJWT);
+
+        //Extraemos Claim de autoridades y las guardamos como lista de String
+        List<String> authorities = this.findClaim("authorities", decodedJWT).asList(String.class);
+
+        //Convertimos la lista de String con las autoridades a lista de objetos GrantedAuthority
+        Collection<? extends GrantedAuthority> authoritiesList = authorities.stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+
+        //Extraemos id del cliente asociado con el usuario si es que el usuario es cliente, si no lo es tendremos null
+        Long clientId = this.findClaim("clientId", decodedJWT).asLong();
+
+        //Extraemos del token, el ID del usuario autenticado
+        Long userId = this.findClaim("userId", decodedJWT).asLong();
+
+        //Creamos objeto Principal personalizado
+        CustomUserPrincipal principal = new CustomUserPrincipal(userId, clientId, username);
+
+        //Formamos objeto Authentication implementado con la clase UsernamePasswordAuthenticationToken y retornamos
+        return  new UsernamePasswordAuthenticationToken(
+                principal,
+                null,
+                authoritiesList
+        );
     }
 
 }

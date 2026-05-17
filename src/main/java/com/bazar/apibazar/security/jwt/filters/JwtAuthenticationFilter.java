@@ -52,40 +52,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 //Como el esquema "Bearer " no forma parte del token, debemos removerlo
                 token = token.substring(7);  //'Bearer ': 6 letras + 1 especio = 7 caracteres
 
-                //Intentamos validar el token, en caso de que la validación sea exitosa obtendremos un objeto DecodeJwt con toda la información de este
+                //Intentamos validar el token, en caso de que la validación sea exitosa obtendremos un objeto DecodeJwt con toda la información del token
                 DecodedJWT decodedJWT = jwtUtils.validateToken(token);
 
-                //Extraemos username del token
-                String username = jwtUtils.extractUsername(decodedJWT);
-
-                //Extraemos Claim de autoridades y las guardamos como lista de String
-                List<String> authorities = jwtUtils.findClaim("authorities", decodedJWT).asList(String.class);
-
-                //Convertimos la lista de String con las autoridades a lista de objetos GrantedAuthority
-                Collection<? extends GrantedAuthority> authoritiesList = authorities.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .toList();
-
-                //Extraemos id del cliente asociado con el usuario si es que el usuario es cliente, si no lo es tendremos null
-                Long clientId = jwtUtils.findClaim("clientId", decodedJWT).asLong();
-
-                //Extraemos del token, el ID del usuario autenticado
-                Long userId = jwtUtils.findClaim("userId", decodedJWT).asLong();
-
-                //Creamos objeto Principal personalizado
-                CustomUserPrincipal principal = new CustomUserPrincipal(userId, clientId, username);
-
-                //Formamos objeto Authentication para setearlo en el contexto de seguridad
-                Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        principal,
-                        null,
-                        authoritiesList
+                //Construimos y agregamos objeto Authentication con los datos del usuario al contexto de seguridad de Spring
+                SecurityContextHolder.getContext().setAuthentication(
+                        jwtUtils.buildAuthentication(decodedJWT)
                 );
-
-                //Limpiamos contexto de seguridad en caso de que otro filtro lo haya usado
-                SecurityContextHolder.clearContext();
-                //Agregamos el objeto Authentication con los datos del usuario
-                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
             //Si no se encontró filtro o no tiene el Schema: "Bearer ", delegamos al siguiente filtro
