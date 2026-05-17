@@ -88,4 +88,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(buildExceptionResponse(HttpStatus.CONFLICT, ex.getMessage()));
     }
+
+    //Handler para excepción VentaCanceled
+    @ExceptionHandler(VentaCanceledException.class)
+    public ResponseEntity<Map<String, Object>> handlerVentaCanceled(VentaCanceledException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(
+                        buildExceptionResponse(HttpStatus.CONFLICT, ex.getMessage())
+                );
+    }
 }
