@@ -266,8 +266,9 @@ public class VentaService implements IVentaService{
         que llegaron como objetos VentaProductoDto en el objeto Dto de venta llamado objNuevo*/
         crearRelacionVentaProducto(objNuevo.getListProductos(), objVenta);
 
-        /*Retornamos el objeto de la venta que se registró, ya que nos será útil en el método "saveCliente"
-        de la clase "cliente"*/
+        //Si no hay ningún problema, podremos asignarle el estado a la venta: COMPLETED
+        objVenta.setStatus(VentaStatus.COMPLETED);
+
         return sacarVentaSimple(objVenta);
     }
 
