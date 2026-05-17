@@ -255,21 +255,17 @@ public class VentaService implements IVentaService{
         productoService.validarStockProductos(objNuevo.getListProductos());
 
         Venta objVenta = new Venta();
-        
+
         //Migramos datos del objeto Dto. al objeto Venta
-        objVenta.setFechaVenta(objNuevo.getFechaVenta());   
-        
+        objVenta.setFechaVenta(objNuevo.getFechaVenta());
+
         //Primero se guarda la venta sin los productos para obtener su id
         ventaRepository.save(objVenta);
         
         /*Llamamos al método que se encargue de crear las relaciones entre la venta y cada uno de los productos
         que llegaron como objetos VentaProductoDto en el objeto Dto de venta llamado objNuevo*/
         crearRelacionVentaProducto(objNuevo.getListProductos(), objVenta);
-        
-    
-        //Guardamos nuevamente pero ahora con el total de la venta
-        ventaRepository.save(objVenta);
-        
+
         /*Retornamos el objeto de la venta que se registró, ya que nos será útil en el método "saveCliente"
         de la clase "cliente"*/
         return sacarVentaSimple(objVenta);
@@ -305,10 +301,6 @@ public class VentaService implements IVentaService{
         uno de los nuevos productos*/
         crearRelacionVentaProducto(objActualizado.getListProductos(), objVenta);
         
-        
-        //Actualizamos la venta
-        ventaRepository.save(objVenta);
-        
         return sacarVentaSimple(objVenta);
     }
 
@@ -335,9 +327,6 @@ public class VentaService implements IVentaService{
         
         
         }
-        
-        //Actualizamos la venta
-        ventaRepository.save(objVenta);
         
         return sacarVentaSimple(objVenta);
     }
@@ -419,9 +408,6 @@ public class VentaService implements IVentaService{
         //recalculamos el total y la cantidad de productos en la venta, ahora con los productos nuevos
         objVenta.setTotalVenta(calcularTotalVenta(objVenta));
         objVenta.setCantidadTotalProductos(calcularCantidadProductos(objVenta));
-        
-        //Actualizar venta 
-        ventaRepository.save(objVenta);
         
         return sacarVentaSimple(objVenta);
     }
@@ -512,9 +498,6 @@ public class VentaService implements IVentaService{
         //recalculamos el total y la cantidad de productos en la venta, ahora con los productos nuevos
         objVenta.setTotalVenta(calcularTotalVenta(objVenta));
         objVenta.setCantidadTotalProductos(calcularCantidadProductos(objVenta));
-        
-        //Actualizar venta 
-        ventaRepository.save(objVenta);
         
         return sacarVentaSimple(objVenta);
     }
