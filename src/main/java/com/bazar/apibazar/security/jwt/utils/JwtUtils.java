@@ -5,9 +5,13 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.bazar.apibazar.model.UserSec;
+import com.bazar.apibazar.repository.IUserRepository;
+import com.bazar.apibazar.service.IUserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -26,6 +30,14 @@ public class JwtUtils {
     @Value("${security.jwt.user.generator}")
     private String userGenerator;
 
+    //Inyección de dependencia para repositorio de persistencia de usuarios
+    private final IUserRepository userRepo;
+
+    //Inyección de dependencia por método constructor
+    public JwtUtils(IUserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
+
     //Método para crear el token JWT a partir de los datos del usuario ya autenticado (objeto Authentication en parámetro)
     public String createToken(Authentication authentication){
 
@@ -37,6 +49,18 @@ public class JwtUtils {
 
         //Sacamos username del objeto Authentication
         String username = authentication.getName();
+
+        //Buscamos usuario por username
+        UserSec user = userRepo.findByUsername(username)
+                //En caso de que no se encuentre, lanzamos excepción de SpringSecurity
+                .orElseThrow(
+                        //Usamos función lambda para retornar excepción indicando que el usuario no es válido
+                        () -> new UsernameNotFoundException("Invalid username or password")
+                );
+
+        //Si el usuario además es cliente, sacamos su ID correspondiente del objeto cliente relacionado
+        Long clienteId=null;
+        if(user.getCliente() != null){clienteId=user.getCliente().getIdCliente();}
 
         //Sacamos autoridades del usuario y las convertimos a cadena de texto con las autoridades separadas por coma
         String authorities = authentication.getAuthorities()
@@ -60,6 +84,7 @@ public class JwtUtils {
                         now.plus(Duration.ofMinutes(30)))  //Usamos java.time para adicionar 30 minutos a partir de la creación del token
                 )
                 .withClaim("authorities", authorities)  //Claim adicional que contiene las autoridades del usuario
+                .withClaim("clientId", clienteId)  //Claim adicional que contiene, en caso de que el usuario sea cliente, su id correspondiente
                 .sign(algorithm);  //Finalmente, firmamos el token con el algoritmo de firma definido anteriormente
     }
 
