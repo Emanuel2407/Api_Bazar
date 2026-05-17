@@ -66,9 +66,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
+                //Extraemos id del cliente asociado con el usuario si es que el usuario es cliente, si no lo es tendremos null
+                Long clientId = jwtUtils.findClaim("clientId", decodedJWT).asLong();
+
+                //Extraemos del token, el ID del usuario autenticado
+                Long userId = jwtUtils.findClaim("userId", decodedJWT).asLong();
+
+                //Creamos objeto Principal personalizado
+                CustomUserPrincipal principal = new CustomUserPrincipal(userId, clientId, username);
+
                 //Formamos objeto Authentication para setearlo en el contexto de seguridad
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        decodedJWT.getSubject(),
+                        principal,
                         null,
                         authoritiesList
                 );
