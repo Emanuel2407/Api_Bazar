@@ -2,6 +2,7 @@ package com.bazar.apibazar.security.jwt.filters;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
 import com.bazar.apibazar.security.jwt.utils.JwtUtils;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -13,11 +14,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 //Clase donde se va a crear el filtro que intercepte la request para validar el token JWT
@@ -54,11 +57,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 //Extraemos username del token
                 String username = jwtUtils.extractUsername(decodedJWT);
-                //Extraemos Claim de autoridades y las guardamos como String
-                String authorities = jwtUtils.findClaim("authorities", decodedJWT).asString();
 
-                //Ahora debemos convertir esa cadena de texto con las autoridades a una colección GrantedAuthority
-                List<GrantedAuthority> authoritiesList = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
+                //Extraemos Claim de autoridades y las guardamos como lista de String
+                List<String> authorities = jwtUtils.findClaim("authorities", decodedJWT).asList(String.class);
+
+                //Convertimos la lista de String con las autoridades a lista de objetos GrantedAuthority
+                Collection<? extends GrantedAuthority> authoritiesList = authorities.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
 
                 //Formamos objeto Authentication para setearlo en el contexto de seguridad
                 Authentication authentication = new UsernamePasswordAuthenticationToken(

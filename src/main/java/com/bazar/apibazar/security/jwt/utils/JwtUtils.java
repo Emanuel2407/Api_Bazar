@@ -62,14 +62,13 @@ public class JwtUtils {
         Long clienteId=null;
         if(user.getCliente() != null){clienteId=user.getCliente().getIdCliente();}
 
-        //Sacamos autoridades del usuario y las convertimos a cadena de texto con las autoridades separadas por coma
-        String authorities = authentication.getAuthorities()
+        //Sacamos autoridades del usuario y las convertimos en una lista de String
+        List<String> authorities = authentication.getAuthorities()
                 //Usamos .stream() para habilitar métodos especiales para trabajar con colecciones
                 .stream()
                 //.map(..) transforma cada objeto GrantedAuthority de la colección a lo retornado por su método getAuthority() (Nombre de la autoridad)
                 .map(GrantedAuthority::getAuthority)
-                //Construimos la cadena de texto con los elementos resultantes de la colección separados por coma
-                .collect(Collectors.joining(","));
+                .toList();
 
         //Guardamos fecha actual para, con base a esta, definir el tiempo de vida que tendrá el token una vez creado
         Instant now = Instant.now();
