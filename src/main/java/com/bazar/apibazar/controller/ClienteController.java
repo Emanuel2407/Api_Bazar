@@ -4,7 +4,6 @@ import com.bazar.apibazar.dto.cliente.ClienteDto;
 import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
 import com.bazar.apibazar.service.IClienteService;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,9 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClienteController {
     
     //Inyección de dependencia para ClienteService
-    @Autowired
-    IClienteService clienteService;
-    
+    private final IClienteService clienteService;
+
+    //Inyección de dependencia por constructor
+    public ClienteController(IClienteService clienteService) {
+        this.clienteService = clienteService;
+    }
+
     //Traer todos
     @GetMapping("/")
     @ResponseBody
@@ -47,10 +50,10 @@ public class ClienteController {
                 .body(clienteService.saveCliente(objNuevo));
     }
     
-    //Eliminamos
+    //Eliminamos usando Soft Delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCliente(@PathVariable Long id){
-        clienteService.deleteCliente(id);
+    public ResponseEntity<Void> disableCliente(@PathVariable Long id){
+        clienteService.disableCliente(id);
         return ResponseEntity.noContent().build();
     }
     

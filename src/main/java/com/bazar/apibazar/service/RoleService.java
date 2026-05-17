@@ -44,6 +44,11 @@ public class RoleService implements IRoleService{
         );
     }
 
+    //Método para validar si realmente un rol está activo y disponible para usar
+    private void validarEstadoDeRol(Role objRole){
+        if(!objRole.isActive()){throw new RoleNotFoundException("No se encontró rol con id: " + objRole.getId() + " disponible");}
+    }
+
     //Método para construir una lista de objetos DTO de respuesta a partir de los datos de una lista de <<Roles>>
     @Override
     public List<RoleResponseDto> buildRolesResponse(List<Role> listRoles){
@@ -128,7 +133,7 @@ public class RoleService implements IRoleService{
 
     @Transactional
     @Override
-    public void deleteRole(Long id) {
+    public void disableRole(Long id) {
         //Buscamos rol para verificar existencia
         Role objRole = findRole(id);
 
@@ -140,8 +145,8 @@ public class RoleService implements IRoleService{
                 user -> user.getListRoles().remove(objRole)
         );
 
-        //Finalmente, podremos eliminar el rol
-        roleRepo.delete(objRole);
+        //Finalmente, desactivamos el rol usando Soft Delete
+        objRole.setActive(false);
     }
 
     @Transactional
@@ -149,6 +154,9 @@ public class RoleService implements IRoleService{
     public RoleResponseDto updateRole(Long idRole, RoleRequestDto updatedRol) {
         //Buscamos rol para verificar existencia
         Role objRole = findRole(idRole);
+
+        //Verificamos disponibilidad
+        validarEstadoDeRol(objRole);
 
         //Si se quiere actualizar el nombre del rol, se actualiza
         if(updatedRol.roleName() != null){objRole.setName(updatedRol.roleName());}
@@ -162,6 +170,9 @@ public class RoleService implements IRoleService{
     public RoleResponseDto addPermissionsToRole(Long idRole, List<String> newPermissionsNames) {
         //Buscamos rol para confirmar existencia
         Role objRole = findRole(idRole);
+
+        //Verificamos disponibilidad
+        validarEstadoDeRol(objRole);
 
         //Buscamos y agregamos nueva lista de permisos al rol
         objRole.getListPermissions().addAll(
@@ -177,6 +188,9 @@ public class RoleService implements IRoleService{
     public RoleResponseDto removePermissionsFromRole(Long idRole, List<String> removePermissionsNames) {
         //Buscamos rol para confirmar existencia
         Role objRole = findRole(idRole);
+
+        //Verificamos disponibilidad
+        validarEstadoDeRol(objRole);
 
         //Buscamos permissions para confirmar existencia de todos
         permissionService.findAllPermissionsByNames(new LinkedHashSet<>(removePermissionsNames));

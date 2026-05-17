@@ -23,7 +23,7 @@ public interface IClienteService {
 
     ClienteSimpleDto saveCliente(ClienteDto objNuevo);
     
-    void deleteCliente(Long id);
+    void disableCliente(Long id);
     
     ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado);
     

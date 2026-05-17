@@ -51,9 +51,10 @@ public class UserController {
                 .body(userService.registerClientUser(newClientUser));
     }
 
+    //Soft Delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
-        userService.deleteUser(id);
+    public ResponseEntity<Void> disableUser(@PathVariable Long id){
+        userService.disableUser(id);
         return ResponseEntity.noContent().build();
     }
 

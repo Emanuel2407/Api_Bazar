@@ -29,7 +29,7 @@ public interface IRoleService {
     RoleResponseDto saveRole(RoleRequestDto newRole);
 
     //Eliminar rol por id
-    void deleteRole(Long id);
+    void disableRole(Long id);
 
     //Actualizar rol
     RoleResponseDto updateRole(Long idRole, RoleRequestDto updatedRol);

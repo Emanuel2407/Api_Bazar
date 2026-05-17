@@ -12,7 +12,7 @@ public interface IProductoService {
     
     Producto saveProducto(ProductoDto objNuevo);
     
-    void deleteProducto(Long id);
+    void disableProducto(Long id);
     
     Producto updateProducto(Long id, ProductoDto objActualizado);
     

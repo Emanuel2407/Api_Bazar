@@ -4,10 +4,13 @@ import com.bazar.apibazar.dto.cliente.ClienteDto;
 import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
 import com.bazar.apibazar.exception.ClienteNotFoundException;
 import com.bazar.apibazar.model.Cliente;
+import com.bazar.apibazar.model.UserSec;
 import com.bazar.apibazar.repository.IClienteRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.bazar.apibazar.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +19,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClienteService implements IClienteService{
     
     //Inyección de dependencia para ClienteRepository
-    @Autowired
-    IClienteRepository clienteRepository;
+    private final IClienteRepository clienteRepository;
+    //Inyección de dependencia para service de componente "user"
+    private final IUserService userService;
+    //Inyección de dependencia por constructor
+    public ClienteService(IClienteRepository clienteRepository, IUserService userService) {
+        this.clienteRepository = clienteRepository;
+        this.userService = userService;
+    }
 
+    private void validarDisponibilidadCliente(Cliente objCliente){
+        if(!objCliente.isActive()){throw new ClienteNotFoundException("El cliente con id: " + objCliente.getIdCliente() + " está deshabilitado");}
+    }
 
     /*Método de construir el DTO para exponer a un cliente*/
     @Override
@@ -90,12 +102,15 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public void deleteCliente(Long id) {
+    public void disableCliente(Long id) {
         //Se busca el cliente y se confirma existencia
         Cliente objCliente = findCliente(id);
 
-        //eliminar al cliente usando su repositorio
-        clienteRepository.delete(objCliente);
+        //Se aplica un borrado lógico, desactivando al cliente para evitar perder datos de negocio importantes
+        objCliente.setActive(false);
+        //Buscamos usuario con el que sé auténtica el cliente para deshabilitarlo también
+        UserSec user = userService.findByClient(id);
+        user.setEnabled(false);
 
     }
 
@@ -103,6 +118,9 @@ public class ClienteService implements IClienteService{
     @Override
     public ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado) {
         Cliente objCliente = findCliente(id);
+
+        //Validamos que el cliente esté disponible
+        validarDisponibilidadCliente(objCliente);
 
         //Actualizamos datos del cliente
         objCliente.setNombre(objActualizado.nombre());
@@ -121,6 +139,9 @@ public class ClienteService implements IClienteService{
     @Override
     public ClienteSimpleDto patchCliente(Long id, ClienteDto objDto) {
         Cliente objCliente = findCliente(id);
+
+        //Validamos que el cliente esté disponible
+        validarDisponibilidadCliente(objCliente);
 
         //Actualizamos solo los datos enviados
         if (objDto.nombre() != null) {

@@ -4,7 +4,6 @@ import com.bazar.apibazar.dto.producto.ProductoDto;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.service.IProductoService;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,9 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/productos")
 public class ProductoController {
 
-    //Inyección de dependecia para ProductoService
-    @Autowired
-    IProductoService productoService;
+    //Inyección de dependencia para ProductoService
+    private final IProductoService productoService;
+
+    //Inyección de dependencia por constructor
+    public ProductoController(IProductoService productoService) {
+        this.productoService = productoService;
+    }
 
     //Traer todos
     @GetMapping("/")
@@ -51,10 +54,10 @@ public class ProductoController {
                 .body(productoService.saveProducto(objNuevo));
     }
 
-    //Eliminamos producto por id
+    //Eliminamos producto por ID (Soft Delete)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProducto(@PathVariable Long id){
-        productoService.deleteProducto(id);
+    public ResponseEntity<Void> disableProducto(@PathVariable Long id){
+        productoService.disableProducto(id);
         return ResponseEntity.noContent().build();
     }
 

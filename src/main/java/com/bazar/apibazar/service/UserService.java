@@ -70,12 +70,17 @@ public class UserService implements IUserService {
                 );
     }
 
-    //Método propio para validar si un username asignado a un usario no existe ya en la bd
+    //Método propio para validar si un username asignado a un usuario no existe ya en la bd
     private void validarUsername(String username){
         //Validamos que el username que se quiere asociar al usuario no esté registrado
         if (userRepo.existsByUsername(username)) {
             throw new UsernameAlreadyExistsException("Ya existe usuario con username: " + username + ", intente con otro");
         }
+    }
+
+    //Método para validar que un usuario no haya sido deshabilitado
+    private void validarDisponibilidadUser(UserSec user){
+        if(!user.isEnabled()){throw new UserNotFoundException("No no encontró usuario con id: " + user.getId());}
     }
 
     @Transactional(readOnly = true)
@@ -169,11 +174,15 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
-    public void deleteUser(Long id) {
-        //Buscamos y eliminamos usuario (si existe)
-        userRepo.delete(
-                findUser(id)
-        );
+    public void disableUser(Long id) {
+        //Buscamos
+        UserSec objUser = findUser(id);
+
+        //Deshabilitamos usuario
+        objUser.setEnabled(false);
+        //Deshabilitamos cliente vinculado a esta cuenta
+        objUser.getCliente().setActive(false);
+
     }
 
     @Transactional
@@ -181,6 +190,9 @@ public class UserService implements IUserService {
     public UserResponseDto addRolesToUser(Long userId, List<String> newRolesNames) {
         //Buscamos user por si id, en caso de que no exista -> Excepción personalizada
         UserSec user = findUser(userId);
+
+        //Validamos disponibilidad
+        validarDisponibilidadUser(user);
 
         //Buscamos y agregamos los nuevos roles a la lista roles del usuario
         user.getListRoles().addAll(
@@ -195,6 +207,9 @@ public class UserService implements IUserService {
     public UserResponseDto removeRolesFromUser(Long userId, List<String> removeRolesNames) {
         //Buscamos usuario y confirmamos existencia
         UserSec objUser = findUser(userId);
+
+        //Validamos disponibilidad
+        validarDisponibilidadUser(objUser);
 
         //Validamos que la lista de roles que se quieren eliminar del usuario realmente existen en la BD
         roleService.findAllRolesByNames(new LinkedHashSet<>(removeRolesNames));

@@ -26,9 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class VentaController {
     
     //Inyección de dependencia para VentaService
-    @Autowired
-    IVentaService ventaService; 
-    
+    private final IVentaService ventaService;
+    //Inyección de dependencia por constructor
+    public VentaController(IVentaService ventaService) {
+        this.ventaService = ventaService;
+    }
+
     //Traer todos
     @GetMapping("/")
     public ResponseEntity<List<VentaResponseDto>> getVentas(){
@@ -66,10 +69,10 @@ public class VentaController {
                 .body(ventaService.saveVenta(objNuevo));
     }
     
-    //Eliminamos
+    //Endpoint para cancelar venta
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteVenta(@PathVariable Long id){
-        ventaService.deleteVenta(id);
+    public ResponseEntity<Void> cancelVenta(@PathVariable Long id){
+        ventaService.cancelVenta(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
     

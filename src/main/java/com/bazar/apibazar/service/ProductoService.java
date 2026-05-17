@@ -17,8 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductoService implements IProductoService{
 
     //Inyección de dependencia para ProductoRepository
-    @Autowired
-    private IProductoRepository productoRepository;
+    private final IProductoRepository productoRepository;
+    //Inyección de dependencia por constructor
+    public ProductoService(IProductoRepository productoRepository) {
+        this.productoRepository = productoRepository;
+    }
 
     //Método propio para validar si el stock de una lista de productos es suficiente para cubrir una cierta cantidad
     public void validarStockProductos(List<VentaProductoDto> productosValidarStock){
@@ -40,7 +43,8 @@ public class ProductoService implements IProductoService{
     @Transactional(readOnly = true)
     @Override
     public List<Producto> getProductos() {
-        return productoRepository.findAll();
+        //Exponemos solo los productos habilitados para vender
+        return productoRepository.findByAvailableTrue();
     }
 
     @Transactional(readOnly = true)
@@ -48,7 +52,7 @@ public class ProductoService implements IProductoService{
     public Producto findProducto(Long id) {
         Optional<Producto> objProducto = productoRepository.findById(id);
 
-        if(objProducto.isEmpty()){throw new ProductoNotFoundException("No se encontró producto con id: " + id);}
+        if(objProducto.isEmpty() || !objProducto.get().isAvailable()){throw new ProductoNotFoundException("No se encontró producto con id: " + id);}
 
         return objProducto.get();
 
@@ -80,9 +84,10 @@ public class ProductoService implements IProductoService{
 
     @Transactional
     @Override
-    public void deleteProducto(Long id) {
+    public void disableProducto(Long id) {
         Producto objProducto = findProducto(id);
-        productoRepository.delete(objProducto);
+
+        objProducto.setAvailable(false);
     }
 
     @Transactional

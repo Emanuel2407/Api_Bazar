@@ -6,17 +6,18 @@ import com.bazar.apibazar.dto.venta.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.venta.VentaDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.dto.venta.VentaResumenDto;
+import com.bazar.apibazar.exception.VentaCanceledException;
 import com.bazar.apibazar.exception.VentaNotFoundException;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.model.Venta;
 import com.bazar.apibazar.model.VentaProducto;
+import com.bazar.apibazar.model.VentaStatus;
 import com.bazar.apibazar.repository.IVentaProductoRepository;
 import com.bazar.apibazar.repository.IVentaRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,22 +25,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class VentaService implements IVentaService{
             
     //Inyección de dependencia para VentaRepository
-    @Autowired
-    IVentaRepository ventaRepository;
-    
+    private final IVentaRepository ventaRepository;
     //Inyección de dependencia para ProductoService
-    @Autowired
-    ProductoService productoService; 
-    
+    private final ProductoService productoService;
     //Inyección de dependencia para ClienteService
-    @Autowired
-    IClienteService clienteService;
-    
+    private final IClienteService clienteService;
     /*Inyección de dependencia para la interfaz IVentaProductoRepository que contiene todos los métodos necesarios
     para manejar la relación entre las tablas Venta y Producto*/
-    @Autowired
-    IVentaProductoRepository vpRepository;
-    
+    private final IVentaProductoRepository vpRepository;
+
+    //Inyección de dependencia por constructor
+    public VentaService(IVentaRepository ventaRepository, ProductoService productoService, IClienteService clienteService, IVentaProductoRepository vpRepository) {
+        this.ventaRepository = ventaRepository;
+        this.productoService = productoService;
+        this.clienteService = clienteService;
+        this.vpRepository = vpRepository;
+    }
+
     /*Método propio para calcular el total final de una venta a partir de cada uno de los subtotales de
     sus productos*/
     private Double calcularTotalVenta(Venta objVenta){
@@ -182,6 +184,13 @@ public class VentaService implements IVentaService{
         );
     }
 
+    //Método propio para validar el estado de una cuenta y ver que no haya sido cancelada
+    private void validarEstadoVenta(Venta objVenta){
+        if (objVenta.getStatus().equals(VentaStatus.CANCELED)){
+            throw new VentaCanceledException("La venta con id: " + objVenta.getIdVenta() + " ha sido cancelada");
+        }
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<VentaResponseDto> getVentasSimples() {
@@ -269,23 +278,22 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public void deleteVenta(Long id) {
+    public void cancelVenta(Long id) {
         //Buscamos venta para validar existencia
         Venta objVenta = findVenta(id);
-            
-        /*Llamamos al método que se va a encargar de borrar las relaciones de la venta con cada uno de los
-            productos que tenía asociado*/
-        eliminarRelacionVentaProducto(objVenta);
 
-        //Ahora sí eliminamos la venta
-        ventaRepository.delete(objVenta);
+        //Cancelamos la venta asignándole es estado: CANCELED
+        objVenta.setStatus(VentaStatus.CANCELED);
     }
 
     @Transactional
     @Override
     public VentaResponseDto updateVenta(Long id, VentaDto objActualizado) {
         Venta objVenta = findVenta(id);
-        
+
+        //Validamos que la venta no haya sido cancelada para poder actualizar
+        validarEstadoVenta(objVenta);
+
         //Actualizamos datos de la venta en cuestión
         objVenta.setFechaVenta(objActualizado.getFechaVenta());
 
@@ -308,7 +316,10 @@ public class VentaService implements IVentaService{
     @Override
     public VentaResponseDto patchVenta(Long id, VentaDto objDto) {
         Venta objVenta = findVenta(id);
-        
+
+        //Validamos que la venta no haya sido cancelada para poder actualizar
+        validarEstadoVenta(objVenta);
+
         //Actualizamos fecha de la venta 
         if(objDto.getFechaVenta() != null){objVenta.setFechaVenta(objDto.getFechaVenta());}
         
@@ -337,9 +348,13 @@ public class VentaService implements IVentaService{
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
         productoService.validarStockProductos(productosNuevos);
 
+
         //Buscamos venta a realizar la inserción de productos
         Venta objVenta = findVenta(id);
-        
+
+        //Validamos que la venta no haya sido cancelada para poder actualizar
+        validarEstadoVenta(objVenta);
+
         /*Si bien los productos que vamos a agregar son los que llegan en "productosNuevos", debemos diferenciar
         los productos que ya estaban antes en la venta, ya que a estos solo se le sumará la cantidad correspondiente
         a la cantidad comprada y con los que realmente son nuevos se van a crear nuevas relaciones con la venta*/
@@ -416,7 +431,10 @@ public class VentaService implements IVentaService{
     public VentaResponseDto deleteProductosDeVenta(Long id, List<VentaProductoDto> productosEliminados) {
         //Buscamos venta a eliminar productos
         Venta objVenta = findVenta(id);
-        
+
+        //Validamos que la venta no haya sido cancelada para poder actualizar
+        validarEstadoVenta(objVenta);
+
         /*Lista que va a almacenar solo los productos con los que se va a eliminar la relación con venta, ya que
         hay ciertos productos que solo se les va a descontar a la cantidad comprada*/
         List<VentaProducto> realesProductosEliminados = new ArrayList<>();

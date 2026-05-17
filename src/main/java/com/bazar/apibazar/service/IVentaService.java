@@ -22,7 +22,7 @@ public interface IVentaService {
     
     VentaResponseDto saveVenta(VentaDto objNuevo);
     
-    void deleteVenta(Long id);
+    void cancelVenta(Long id);
     
     VentaResponseDto updateVenta(Long id, VentaDto objActualizado);
     

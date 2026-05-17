@@ -24,8 +24,8 @@ public interface IUserService {
     //Método de registro público de usuarios, cuyos usuarios registrados será catalogados con rol CLIENTE automáticamente
     UserResponseDto registerClientUser(ClientUserRequestDto clientUserDTO);
 
-    //Eliminar usuario por su id
-    void deleteUser(Long id);
+    //Soft Delete para usuario
+    void disableUser(Long id);
 
     //Agregar roles nuevos a un usuario en particular
     UserResponseDto addRolesToUser(Long userId, List<String> newRolesNames);
