@@ -84,6 +84,7 @@ public class JwtUtils {
                 )
                 .withClaim("authorities", authorities)  //Claim adicional que contiene las autoridades del usuario
                 .withClaim("clientId", clienteId)  //Claim adicional que contiene, en caso de que el usuario sea cliente, su id correspondiente
+                .withClaim("userId", user.getId())
                 .sign(algorithm);  //Finalmente, firmamos el token con el algoritmo de firma definido anteriormente
     }
 
