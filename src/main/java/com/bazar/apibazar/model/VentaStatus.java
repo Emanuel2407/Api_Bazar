@@ -4,7 +4,8 @@ package com.bazar.apibazar.model;
 public enum VentaStatus {
     PENDING,
     CANCELED,
-    COMPLETED
+    COMPLETED,
+    RETURNED
 
 
 }
