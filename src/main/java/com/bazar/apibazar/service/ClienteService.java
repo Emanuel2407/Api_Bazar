@@ -37,7 +37,7 @@ public class ClienteService implements IClienteService{
     public ClienteSimpleDto sacarClienteSimple(Cliente objCliente){
 
         return new ClienteSimpleDto(objCliente.getIdCliente(), objCliente.getNombre(), objCliente.getApellido(),
-                objCliente.getDocumento());
+                objCliente.getDocumento(), objCliente.isActive());
 
     }
 

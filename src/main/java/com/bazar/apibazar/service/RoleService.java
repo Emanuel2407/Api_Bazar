@@ -40,7 +40,8 @@ public class RoleService implements IRoleService{
                        para construir la lista de DTO a partir de los datos de los permisos que están dentro del rol*/
                     permissionService.buildPermissionsResponse(
                             new ArrayList<>(objRole.getListPermissions())
-                    )
+                    ),
+                objRole.isActive()
         );
     }
 

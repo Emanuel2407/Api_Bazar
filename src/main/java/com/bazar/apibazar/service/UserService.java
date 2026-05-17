@@ -44,7 +44,8 @@ public class UserService implements IUserService {
                 //Con el método "buildRolesResponse(..) transformamos una lista de roles a ResponseDto para exponerlos"
                 roleService.buildRolesResponse(
                         new ArrayList<>(objUser.getListRoles())),
-                clientId
+                clientId,
+                objUser.isEnabled()
         );
     }
 

@@ -180,7 +180,7 @@ public class VentaService implements IVentaService{
         
         return new VentaResponseDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
                 objVenta.getCantidadTotalProductos(), listProductos, clienteService.sacarClienteSimple(
-                        objVenta.getCliente())
+                        objVenta.getCliente()), objVenta.getStatus()
         );
     }
 
@@ -215,7 +215,7 @@ public class VentaService implements IVentaService{
             
             listVentas.add(new VentaResponseDto(objVenta.getIdVenta(), objVenta.getFechaVenta(), objVenta.getTotalVenta(),
                     objVenta.getCantidadTotalProductos(), listProductos, clienteService.sacarClienteSimple(
-                            objVenta.getCliente())
+                            objVenta.getCliente()), objVenta.getStatus()
             ));
         }
         
