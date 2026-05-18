@@ -97,4 +97,12 @@ public class GlobalExceptionHandler {
                         buildExceptionResponse(HttpStatus.CONFLICT, ex.getMessage())
                 );
     }
+
+    //Handler para excepción UnauthorizedOperation
+    @ExceptionHandler
+    public ResponseEntity<Map<String, Object>> handlerUnauthorizedOperation(UnauthorizedOperationException ex){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(buildExceptionResponse(HttpStatus.FORBIDDEN, ex.getMessage())
+                );
+    }
 }
