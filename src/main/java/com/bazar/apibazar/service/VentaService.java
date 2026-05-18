@@ -201,8 +201,13 @@ public class VentaService implements IVentaService{
         //Sacamos objeto Authentication creado y guardado en el Security Context con base a la información almacenada en el token de autenticación
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        //Obtenemos la identidad del usuario como objeto "Object" y lo parseamos a objeto Principal personalizado: "CustomUserPrincipal"
-        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+        //Sacamos objeto Object con el Principal
+        Object principalObj = authentication.getPrincipal();
+
+        //Válidamos que el Principal sea instancia de CustomUserPrincipal
+        if(!(principalObj instanceof CustomUserPrincipal principal)){
+            throw new UnauthorizedOperationException("Usuario no autorizado");
+        }
 
         //Del Principal obtenemos el ID del cliente que está haciendo la compra
         Long clienteId = principal.getClientId();
