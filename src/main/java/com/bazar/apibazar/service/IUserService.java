@@ -14,6 +14,9 @@ public interface IUserService {
     //Traemos por ID
     UserResponseDto findUserById(Long id);
 
+    //Método para consultar los datos del usuario que está autenticado en el contexto de seguridad (ownership)
+    UserResponseDto findMe();
+
     //Buscar usuario por cliente asociado
     UserSec findByClient(Long clientId);
 

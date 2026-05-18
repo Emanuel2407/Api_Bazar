@@ -4,11 +4,15 @@ import com.bazar.apibazar.dto.user.ClientUserRequestDto;
 import com.bazar.apibazar.dto.user.UserRequestDto;
 import com.bazar.apibazar.dto.user.UserResponseDto;
 import com.bazar.apibazar.exception.InvalidRoleAssignmentException;
+import com.bazar.apibazar.exception.UnauthorizedOperationException;
 import com.bazar.apibazar.exception.UserNotFoundException;
 import com.bazar.apibazar.exception.UsernameAlreadyExistsException;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.UserSec;
 import com.bazar.apibazar.repository.IUserRepository;
+import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,6 +88,21 @@ public class UserService implements IUserService {
         if(!user.isEnabled()){throw new UserNotFoundException("No no encontró usuario con id: " + user.getId());}
     }
 
+    //Método propio para extraer del objeto Authentication en el SecurityContext el id del usuario autenticado
+    private Long getAuthenticatedUserId() {
+
+        //Obtenemos el objeto Authentication del SecurityContext con la información del usuario autenticado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //Sacamos la identidad del usuario que guardamos como un objeto CustomUserPrincipal, pero dentro de Authentication se guarda con un objeto generalizado tipo Object
+        Object objPrincipal = authentication.getPrincipal();
+
+        //Válidamos que el objeto Principal sea instancia de nuestro Principal personalizado "CustomUserPrincipal"
+        if(!(objPrincipal instanceof CustomUserPrincipal principal)){throw new UnauthorizedOperationException("No autorizado");}
+
+        return principal.getUserId();
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<UserResponseDto> findAll() {
@@ -96,6 +115,16 @@ public class UserService implements IUserService {
         return buildUserResponse(
                 findUser(id)
         );
+    }
+
+    @Override
+    public UserResponseDto findMe() {
+        //Usamos método para obtener id del usuario autenticado y lo buscamos
+        UserSec objUser = findUser(
+            getAuthenticatedUserId()
+        );
+
+        return buildUserResponse(objUser);
     }
 
     @Override

@@ -37,6 +37,14 @@ public class UserController {
         );
     }
 
+    //Endpoint para ingresar al método que consulta los datos del objeto autenticado guardado en el SecurityContext
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> findMe(){
+        return ResponseEntity.ok(
+                userService.findMe()
+        );
+    }
+
     //Registro administrativo de usuarios
     @PostMapping
     public ResponseEntity<UserResponseDto> saveUser(@Valid @RequestBody UserRequestDto newUser){
