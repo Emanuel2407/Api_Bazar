@@ -58,7 +58,13 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
         //Finalmente, retornamos los detalles del usuario dentro de un objeto User (implementación de UserDetails)
         return new User(
-                user.getUsername(), user.getPassword(),  authorities
+                user.getUsername(),
+                user.getPassword(),
+                user.isEnabled(),
+                user.isAccountNotExpired(),
+                user.isCredentialNotExpired(),
+                user.isAccountNotLocked(),
+                authorities
         );
     }
 }
