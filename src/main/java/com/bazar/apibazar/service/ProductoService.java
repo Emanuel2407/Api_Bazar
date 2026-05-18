@@ -1,6 +1,7 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.producto.ProductoDto;
+import com.bazar.apibazar.dto.producto.ProductoRequestDto;
+import com.bazar.apibazar.dto.producto.ProductoResponseDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.exception.ProductoNotFoundException;
 import com.bazar.apibazar.exception.ProductoStockInsuficienteException;
@@ -9,7 +10,7 @@ import com.bazar.apibazar.repository.IProductoRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,14 +41,35 @@ public class ProductoService implements IProductoService{
         } //Si llega el final del bucle y no hay excepciones -> Los productos son válidos para vender
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public List<Producto> getProductos() {
-        //Exponemos solo los productos habilitados para vender
-        return productoRepository.findByAvailableTrue();
+    //Método propio para construir un DTO que se usa para exponer un producto
+    private ProductoResponseDto buildProductoResponse(Producto objProducto){
+        return new ProductoResponseDto(
+                objProducto.getIdProducto(),
+                objProducto.getNombre(),
+                objProducto.getMarca(),
+                objProducto.getCosto(),
+                objProducto.getCantidadDisponible(),
+                objProducto.isAvailable()
+        );
     }
 
     @Transactional(readOnly = true)
+    @Override
+    public List<ProductoResponseDto> getProductos() {
+        //Productos a exponer
+        List<ProductoResponseDto> productosResponse = new ArrayList<>();
+
+        //Construimos DTO de productos a exponer
+        for(Producto objProducto: productoRepository.findByAvailableTrue()){
+            productosResponse.add(buildProductoResponse(
+                    objProducto
+            ));
+        }
+
+        //Exponemos solo los productos habilitados para vender
+        return productosResponse;
+    }
+
     @Override
     public Producto findProducto(Long id) {
         Optional<Producto> objProducto = productoRepository.findById(id);
@@ -58,9 +80,18 @@ public class ProductoService implements IProductoService{
 
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public ProductoResponseDto findProductoResponse(Long id) {
+        return buildProductoResponse(
+                findProducto(id)
+        );
+
+    }
+
     @Transactional
     @Override
-    public Producto saveProducto(ProductoDto objNuevo) {
+    public ProductoResponseDto saveProducto(ProductoRequestDto objNuevo) {
         Producto objProducto = new Producto();
 
         objProducto.setNombre(objNuevo.getNombre());
@@ -70,7 +101,7 @@ public class ProductoService implements IProductoService{
 
         productoRepository.save(objProducto);
 
-        return objProducto;
+        return buildProductoResponse(objProducto);
 
     }
 
@@ -92,7 +123,7 @@ public class ProductoService implements IProductoService{
 
     @Transactional
     @Override
-    public Producto updateProducto(Long id, ProductoDto objActualizado) {
+    public ProductoResponseDto updateProducto(Long id, ProductoRequestDto objActualizado) {
         Producto objProducto = findProducto(id);
 
         objProducto.setNombre(objActualizado.getNombre());
@@ -102,14 +133,14 @@ public class ProductoService implements IProductoService{
 
         productoRepository.save(objProducto);
 
-        return objProducto;
+        return buildProductoResponse(objProducto);
 
 
     }
 
     @Transactional
     @Override
-    public Producto patchProducto(Long id, ProductoDto objDto) {
+    public ProductoResponseDto patchProducto(Long id, ProductoRequestDto objDto) {
         Producto objProducto = findProducto(id);
 
         if(objDto.getNombre() != null){objProducto.setNombre(objDto.getNombre());}
@@ -119,18 +150,20 @@ public class ProductoService implements IProductoService{
 
         productoRepository.save(objProducto);
 
-        return objProducto;
+        return buildProductoResponse(objProducto);
     }
 
     @Transactional
     @Override
-    public List<Producto> productosPocoStock() {
+    public List<ProductoResponseDto> productosPocoStock() {
 
-        List<Producto> listProductos = new ArrayList<>();
+        List<ProductoResponseDto> listProductos = new ArrayList<>();
 
-        for(Producto objProducto: getProductos()){
+        for(Producto objProducto: productoRepository.findAll()){
             if(objProducto.getCantidadDisponible() < 5){
-                listProductos.add(objProducto);
+                listProductos.add(buildProductoResponse(
+                        objProducto)
+                );
             }
         }
 

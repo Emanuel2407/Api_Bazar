@@ -1,6 +1,7 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.producto.ProductoDto;
+import com.bazar.apibazar.dto.producto.ProductoRequestDto;
+import com.bazar.apibazar.dto.producto.ProductoResponseDto;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.service.IProductoService;
 import java.util.List;
@@ -30,26 +31,26 @@ public class ProductoController {
 
     //Traer todos
     @GetMapping("/")
-    public ResponseEntity<List<Producto>> getProductos(){
+    public ResponseEntity<List<ProductoResponseDto>> getProductos(){
         return ResponseEntity.ok(productoService.getProductos());
     }
 
     //Traer uno
     @GetMapping("/{id}")
-    public ResponseEntity<Producto> findProducto(@PathVariable Long id){
-        return ResponseEntity.ok(productoService.findProducto(id));
+    public ResponseEntity<ProductoResponseDto> findProducto(@PathVariable Long id){
+        return ResponseEntity.ok(productoService.findProductoResponse(id));
 
     }
 
     //Productos con stock < 5
     @GetMapping("/falta-stock")
-    public ResponseEntity<List<Producto>> productosPocoStock(){
+    public ResponseEntity<List<ProductoResponseDto>> productosPocoStock(){
         return ResponseEntity.ok(productoService.productosPocoStock());
     }
 
     //Ingresamos producto nuevo
     @PostMapping("/")
-    public ResponseEntity<Producto> saveProducto(@RequestBody ProductoDto objNuevo){
+    public ResponseEntity<ProductoResponseDto> saveProducto(@RequestBody ProductoRequestDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productoService.saveProducto(objNuevo));
     }
@@ -63,13 +64,13 @@ public class ProductoController {
 
     //Actualizamos
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> updateProducto(@PathVariable Long id, @RequestBody ProductoDto objActualizado){
+    public ResponseEntity<ProductoResponseDto> updateProducto(@PathVariable Long id, @RequestBody ProductoRequestDto objActualizado){
         return ResponseEntity.ok(productoService.updateProducto(id, objActualizado));
     }
 
     //Actualización parcial
     @PatchMapping("/{id}")
-    public ResponseEntity<Producto> patchProducto(@PathVariable Long id, @RequestBody ProductoDto objDto){
+    public ResponseEntity<ProductoResponseDto> patchProducto(@PathVariable Long id, @RequestBody ProductoRequestDto objDto){
         return ResponseEntity.ok(productoService.patchProducto(id, objDto));
     }
 

@@ -1,23 +1,26 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.producto.ProductoDto;
+import com.bazar.apibazar.dto.producto.ProductoRequestDto;
+import com.bazar.apibazar.dto.producto.ProductoResponseDto;
 import com.bazar.apibazar.model.Producto;
 import java.util.List;
 
 public interface IProductoService {
     
-    List<Producto> getProductos();
+    List<ProductoResponseDto> getProductos();
     
     Producto findProducto(Long id);
-    
-    Producto saveProducto(ProductoDto objNuevo);
+
+    ProductoResponseDto findProductoResponse(Long id);
+
+    ProductoResponseDto saveProducto(ProductoRequestDto objNuevo);
     
     void disableProducto(Long id);
     
-    Producto updateProducto(Long id, ProductoDto objActualizado);
+    ProductoResponseDto updateProducto(Long id, ProductoRequestDto objActualizado);
     
-    Producto patchProducto(Long id, ProductoDto objDto);
+    ProductoResponseDto patchProducto(Long id, ProductoRequestDto objDto);
     
     //Método para obtener todos los productos cuya cantidadDisponible sea menor a 5
-    List<Producto> productosPocoStock();
+    List<ProductoResponseDto> productosPocoStock();
 }
