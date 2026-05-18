@@ -28,7 +28,8 @@ public class ClienteService implements IClienteService{
         this.userService = userService;
     }
 
-    private void validarDisponibilidadCliente(Cliente objCliente){
+    @Override
+    public void validarDisponibilidadCliente(Cliente objCliente){
         if(!objCliente.isActive()){throw new ClienteNotFoundException("El cliente con id: " + objCliente.getIdCliente() + " está deshabilitado");}
     }
 
@@ -42,7 +43,8 @@ public class ClienteService implements IClienteService{
     }
 
     //Método propio para consultar los datos de un cliente y en caso de que no exista, excepción personalizada
-    private Cliente findCliente(Long id) {
+    @Override
+    public Cliente findCliente(Long id) {
         Optional<Cliente> objCliente = clienteRepository.findById(id);
 
         if(objCliente.isEmpty()){throw new ClienteNotFoundException("No se encontró cliente con id: " + id);}

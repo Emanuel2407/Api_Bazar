@@ -6,18 +6,22 @@ import com.bazar.apibazar.dto.venta.ProductoDeVentaDto;
 import com.bazar.apibazar.dto.venta.VentaDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.dto.venta.VentaResumenDto;
+import com.bazar.apibazar.exception.ClienteNotFoundException;
+import com.bazar.apibazar.exception.UnauthorizedOperationException;
 import com.bazar.apibazar.exception.VentaCanceledException;
 import com.bazar.apibazar.exception.VentaNotFoundException;
-import com.bazar.apibazar.model.Producto;
-import com.bazar.apibazar.model.Venta;
-import com.bazar.apibazar.model.VentaProducto;
-import com.bazar.apibazar.model.VentaStatus;
+import com.bazar.apibazar.model.*;
 import com.bazar.apibazar.repository.IVentaProductoRepository;
 import com.bazar.apibazar.repository.IVentaRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -191,6 +195,24 @@ public class VentaService implements IVentaService{
         }
     }
 
+    //Método propio para extraer del objeto Authentication guardado en el SecurityContext el id del cliente relacionado con el usuario autenticado
+    private Long getAuthenticatedClientId(){
+
+        //Sacamos objeto Authentication creado y guardado en el Security Context con base a la información almacenada en el token de autenticación
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //Obtenemos la identidad del usuario como objeto "Object" y lo parseamos a objeto Principal personalizado: "CustomUserPrincipal"
+        CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+
+        //Del Principal obtenemos el ID del cliente que está haciendo la compra
+        Long clienteId = principal.getClientId();
+
+        //Si el usuario no es cliente quiere decir que clienteId=null, por lo que informamos el error
+        if(clienteId == null){throw new UnauthorizedOperationException("El usuario no puede realizar compras");}
+
+        return clienteId;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<VentaResponseDto> getVentasSimples() {
@@ -258,6 +280,17 @@ public class VentaService implements IVentaService{
 
         //Migramos datos del objeto Dto. al objeto Venta
         objVenta.setFechaVenta(objNuevo.getFechaVenta());
+
+        //Ahora obtenemos el ID del cliente relacionado con el usuario autenticado que está haciendo la compra para buscarlo y agregarlo a la venta
+        Cliente objCliente = clienteService.findCliente(
+                getAuthenticatedClientId()
+        );
+
+        //Válidamos que el cliente esté habilitado
+        clienteService.validarDisponibilidadCliente(objCliente);
+
+        //Agregamos cliente a la venta
+        objVenta.setCliente(objCliente);
 
         //Primero se guarda la venta sin los productos para obtener su id
         ventaRepository.save(objVenta);

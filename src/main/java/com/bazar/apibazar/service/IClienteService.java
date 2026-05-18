@@ -18,8 +18,14 @@ public interface IClienteService {
     //Se devuelve objeto Dto con un Cliente que tiene ventas con simples productos
     ClienteSimpleDto findClienteSimple(Long id);
 
+    //Consultar cliente por ID y retornar directamente objeto de entidad
+    Cliente findCliente(Long id);
+
     //Método para construir un DTO de exposición de un cliente a partir de los datos que este tenga guardado en la base de datos
     ClienteSimpleDto sacarClienteSimple(Cliente objCliente);
+
+    //Validar que un cliente no esté deshabilitado
+    void validarDisponibilidadCliente(Cliente objCliente);
 
     ClienteSimpleDto saveCliente(ClienteDto objNuevo);
     
