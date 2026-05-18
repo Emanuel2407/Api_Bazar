@@ -278,6 +278,9 @@ public class VentaService implements IVentaService{
 
         Venta objVenta = new Venta();
 
+        //Inicialmente, la venta tiene estado PENDING
+        objVenta.setStatus(VentaStatus.PENDING);
+
         //Migramos datos del objeto Dto. al objeto Venta
         objVenta.setFechaVenta(objNuevo.getFechaVenta());
 
