@@ -1,9 +1,6 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.user.ClientUserRequestDto;
-import com.bazar.apibazar.dto.user.UpdateUsernameRequestDto;
-import com.bazar.apibazar.dto.user.UserRequestDto;
-import com.bazar.apibazar.dto.user.UserResponseDto;
+import com.bazar.apibazar.dto.user.*;
 import com.bazar.apibazar.exception.InvalidRoleAssignmentException;
 import com.bazar.apibazar.exception.UnauthorizedOperationException;
 import com.bazar.apibazar.exception.UserNotFoundException;
@@ -281,10 +278,28 @@ public class UserService implements IUserService {
         return buildUserResponse(objUser);
     }
 
+    @Transactional
+    @Override
+    public void updatePassword(UpdatePasswordRequestDto objUpdatePassword) {
+        //Buscamos usuario autenticado
+        UserSec user = findUser(
+                getAuthenticatedUserId()
+        );
 
-//
-//    @Override
-//    public void updatePassword(UpdatePasswordRequestDto objUpdatePassword) {
-//
-//    }
+        //Validamos que las contraseñas coincidan
+        boolean verifier = passwordEncoder.matches(
+                objUpdatePassword.currentPassword(), user.getPassword()
+        );
+
+        //Si las contraseñas no coinciden, lanzamos excepción de UnauthorizeOperation
+        if(!verifier){throw new UnauthorizedOperationException("Contraseña incorrecta");}
+
+        //Si la contraseña coincide, actualizamos contraseña
+        user.setPassword(
+                passwordEncoder.encode(
+                       objUpdatePassword.newPassword()
+                )
+        );
+
+    }
 }

@@ -38,8 +38,8 @@ public interface IUserService {
         aseguramos que la cuenta a la que se le está haciendo el cambio si es realemnte la del usuario autenticado que está haciendo la petición*/
     //Método para consultar los datos del usuario que está autenticado en el contexto de seguridad (ownership)
     UserResponseDto findMe();
-    //Actualizar username de usuario
+    //Actualizar username de usuario autenticado
     UserResponseDto updateUsername(UpdateUsernameRequestDto objUpdateUsername);
-//    //Actualizar contraseña de un usuario
-//    void updatePassword(UpdatePasswordRequestDto objUpdatePassword);
+    //Actualizar contraseña de usuario autenticado
+    void updatePassword(UpdatePasswordRequestDto objUpdatePassword);
 }

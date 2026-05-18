@@ -1,9 +1,6 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.user.ClientUserRequestDto;
-import com.bazar.apibazar.dto.user.UpdateUsernameRequestDto;
-import com.bazar.apibazar.dto.user.UserRequestDto;
-import com.bazar.apibazar.dto.user.UserResponseDto;
+import com.bazar.apibazar.dto.user.*;
 import com.bazar.apibazar.service.IUserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -79,10 +76,18 @@ public class UserController {
         return ResponseEntity.ok(userService.removeRolesFromUser(userId, rolesNames));
     }
 
+    //Endpoint para acceder al método de actualizar username de usuario autenticado
     @PostMapping("/update-username")
     public ResponseEntity<UserResponseDto> updateUsername(@Valid @RequestBody UpdateUsernameRequestDto objUpdateUsername){
         return ResponseEntity.ok(
                 userService.updateUsername(objUpdateUsername)
         );
+    }
+
+    //Endpoint para acceder al método de actualizar password de usuario autenticado
+    @PostMapping("/update-password")
+    public ResponseEntity<UserResponseDto> updatePassword(@Valid @RequestBody UpdatePasswordRequestDto objUpdatePassword){
+        userService.updatePassword(objUpdatePassword);
+        return ResponseEntity.ok().build();
     }
 }
