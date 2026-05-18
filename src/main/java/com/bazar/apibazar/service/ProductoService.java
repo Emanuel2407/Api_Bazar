@@ -94,10 +94,10 @@ public class ProductoService implements IProductoService{
     public ProductoResponseDto saveProducto(ProductoRequestDto objNuevo) {
         Producto objProducto = new Producto();
 
-        objProducto.setNombre(objNuevo.getNombre());
-        objProducto.setMarca(objNuevo.getMarca());
-        objProducto.setCosto(objNuevo.getCosto());
-        objProducto.setCantidadDisponible(objNuevo.getCantidadDisponible());
+        objProducto.setNombre(objNuevo.nombre());
+        objProducto.setMarca(objNuevo.marca());
+        objProducto.setCosto(objNuevo.costo());
+        objProducto.setCantidadDisponible(objNuevo.cantidadDisponible());
 
         productoRepository.save(objProducto);
 
@@ -126,10 +126,10 @@ public class ProductoService implements IProductoService{
     public ProductoResponseDto updateProducto(Long id, ProductoRequestDto objActualizado) {
         Producto objProducto = findProducto(id);
 
-        objProducto.setNombre(objActualizado.getNombre());
-        objProducto.setMarca(objActualizado.getMarca());
-        objProducto.setCosto(objActualizado.getCosto());
-        objProducto.setCantidadDisponible(objActualizado.getCantidadDisponible());
+        objProducto.setNombre(objActualizado.nombre());
+        objProducto.setMarca(objActualizado.marca());
+        objProducto.setCosto(objActualizado.costo());
+        objProducto.setCantidadDisponible(objActualizado.cantidadDisponible());
 
         productoRepository.save(objProducto);
 
@@ -143,10 +143,10 @@ public class ProductoService implements IProductoService{
     public ProductoResponseDto patchProducto(Long id, ProductoRequestDto objDto) {
         Producto objProducto = findProducto(id);
 
-        if(objDto.getNombre() != null){objProducto.setNombre(objDto.getNombre());}
-        if(objDto.getMarca() != null){objProducto.setMarca(objDto.getMarca());}
-        if(objDto.getCosto() != null){objProducto.setCosto(objDto.getCosto());}
-        if(objDto.getCantidadDisponible() != null){objProducto.setCantidadDisponible(objDto.getCantidadDisponible());}
+        if(objDto.nombre() != null){objProducto.setNombre(objDto.nombre());}
+        if(objDto.marca() != null){objProducto.setMarca(objDto.marca());}
+        if(objDto.costo() != null){objProducto.setCosto(objDto.costo());}
+        if(objDto.cantidadDisponible() != null){objProducto.setCantidadDisponible(objDto.cantidadDisponible());}
 
         productoRepository.save(objProducto);
 

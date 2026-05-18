@@ -274,7 +274,7 @@ public class VentaService implements IVentaService{
     @Override
     public VentaResponseDto saveVenta(VentaDto objNuevo) {
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
-        productoService.validarStockProductos(objNuevo.getListProductos());
+        productoService.validarStockProductos(objNuevo.listProductos());
 
         Venta objVenta = new Venta();
 
@@ -282,7 +282,7 @@ public class VentaService implements IVentaService{
         objVenta.setStatus(VentaStatus.PENDING);
 
         //Migramos datos del objeto Dto. al objeto Venta
-        objVenta.setFechaVenta(objNuevo.getFechaVenta());
+        objVenta.setFechaVenta(objNuevo.fechaVenta());
 
         //Ahora obtenemos el ID del cliente relacionado con el usuario autenticado que está haciendo la compra para buscarlo y agregarlo a la venta
         Cliente objCliente = clienteService.findCliente(
@@ -300,7 +300,7 @@ public class VentaService implements IVentaService{
         
         /*Llamamos al método que se encargue de crear las relaciones entre la venta y cada uno de los productos
         que llegaron como objetos VentaProductoDto en el objeto Dto de venta llamado objNuevo*/
-        crearRelacionVentaProducto(objNuevo.getListProductos(), objVenta);
+        crearRelacionVentaProducto(objNuevo.listProductos(), objVenta);
 
         //Si no hay ningún problema, podremos asignarle el estado a la venta: COMPLETED
         objVenta.setStatus(VentaStatus.COMPLETED);
@@ -328,7 +328,7 @@ public class VentaService implements IVentaService{
         validarEstadoVenta(objVenta);
 
         //Actualizamos datos de la venta en cuestión
-        objVenta.setFechaVenta(objActualizado.getFechaVenta());
+        objVenta.setFechaVenta(objActualizado.fechaVenta());
 
         /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
         poder actualizar esas relaciones y que queden con los nuevos productos*/
@@ -336,7 +336,7 @@ public class VentaService implements IVentaService{
         
         /*Ahora llamamos al método que se encargue de crear las relaciones actualizadas entre la venta y cada 
         uno de los nuevos productos*/
-        crearRelacionVentaProducto(objActualizado.getListProductos(), objVenta);
+        crearRelacionVentaProducto(objActualizado.listProductos(), objVenta);
         
         return sacarVentaSimple(objVenta);
     }
@@ -350,9 +350,9 @@ public class VentaService implements IVentaService{
         validarEstadoVenta(objVenta);
 
         //Actualizamos fecha de la venta 
-        if(objDto.getFechaVenta() != null){objVenta.setFechaVenta(objDto.getFechaVenta());}
+        if(objDto.fechaVenta() != null){objVenta.setFechaVenta(objDto.fechaVenta());}
         
-        if(!objDto.getListProductos().isEmpty()){     
+        if(!objDto.listProductos().isEmpty()){
             
             /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
             poder actualizar esas relaciones y que queden con los nuevos productos*/
@@ -360,7 +360,7 @@ public class VentaService implements IVentaService{
             
             /*Ahora llamamos al método que se encargue de crear las relaciones actualizadas entre la venta y cada 
             uno de los nuevos productos*/
-            crearRelacionVentaProducto(objDto.getListProductos(), objVenta);
+            crearRelacionVentaProducto(objDto.listProductos(), objVenta);
         
         
         }
@@ -602,21 +602,18 @@ public class VentaService implements IVentaService{
                 mayorVenta = objVenta;
             }
         }
-        
-        //Ahora migramos atributos a "VentaResumenDto" y retornamos
-        VentaResumenDto mayorVentaDto = new VentaResumenDto();
-        
-        mayorVentaDto.setIdVenta(mayorVenta.getIdVenta());
-        mayorVentaDto.setTotal(mayorVenta.getTotalVenta());
-        mayorVentaDto.setCantProductos(mayorVenta.getCantidadTotalProductos());
-        
+
         //Buscamos el cliente de la Mayor venta
         ClienteSimpleDto objCliente = clienteService.sacarClienteSimple(mayorVenta.getCliente());
 
-        mayorVentaDto.setNombreCliente(objCliente.nombre());
-        mayorVentaDto.setApellidoCliente(objCliente.apellido());
+        //Ahora migramos atributos a "VentaResumenDto" y retornamos
+        return new VentaResumenDto(
+                mayorVenta.getIdVenta(),
+                mayorVenta.getTotalVenta(),
+                mayorVenta.getCantidadTotalProductos(),
+                objCliente.nombre(), objCliente.apellido()
 
-        return mayorVentaDto;  
+        );
         
     }
     
