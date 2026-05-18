@@ -1,6 +1,7 @@
 package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.user.ClientUserRequestDto;
+import com.bazar.apibazar.dto.user.UpdateUsernameRequestDto;
 import com.bazar.apibazar.dto.user.UserRequestDto;
 import com.bazar.apibazar.dto.user.UserResponseDto;
 import com.bazar.apibazar.exception.InvalidRoleAssignmentException;
@@ -117,15 +118,6 @@ public class UserService implements IUserService {
         );
     }
 
-    @Override
-    public UserResponseDto findMe() {
-        //Usamos método para obtener id del usuario autenticado y lo buscamos
-        UserSec objUser = findUser(
-            getAuthenticatedUserId()
-        );
-
-        return buildUserResponse(objUser);
-    }
 
     @Override
     public UserSec findByClient(Long clientId) {
@@ -255,11 +247,41 @@ public class UserService implements IUserService {
         return buildUserResponse(objUser);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public UserResponseDto findMe() {
+        //Usamos método para obtener id del usuario autenticado y lo buscamos
+        UserSec objUser = findUser(
+                getAuthenticatedUserId()
+        );
 
-//    @Override
-//    public UserResponseDto updateUsername(UpdateUsernameRequestDto objUpdateUser) {
-//        return null;
-//    }
+        return buildUserResponse(objUser);
+    }
+
+    @Transactional
+    @Override
+    public UserResponseDto updateUsername(UpdateUsernameRequestDto objUpdateUsername) {
+
+        //Buscamos usuario autenticado
+        UserSec objUser = findUser(
+                getAuthenticatedUserId()
+        );
+
+        //Validamos si las contraseñas coinciden
+        boolean verifier = passwordEncoder.matches(
+                objUpdateUsername.password(), objUser.getPassword()
+        );
+
+        //Si no coinciden las contraseñas, lanzamos excepción de NO Autorizado
+        if(!verifier){throw new UnauthorizedOperationException("Contraseña incorrecta");}
+
+        //Si coinciden las contraseñas, actualizamos usuario
+        objUser.setUsername(objUpdateUsername.newUsername());
+
+        return buildUserResponse(objUser);
+    }
+
+
 //
 //    @Override
 //    public void updatePassword(UpdatePasswordRequestDto objUpdatePassword) {

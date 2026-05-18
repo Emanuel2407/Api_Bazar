@@ -1,6 +1,7 @@
 package com.bazar.apibazar.controller;
 
 import com.bazar.apibazar.dto.user.ClientUserRequestDto;
+import com.bazar.apibazar.dto.user.UpdateUsernameRequestDto;
 import com.bazar.apibazar.dto.user.UserRequestDto;
 import com.bazar.apibazar.dto.user.UserResponseDto;
 import com.bazar.apibazar.service.IUserService;
@@ -76,5 +77,12 @@ public class UserController {
     @DeleteMapping("/{userId}/remove-roles")
     public ResponseEntity<UserResponseDto> removeRoles(@PathVariable Long userId, @RequestBody List<String> rolesNames){
         return ResponseEntity.ok(userService.removeRolesFromUser(userId, rolesNames));
+    }
+
+    @PostMapping("/update-username")
+    public ResponseEntity<UserResponseDto> updateUsername(@Valid @RequestBody UpdateUsernameRequestDto objUpdateUsername){
+        return ResponseEntity.ok(
+                userService.updateUsername(objUpdateUsername)
+        );
     }
 }

@@ -14,9 +14,6 @@ public interface IUserService {
     //Traemos por ID
     UserResponseDto findUserById(Long id);
 
-    //Método para consultar los datos del usuario que está autenticado en el contexto de seguridad (ownership)
-    UserResponseDto findMe();
-
     //Buscar usuario por cliente asociado
     UserSec findByClient(Long clientId);
 
@@ -36,11 +33,13 @@ public interface IUserService {
     //Eliminar roles asignados a un usuario
     UserResponseDto removeRolesFromUser(Long userId, List<String> removeRolesNames);
 
-//    //---Operaciones sensibles---
-//    /*Nota: La identidad de este se saca del token JWT y no por parámetros, ya que así nos aseguramos que la cuenta a
-//       la que se le está haciendo el cambio si es realemnte la del usuario autenticado que está haciendo la petición*/
-//    //Actualizar username de usuario
-//    UserResponseDto updateUsername(UpdateUsernameRequestDto objUpdateUser);
+    //---Operaciones sensibles con ownership---
+    /*Nota: La identidad del usuario se saca del objeto Authentication en el SecurityContext y no por parámetros, ya que así nos
+        aseguramos que la cuenta a la que se le está haciendo el cambio si es realemnte la del usuario autenticado que está haciendo la petición*/
+    //Método para consultar los datos del usuario que está autenticado en el contexto de seguridad (ownership)
+    UserResponseDto findMe();
+    //Actualizar username de usuario
+    UserResponseDto updateUsername(UpdateUsernameRequestDto objUpdateUsername);
 //    //Actualizar contraseña de un usuario
 //    void updatePassword(UpdatePasswordRequestDto objUpdatePassword);
 }
