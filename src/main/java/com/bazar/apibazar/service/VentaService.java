@@ -1,13 +1,11 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
+import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
 import com.bazar.apibazar.dto.venta.VentaResponseDto;
 import com.bazar.apibazar.dto.venta.ProductoDeVentaDto;
-import com.bazar.apibazar.dto.venta.VentaDto;
+import com.bazar.apibazar.dto.venta.VentaRequestDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.dto.venta.VentaResumenDto;
-import com.bazar.apibazar.exception.ClienteNotFoundException;
-import com.bazar.apibazar.exception.UnauthorizedOperationException;
 import com.bazar.apibazar.exception.VentaCanceledException;
 import com.bazar.apibazar.exception.VentaNotFoundException;
 import com.bazar.apibazar.model.*;
@@ -18,10 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -254,7 +248,7 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaResponseDto saveVenta(VentaDto objNuevo) {
+    public VentaResponseDto saveVenta(VentaRequestDto objNuevo) {
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
         productoService.validarStockProductos(objNuevo.listProductos());
 
@@ -303,7 +297,7 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaResponseDto updateVenta(Long id, VentaDto objActualizado) {
+    public VentaResponseDto updateVenta(Long id, VentaRequestDto objActualizado) {
         Venta objVenta = findVenta(id);
 
         //Validamos que la venta no haya sido cancelada para poder actualizar
@@ -325,7 +319,7 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaResponseDto patchVenta(Long id, VentaDto objDto) {
+    public VentaResponseDto patchVenta(Long id, VentaRequestDto objDto) {
         Venta objVenta = findVenta(id);
 
         //Validamos que la venta no haya sido cancelada para poder actualizar
@@ -586,7 +580,7 @@ public class VentaService implements IVentaService{
         }
 
         //Buscamos el cliente de la Mayor venta
-        ClienteSimpleDto objCliente = clienteService.sacarClienteSimple(mayorVenta.getCliente());
+        ClienteResponseDto objCliente = clienteService.sacarClienteSimple(mayorVenta.getCliente());
 
         //Ahora migramos atributos a "VentaResumenDto" y retornamos
         return new VentaResumenDto(

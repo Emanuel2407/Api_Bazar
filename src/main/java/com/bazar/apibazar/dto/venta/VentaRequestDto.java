@@ -5,11 +5,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public record VentaDto(
+public record VentaRequestDto(
         LocalDate fechaVenta,
         List<VentaProductoDto> listProductos
 ) {
-    public VentaDto {
+    public VentaRequestDto {
         if (listProductos == null) listProductos = new ArrayList<>();
     }
 }

@@ -1,7 +1,7 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.cliente.ClienteDto;
-import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
+import com.bazar.apibazar.dto.cliente.ClienteRequestDto;
+import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
 import com.bazar.apibazar.exception.ClienteNotFoundException;
 import com.bazar.apibazar.exception.UnauthorizedOperationException;
 import com.bazar.apibazar.model.Cliente;
@@ -11,11 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.bazar.apibazar.repository.IUserRepository;
 import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,9 +61,9 @@ public class ClienteService implements IClienteService{
 
     /*Método de construir el DTO para exponer a un cliente*/
     @Override
-    public ClienteSimpleDto sacarClienteSimple(Cliente objCliente){
+    public ClienteResponseDto sacarClienteSimple(Cliente objCliente){
 
-        return new ClienteSimpleDto(objCliente.getIdCliente(), objCliente.getNombre(), objCliente.getApellido(),
+        return new ClienteResponseDto(objCliente.getIdCliente(), objCliente.getNombre(), objCliente.getApellido(),
                 objCliente.getDocumento(), objCliente.isActive());
 
     }
@@ -84,10 +81,10 @@ public class ClienteService implements IClienteService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<ClienteSimpleDto> getClientesSimples() {
+    public List<ClienteResponseDto> getClientesSimples() {
         
         //Lista que va a contener a todos los clientes en su formato de respuesta
-        List<ClienteSimpleDto> listClientes = new ArrayList<>();
+        List<ClienteResponseDto> listClientes = new ArrayList<>();
         
         //Recorrer los clientes registrados
         for(Cliente objCliente: clienteRepository.findAll()){
@@ -104,7 +101,7 @@ public class ClienteService implements IClienteService{
 
     @Transactional(readOnly = true)
     @Override
-    public ClienteSimpleDto findClienteSimple(Long id) {
+    public ClienteResponseDto findClienteSimple(Long id) {
 
         //Buscamos cliente y confirmamos existencia
         Cliente objCliente = findCliente(id);
@@ -117,7 +114,7 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public ClienteSimpleDto saveCliente(ClienteDto objNuevo) {
+    public ClienteResponseDto saveCliente(ClienteRequestDto objNuevo) {
         Cliente objCliente = new Cliente();
 
         //Agregamos datos del usuario al objeto que se va a persistir
@@ -147,7 +144,7 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado) {
+    public ClienteResponseDto updateCliente(Long id, ClienteRequestDto objActualizado) {
         Cliente objCliente = findCliente(id);
 
         //Validamos que el cliente esté disponible
@@ -168,7 +165,7 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public ClienteSimpleDto patchCliente(Long id, ClienteDto objDto) {
+    public ClienteResponseDto patchCliente(Long id, ClienteRequestDto objDto) {
         Cliente objCliente = findCliente(id);
 
         //Validamos que el cliente esté disponible
@@ -191,7 +188,7 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public ClienteSimpleDto updateMe(ClienteDto updatedCliente) {
+    public ClienteResponseDto updateMe(ClienteRequestDto updatedCliente) {
         //Buscamos el ID del cliente que está autenticado y delegamos al método creado para actualización total
         return this.updateCliente(
                 getAuthenticatedClientId(), updatedCliente
@@ -201,7 +198,7 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public ClienteSimpleDto patchMe(ClienteDto updatedCliente) {
+    public ClienteResponseDto patchMe(ClienteRequestDto updatedCliente) {
         //Buscamos el ID del cliente que está autenticado y delegamos la actualización al método creado para actualización parcial
         return this.patchCliente(
                 getAuthenticatedClientId(), updatedCliente
@@ -210,7 +207,7 @@ public class ClienteService implements IClienteService{
 
     @Transactional(readOnly = true)
     @Override
-    public ClienteSimpleDto findMe() {
+    public ClienteResponseDto findMe() {
         //Buscamos cliente por su id guardado en el SecurityContext
         return sacarClienteSimple(findCliente(
                 getAuthenticatedClientId())

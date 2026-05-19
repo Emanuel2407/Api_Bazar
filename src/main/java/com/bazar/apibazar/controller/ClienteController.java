@@ -1,7 +1,7 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.cliente.ClienteDto;
-import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
+import com.bazar.apibazar.dto.cliente.ClienteRequestDto;
+import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
 import com.bazar.apibazar.service.IClienteService;
 import java.util.List;
 
@@ -34,20 +34,20 @@ public class ClienteController {
     //Traer todos
     @GetMapping("/")
     @ResponseBody
-    public ResponseEntity<List<ClienteSimpleDto>> getClientes(){
+    public ResponseEntity<List<ClienteResponseDto>> getClientes(){
         return ResponseEntity.ok(clienteService.getClientesSimples());
     }
     
     //Traer uno
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteSimpleDto> findCliente(@PathVariable Long id){
+    public ResponseEntity<ClienteResponseDto> findCliente(@PathVariable Long id){
         return ResponseEntity.ok(clienteService.findClienteSimple(id));
         
     }
 
     //Traer los datos del cliente autenticado
     @GetMapping("/me")
-    public ResponseEntity<ClienteSimpleDto> findMe(){
+    public ResponseEntity<ClienteResponseDto> findMe(){
         return ResponseEntity.ok(
                 clienteService.findMe()
         );
@@ -55,7 +55,7 @@ public class ClienteController {
 
     //Ingresamos 
     @PostMapping("/")
-    public ResponseEntity<ClienteSimpleDto> saveCliente(@Valid @RequestBody ClienteDto objNuevo){
+    public ResponseEntity<ClienteResponseDto> saveCliente(@Valid @RequestBody ClienteRequestDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(clienteService.saveCliente(objNuevo));
     }
@@ -69,25 +69,25 @@ public class ClienteController {
     
     //Actualización total
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteSimpleDto> updateCliente(@Valid @PathVariable Long id, @RequestBody ClienteDto objActualizado){
+    public ResponseEntity<ClienteResponseDto> updateCliente(@Valid @PathVariable Long id, @RequestBody ClienteRequestDto objActualizado){
         return ResponseEntity.ok(clienteService.updateCliente(id, objActualizado));
     }
     
     //Actualización parcial
     @PatchMapping("/{id}")
-    public ResponseEntity<ClienteSimpleDto> patchCliente(@PathVariable Long id, @RequestBody ClienteDto objDto){
+    public ResponseEntity<ClienteResponseDto> patchCliente(@PathVariable Long id, @RequestBody ClienteRequestDto objDto){
         return ResponseEntity.ok(clienteService.patchCliente(id, objDto));
     }
 
     //Actualización total de cliente autenticado
     @PutMapping("/me")
-    public ResponseEntity<ClienteSimpleDto> updateMe(@Valid @RequestBody ClienteDto objActualizado){
+    public ResponseEntity<ClienteResponseDto> updateMe(@Valid @RequestBody ClienteRequestDto objActualizado){
         return ResponseEntity.ok(clienteService.updateMe(objActualizado));
     }
 
     //Actualización parcial de cliente autenticado
     @PatchMapping("/me")
-    public ResponseEntity<ClienteSimpleDto> patchMe(@RequestBody ClienteDto updatedCliente){
+    public ResponseEntity<ClienteResponseDto> patchMe(@RequestBody ClienteRequestDto updatedCliente){
         return ResponseEntity.ok(clienteService.patchMe(updatedCliente));
     }
 

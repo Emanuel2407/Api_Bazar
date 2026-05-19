@@ -1,7 +1,7 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.cliente.ClienteDto;
-import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
+import com.bazar.apibazar.dto.cliente.ClienteRequestDto;
+import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
 import com.bazar.apibazar.model.Cliente;
 
 import java.util.List;
@@ -13,36 +13,36 @@ public interface IClienteService {
     lograsr esto hacemos la implementacion de una clase Dto que devuelva lo mismo que la clase Cliente normal 
     excepto que la lista de VentaProducto de las ventas del cliente se va a cambiar por una lista de 
     productos normalita*/
-    List<ClienteSimpleDto> getClientesSimples();
+    List<ClienteResponseDto> getClientesSimples();
     
     //Se devuelve objeto Dto con un Cliente que tiene ventas con simples productos
-    ClienteSimpleDto findClienteSimple(Long id);
+    ClienteResponseDto findClienteSimple(Long id);
 
     //Consultar cliente por ID y retornar directamente objeto de entidad
     Cliente findCliente(Long id);
 
     //Método para construir un DTO de exposición de un cliente a partir de los datos que este tenga guardado en la base de datos
-    ClienteSimpleDto sacarClienteSimple(Cliente objCliente);
+    ClienteResponseDto sacarClienteSimple(Cliente objCliente);
 
     //Validar que un cliente no esté deshabilitado
     void validarDisponibilidadCliente(Cliente objCliente);
 
-    ClienteSimpleDto saveCliente(ClienteDto objNuevo);
+    ClienteResponseDto saveCliente(ClienteRequestDto objNuevo);
     
     void disableCliente(Long id);
     
-    ClienteSimpleDto updateCliente(Long id, ClienteDto objActualizado);
+    ClienteResponseDto updateCliente(Long id, ClienteRequestDto objActualizado);
     
-    ClienteSimpleDto patchCliente(Long id, ClienteDto objDto);
+    ClienteResponseDto patchCliente(Long id, ClienteRequestDto objDto);
 
         //Método para actualizar completamente los datos del cliente que está autenticado
-    ClienteSimpleDto updateMe(ClienteDto updatedCliente);
+    ClienteResponseDto updateMe(ClienteRequestDto updatedCliente);
 
     //Método para actualizar parcialmente los datos del cliente que está autenticado
-    ClienteSimpleDto patchMe(ClienteDto updatedCliente);
+    ClienteResponseDto patchMe(ClienteRequestDto updatedCliente);
 
     Long getAuthenticatedClientId();
 
-    ClienteSimpleDto findMe();
+    ClienteResponseDto findMe();
 
 }

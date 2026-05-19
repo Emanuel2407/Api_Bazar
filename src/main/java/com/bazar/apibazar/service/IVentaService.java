@@ -1,7 +1,7 @@
 package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.venta.VentaResponseDto;
-import com.bazar.apibazar.dto.venta.VentaDto;
+import com.bazar.apibazar.dto.venta.VentaRequestDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.dto.venta.VentaResumenDto;
 import com.bazar.apibazar.model.Producto;
@@ -20,13 +20,13 @@ public interface IVentaService {
     //Se devuelve objeto Dto con una lista de simples productos
     VentaResponseDto findVentaSimple(Long id);
     
-    VentaResponseDto saveVenta(VentaDto objNuevo);
+    VentaResponseDto saveVenta(VentaRequestDto objNuevo);
     
     void cancelVenta(Long id);
     
-    VentaResponseDto updateVenta(Long id, VentaDto objActualizado);
+    VentaResponseDto updateVenta(Long id, VentaRequestDto objActualizado);
     
-    VentaResponseDto patchVenta(Long id, VentaDto objDto);
+    VentaResponseDto patchVenta(Long id, VentaRequestDto objDto);
     
     //Método para agregar una cierta cantidad de productos nuevos a una venta sin afectar los que la venta ya tenía    
     VentaResponseDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos);

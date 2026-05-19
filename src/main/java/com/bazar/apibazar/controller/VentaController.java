@@ -1,14 +1,14 @@
 package com.bazar.apibazar.controller;
 
 import com.bazar.apibazar.dto.venta.VentaResponseDto;
-import com.bazar.apibazar.dto.venta.VentaDto;
+import com.bazar.apibazar.dto.venta.VentaRequestDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
 import com.bazar.apibazar.dto.venta.VentaResumenDto;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.service.IVentaService;
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -64,7 +64,7 @@ public class VentaController {
     
     //Ingresamos venta
     @PostMapping("/")
-    public ResponseEntity<VentaResponseDto> saveVenta(@RequestBody VentaDto objNuevo){
+    public ResponseEntity<VentaResponseDto> saveVenta(@RequestBody VentaRequestDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ventaService.saveVenta(objNuevo));
     }
@@ -78,13 +78,13 @@ public class VentaController {
     
     //Actualizamos 
     @PutMapping("/{id}")
-    public ResponseEntity<VentaResponseDto> updateVenta(@PathVariable Long id, @RequestBody VentaDto objActualizado){
+    public ResponseEntity<VentaResponseDto> updateVenta(@PathVariable Long id, @RequestBody VentaRequestDto objActualizado){
         return ResponseEntity.ok(ventaService.updateVenta(id, objActualizado));
     }
     
     //Actualización parcial
     @PatchMapping("/{id}")
-    public ResponseEntity<VentaResponseDto> patchVenta(@PathVariable Long id, @RequestBody VentaDto objDto){
+    public ResponseEntity<VentaResponseDto> patchVenta(@PathVariable Long id, @RequestBody VentaRequestDto objDto){
         return ResponseEntity.ok(ventaService.patchVenta(id, objDto));
     }
     
