@@ -1,5 +1,6 @@
 package com.bazar.apibazar.service;
 
+import com.bazar.apibazar.dto.producto.ProductoPatchDto;
 import com.bazar.apibazar.dto.producto.ProductoRequestDto;
 import com.bazar.apibazar.dto.producto.ProductoResponseDto;
 import com.bazar.apibazar.dto.venta.VentaProductoDto;
@@ -140,7 +141,7 @@ public class ProductoService implements IProductoService{
 
     @Transactional
     @Override
-    public ProductoResponseDto patchProducto(Long id, ProductoRequestDto objDto) {
+    public ProductoResponseDto patchProducto(Long id, ProductoPatchDto objDto) {
         Producto objProducto = findProducto(id);
 
         if(objDto.nombre() != null){objProducto.setNombre(objDto.nombre());}

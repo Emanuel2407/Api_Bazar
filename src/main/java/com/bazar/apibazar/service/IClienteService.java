@@ -1,5 +1,6 @@
 package com.bazar.apibazar.service;
 
+import com.bazar.apibazar.dto.cliente.ClientePatchDto;
 import com.bazar.apibazar.dto.cliente.ClienteRequestDto;
 import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
 import com.bazar.apibazar.model.Cliente;
@@ -33,13 +34,13 @@ public interface IClienteService {
     
     ClienteResponseDto updateCliente(Long id, ClienteRequestDto objActualizado);
     
-    ClienteResponseDto patchCliente(Long id, ClienteRequestDto objDto);
+    ClienteResponseDto patchCliente(Long id, ClientePatchDto updatedCliente);
 
         //Método para actualizar completamente los datos del cliente que está autenticado
     ClienteResponseDto updateMe(ClienteRequestDto updatedCliente);
 
     //Método para actualizar parcialmente los datos del cliente que está autenticado
-    ClienteResponseDto patchMe(ClienteRequestDto updatedCliente);
+    ClienteResponseDto patchMe(ClientePatchDto updatedCliente);
 
     Long getAuthenticatedClientId();
 

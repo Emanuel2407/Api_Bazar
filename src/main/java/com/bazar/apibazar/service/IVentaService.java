@@ -1,9 +1,6 @@
 package com.bazar.apibazar.service;
 
-import com.bazar.apibazar.dto.venta.VentaResponseDto;
-import com.bazar.apibazar.dto.venta.VentaRequestDto;
-import com.bazar.apibazar.dto.venta.VentaProductoDto;
-import com.bazar.apibazar.dto.venta.VentaResumenDto;
+import com.bazar.apibazar.dto.venta.*;
 import com.bazar.apibazar.model.Producto;
 
 import java.time.LocalDate;
@@ -26,7 +23,7 @@ public interface IVentaService {
     
     VentaResponseDto updateVenta(Long id, VentaRequestDto objActualizado);
     
-    VentaResponseDto patchVenta(Long id, VentaRequestDto objDto);
+    VentaResponseDto patchVenta(Long id, VentaPatchDto objDto);
     
     //Método para agregar una cierta cantidad de productos nuevos a una venta sin afectar los que la venta ya tenía    
     VentaResponseDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos);

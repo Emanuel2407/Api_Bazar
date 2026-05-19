@@ -1,5 +1,6 @@
 package com.bazar.apibazar.service;
 
+import com.bazar.apibazar.dto.cliente.ClientePatchDto;
 import com.bazar.apibazar.dto.cliente.ClienteRequestDto;
 import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
 import com.bazar.apibazar.exception.ClienteNotFoundException;
@@ -165,7 +166,7 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public ClienteResponseDto patchCliente(Long id, ClienteRequestDto objDto) {
+    public ClienteResponseDto patchCliente(Long id, ClientePatchDto objDto) {
         Cliente objCliente = findCliente(id);
 
         //Validamos que el cliente esté disponible
@@ -198,7 +199,7 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public ClienteResponseDto patchMe(ClienteRequestDto updatedCliente) {
+    public ClienteResponseDto patchMe(ClientePatchDto updatedCliente) {
         //Buscamos el ID del cliente que está autenticado y delegamos la actualización al método creado para actualización parcial
         return this.patchCliente(
                 getAuthenticatedClientId(), updatedCliente

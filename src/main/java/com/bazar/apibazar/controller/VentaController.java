@@ -1,9 +1,6 @@
 package com.bazar.apibazar.controller;
 
-import com.bazar.apibazar.dto.venta.VentaResponseDto;
-import com.bazar.apibazar.dto.venta.VentaRequestDto;
-import com.bazar.apibazar.dto.venta.VentaProductoDto;
-import com.bazar.apibazar.dto.venta.VentaResumenDto;
+import com.bazar.apibazar.dto.venta.*;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.service.IVentaService;
 import java.time.LocalDate;
@@ -87,7 +84,7 @@ public class VentaController {
     
     //Actualización parcial
     @PatchMapping("/{id}")
-    public ResponseEntity<VentaResponseDto> patchVenta(@PathVariable Long id, @RequestBody VentaRequestDto objDto){
+    public ResponseEntity<VentaResponseDto> patchVenta(@PathVariable Long id, @Valid @RequestBody VentaPatchDto objDto){
         return ResponseEntity.ok(ventaService.patchVenta(id, objDto));
     }
     

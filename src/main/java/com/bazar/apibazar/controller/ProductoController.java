@@ -1,5 +1,6 @@
 package com.bazar.apibazar.controller;
 
+import com.bazar.apibazar.dto.producto.ProductoPatchDto;
 import com.bazar.apibazar.dto.producto.ProductoRequestDto;
 import com.bazar.apibazar.dto.producto.ProductoResponseDto;
 import com.bazar.apibazar.model.Producto;
@@ -72,7 +73,7 @@ public class ProductoController {
 
     //Actualización parcial
     @PatchMapping("/{id}")
-    public ResponseEntity<ProductoResponseDto> patchProducto(@PathVariable Long id, @RequestBody ProductoRequestDto objDto){
+    public ResponseEntity<ProductoResponseDto> patchProducto(@PathVariable Long id, @Valid @RequestBody ProductoPatchDto objDto){
         return ResponseEntity.ok(productoService.patchProducto(id, objDto));
     }
 

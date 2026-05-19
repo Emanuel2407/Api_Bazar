@@ -1,5 +1,6 @@
 package com.bazar.apibazar.controller;
 
+import com.bazar.apibazar.dto.cliente.ClientePatchDto;
 import com.bazar.apibazar.dto.cliente.ClienteRequestDto;
 import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
 import com.bazar.apibazar.service.IClienteService;
@@ -75,8 +76,8 @@ public class ClienteController {
     
     //Actualización parcial
     @PatchMapping("/{id}")
-    public ResponseEntity<ClienteResponseDto> patchCliente(@PathVariable Long id, @RequestBody ClienteRequestDto objDto){
-        return ResponseEntity.ok(clienteService.patchCliente(id, objDto));
+    public ResponseEntity<ClienteResponseDto> patchCliente(@PathVariable Long id, @Valid @RequestBody ClientePatchDto UpdatedCliente){
+        return ResponseEntity.ok(clienteService.patchCliente(id, UpdatedCliente));
     }
 
     //Actualización total de cliente autenticado
@@ -87,7 +88,7 @@ public class ClienteController {
 
     //Actualización parcial de cliente autenticado
     @PatchMapping("/me")
-    public ResponseEntity<ClienteResponseDto> patchMe(@RequestBody ClienteRequestDto updatedCliente){
+    public ResponseEntity<ClienteResponseDto> patchMe(@Valid @RequestBody ClientePatchDto updatedCliente){
         return ResponseEntity.ok(clienteService.patchMe(updatedCliente));
     }
 

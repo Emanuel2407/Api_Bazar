@@ -1,11 +1,7 @@
 package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
-import com.bazar.apibazar.dto.venta.VentaResponseDto;
-import com.bazar.apibazar.dto.venta.ProductoDeVentaDto;
-import com.bazar.apibazar.dto.venta.VentaRequestDto;
-import com.bazar.apibazar.dto.venta.VentaProductoDto;
-import com.bazar.apibazar.dto.venta.VentaResumenDto;
+import com.bazar.apibazar.dto.venta.*;
 import com.bazar.apibazar.exception.VentaCanceledException;
 import com.bazar.apibazar.exception.VentaNotFoundException;
 import com.bazar.apibazar.model.*;
@@ -319,7 +315,7 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaResponseDto patchVenta(Long id, VentaRequestDto objDto) {
+    public VentaResponseDto patchVenta(Long id, VentaPatchDto objDto) {
         Venta objVenta = findVenta(id);
 
         //Validamos que la venta no haya sido cancelada para poder actualizar
