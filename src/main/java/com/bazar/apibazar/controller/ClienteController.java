@@ -42,7 +42,15 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.findClienteSimple(id));
         
     }
-    
+
+    //Traer los datos del cliente autenticado
+    @GetMapping("/me")
+    public ResponseEntity<ClienteSimpleDto> findMe(){
+        return ResponseEntity.ok(
+                clienteService.findMe()
+        );
+    }
+
     //Ingresamos 
     @PostMapping("/")
     public ResponseEntity<ClienteSimpleDto> saveCliente(@RequestBody ClienteDto objNuevo){

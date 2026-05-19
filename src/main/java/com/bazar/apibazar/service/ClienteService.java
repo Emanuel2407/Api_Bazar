@@ -3,6 +3,7 @@ package com.bazar.apibazar.service;
 import com.bazar.apibazar.dto.cliente.ClienteDto;
 import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
 import com.bazar.apibazar.exception.ClienteNotFoundException;
+import com.bazar.apibazar.exception.UnauthorizedOperationException;
 import com.bazar.apibazar.model.Cliente;
 import com.bazar.apibazar.model.UserSec;
 import com.bazar.apibazar.repository.IClienteRepository;
@@ -11,7 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 import com.bazar.apibazar.repository.IUserRepository;
+import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +31,30 @@ public class ClienteService implements IClienteService{
     public ClienteService(IClienteRepository clienteRepository, IUserService userService) {
         this.clienteRepository = clienteRepository;
         this.userService = userService;
+    }
+
+    //Método propio para extraer del objeto Authentication guardado en el SecurityContext el id del cliente relacionado con el usuario autenticado
+    @Override
+    public Long getAuthenticatedClientId(){
+
+        //Sacamos objeto Authentication creado y guardado en el Security Context con base a la información almacenada en el token de autenticación
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //Sacamos objeto Object con el Principal
+        Object principalObj = authentication.getPrincipal();
+
+        //Válidamos que el Principal sea instancia de CustomUserPrincipal
+        if(!(principalObj instanceof CustomUserPrincipal principal)){
+            throw new UnauthorizedOperationException("Usuario no autorizado");
+        }
+
+        //Del Principal obtenemos el ID del cliente que está haciendo la compra
+        Long clienteId = principal.getClientId();
+
+        //Si el usuario no es cliente quiere decir que clienteId=null, por lo que informamos el error
+        if(clienteId == null){throw new UnauthorizedOperationException("El usuario no es cliente, por lo que no puede realizar la operación");}
+
+        return clienteId;
     }
 
     @Override
@@ -158,6 +187,16 @@ public class ClienteService implements IClienteService{
 
         //Devolvemos cliente
         return sacarClienteSimple(objCliente);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ClienteSimpleDto findMe() {
+        //Buscamos cliente por su id guardado en el SecurityContext
+        return sacarClienteSimple(findCliente(
+                getAuthenticatedClientId())
+        );
+
     }
 
 }

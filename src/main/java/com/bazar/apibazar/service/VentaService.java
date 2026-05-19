@@ -195,29 +195,6 @@ public class VentaService implements IVentaService{
         }
     }
 
-    //Método propio para extraer del objeto Authentication guardado en el SecurityContext el id del cliente relacionado con el usuario autenticado
-    private Long getAuthenticatedClientId(){
-
-        //Sacamos objeto Authentication creado y guardado en el Security Context con base a la información almacenada en el token de autenticación
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        //Sacamos objeto Object con el Principal
-        Object principalObj = authentication.getPrincipal();
-
-        //Válidamos que el Principal sea instancia de CustomUserPrincipal
-        if(!(principalObj instanceof CustomUserPrincipal principal)){
-            throw new UnauthorizedOperationException("Usuario no autorizado");
-        }
-
-        //Del Principal obtenemos el ID del cliente que está haciendo la compra
-        Long clienteId = principal.getClientId();
-
-        //Si el usuario no es cliente quiere decir que clienteId=null, por lo que informamos el error
-        if(clienteId == null){throw new UnauthorizedOperationException("El usuario no puede realizar compras");}
-
-        return clienteId;
-    }
-
     @Transactional(readOnly = true)
     @Override
     public List<VentaResponseDto> getVentasSimples() {
@@ -291,7 +268,7 @@ public class VentaService implements IVentaService{
 
         //Ahora obtenemos el ID del cliente relacionado con el usuario autenticado que está haciendo la compra para buscarlo y agregarlo a la venta
         Cliente objCliente = clienteService.findCliente(
-                getAuthenticatedClientId()
+                clienteService.getAuthenticatedClientId()
         );
 
         //Válidamos que el cliente esté habilitado

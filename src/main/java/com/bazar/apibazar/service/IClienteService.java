@@ -35,4 +35,8 @@ public interface IClienteService {
     
     ClienteSimpleDto patchCliente(Long id, ClienteDto objDto);
 
+    Long getAuthenticatedClientId();
+
+    ClienteSimpleDto findMe();
+
 }
