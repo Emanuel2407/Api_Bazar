@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ProductoService implements IProductoService{
@@ -144,8 +146,23 @@ public class ProductoService implements IProductoService{
     public ProductoResponseDto patchProducto(Long id, ProductoPatchDto objDto) {
         Producto objProducto = findProducto(id);
 
-        if(objDto.nombre() != null){objProducto.setNombre(objDto.nombre());}
-        if(objDto.marca() != null){objProducto.setMarca(objDto.marca());}
+        if(objDto.nombre() != null){
+            //Si me manda a cambiar el nombre, validamos que no sea por una cadena de texto vacía o llena de espacios
+            if(objDto.nombre().isBlank()){throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El nombre no puede estar vacío"
+            );}
+            objProducto.setNombre(objDto.nombre());
+        }
+
+        if(objDto.marca() != null){objProducto.setMarca(objDto.marca());
+            //Válidamos que la nueva marca no sea un string vacío o lleno de espacios
+            if(objDto.marca().isBlank()){throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "La marca no puede estar vacía"
+            );}
+        }
+
         if(objDto.costo() != null){objProducto.setCosto(objDto.costo());}
         if(objDto.cantidadDisponible() != null){objProducto.setCantidadDisponible(objDto.cantidadDisponible());}
 

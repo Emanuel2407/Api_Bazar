@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.Optional;
 
 import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ClienteService implements IClienteService{
@@ -174,12 +176,29 @@ public class ClienteService implements IClienteService{
 
         //Actualizamos solo los datos enviados
         if (objDto.nombre() != null) {
+            //Si se manda a actualizar el nombre, válidamos que no sea una cadena vacía
+            if(objDto.nombre().isBlank()){throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El nombre no puede estar vacío"
+            );}
             objCliente.setNombre(objDto.nombre());
         }
+
         if (objDto.apellido() != null) {
+            //Validamos que no sea una cadena vacía
+            if(objDto.apellido().isBlank()){throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El apellido no puede estar vacío"
+            );}
             objCliente.setApellido(objDto.apellido());
         }
+
         if (objDto.documento() != null) {
+            //Se válida que el String no esté vacío o lleno de espacios
+            if(objDto.documento().isBlank()){throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El documento no puede estar vacío"
+            );}
             objCliente.setDocumento(objDto.documento());
         }
 
