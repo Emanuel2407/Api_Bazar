@@ -21,10 +21,6 @@ public interface IVentaService {
     
     void cancelVenta(Long id);
     
-    VentaResponseDto updateVenta(Long id, VentaRequestDto objActualizado);
-    
-    VentaResponseDto patchVenta(Long id, VentaPatchDto objDto);
-    
     //Método para agregar una cierta cantidad de productos nuevos a una venta sin afectar los que la venta ya tenía    
     VentaResponseDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos);
             

@@ -11,5 +11,4 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record VentaRequestDto(
-        @NotNull LocalDate fechaVenta,
         @NotEmpty List<@Valid VentaProductoDto> listProductos){}

@@ -76,18 +76,6 @@ public class VentaController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
     
-    //Actualizamos 
-    @PutMapping("/{id}")
-    public ResponseEntity<VentaResponseDto> updateVenta(@PathVariable Long id, @Valid @RequestBody VentaRequestDto objActualizado){
-        return ResponseEntity.ok(ventaService.updateVenta(id, objActualizado));
-    }
-    
-    //Actualización parcial
-    @PatchMapping("/{id}")
-    public ResponseEntity<VentaResponseDto> patchVenta(@PathVariable Long id, @Valid @RequestBody VentaPatchDto objDto){
-        return ResponseEntity.ok(ventaService.patchVenta(id, objDto));
-    }
-    
     //Agregar productos a Venta existente
     @PostMapping("/agregar-productos/{id}")
     public ResponseEntity<VentaResponseDto> addProductosAventa(@PathVariable Long id, @RequestBody @NotEmpty List<@Valid VentaProductoDto> productosNuevos) {

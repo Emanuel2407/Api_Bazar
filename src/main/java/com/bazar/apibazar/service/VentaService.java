@@ -253,8 +253,8 @@ public class VentaService implements IVentaService{
         //Inicialmente, la venta tiene estado PENDING
         objVenta.setStatus(VentaStatus.PENDING);
 
-        //Migramos datos del objeto Dto. al objeto Venta
-        objVenta.setFechaVenta(objNuevo.fechaVenta());
+        //Asignamos fecha actual a la venta
+        objVenta.setFechaVenta(LocalDate.now());
 
         //Ahora obtenemos el ID del cliente relacionado con el usuario autenticado que está haciendo la compra para buscarlo y agregarlo a la venta
         Cliente objCliente = clienteService.findCliente(
@@ -293,59 +293,9 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaResponseDto updateVenta(Long id, VentaRequestDto objActualizado) {
-        Venta objVenta = findVenta(id);
-
-        //Validamos que la venta no haya sido cancelada para poder actualizar
-        validarEstadoVenta(objVenta);
-
-        //Actualizamos datos de la venta en cuestión
-        objVenta.setFechaVenta(objActualizado.fechaVenta());
-
-        /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
-        poder actualizar esas relaciones y que queden con los nuevos productos*/
-        eliminarRelacionVentaProducto(objVenta);          
-        
-        /*Ahora llamamos al método que se encargue de crear las relaciones actualizadas entre la venta y cada 
-        uno de los nuevos productos*/
-        crearRelacionVentaProducto(objActualizado.listProductos(), objVenta);
-        
-        return sacarVentaSimple(objVenta);
-    }
-
-    @Transactional
-    @Override
-    public VentaResponseDto patchVenta(Long id, VentaPatchDto objDto) {
-        Venta objVenta = findVenta(id);
-
-        //Validamos que la venta no haya sido cancelada para poder actualizar
-        validarEstadoVenta(objVenta);
-
-        //Actualizamos fecha de la venta 
-        if(objDto.fechaVenta() != null){objVenta.setFechaVenta(objDto.fechaVenta());}
-        
-        if(!objDto.listProductos().isEmpty()){
-            
-            /*primero debemos borrar todas las relaciones que tenía la venta antigua con los productos, para asi 
-            poder actualizar esas relaciones y que queden con los nuevos productos*/
-            eliminarRelacionVentaProducto(objVenta);          
-            
-            /*Ahora llamamos al método que se encargue de crear las relaciones actualizadas entre la venta y cada 
-            uno de los nuevos productos*/
-            crearRelacionVentaProducto(objDto.listProductos(), objVenta);
-        
-        
-        }
-        
-        return sacarVentaSimple(objVenta);
-    }
-
-    @Transactional
-    @Override
     public VentaResponseDto addProductosAVenta(Long id, List<VentaProductoDto> productosNuevos) {
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
         productoService.validarStockProductos(productosNuevos);
-
 
         //Buscamos venta a realizar la inserción de productos
         Venta objVenta = findVenta(id);
