@@ -117,16 +117,16 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public void disableCliente(Long id) {
+    public void suspendCliente(Long id) {
         //Se busca el cliente y se confirma existencia
         Cliente objCliente = findCliente(id);
 
         //Se aplica un borrado lógico, desactivando al cliente para evitar perder datos de negocio importantes
         objCliente.setActive(false);
-        //Buscamos usuario con el que sé auténtica el cliente para deshabilitarlo también
-        UserSec user = userService.findByClient(id);
-        user.setEnabled(false);
 
+        /*En este caso, como solo estamos suspendiendo al cliente, el usuario puede seguir iniciando sesión solo que en este
+            caso, solo podrá realizar operaciones de consulta y no ciertas operaciones de negocio como comprar, crear un carrito,
+                agregar productos a carrito, etc.*/
     }
 
     @Transactional

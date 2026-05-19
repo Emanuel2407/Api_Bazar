@@ -54,10 +54,10 @@ public class ClienteController {
         );
     }
     
-    //Eliminamos usando Soft Delete
+    //Método para suspender a un cliente y restringirle el acceso a las operaciones de negocio al usuario asociado
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> disableCliente(@PathVariable Long id){
-        clienteService.disableCliente(id);
+    public ResponseEntity<Void> suspendCliente(@PathVariable Long id){
+        clienteService.suspendCliente(id);
         return ResponseEntity.noContent().build();
     }
     
