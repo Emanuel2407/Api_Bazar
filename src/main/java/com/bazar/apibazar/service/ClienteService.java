@@ -117,22 +117,6 @@ public class ClienteService implements IClienteService{
 
     @Transactional
     @Override
-    public ClienteResponseDto saveCliente(ClienteRequestDto objNuevo) {
-        Cliente objCliente = new Cliente();
-
-        //Agregamos datos del usuario al objeto que se va a persistir
-        objCliente.setNombre(objNuevo.nombre());
-        objCliente.setApellido(objNuevo.apellido());
-        objCliente.setDocumento(objNuevo.documento());
-        
-        //guardamos al cliente en la db
-        clienteRepository.save(objCliente);
-
-        return sacarClienteSimple(objCliente);
-    }
-
-    @Transactional
-    @Override
     public void disableCliente(Long id) {
         //Se busca el cliente y se confirma existencia
         Cliente objCliente = findCliente(id);

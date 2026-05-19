@@ -27,8 +27,6 @@ public interface IClienteService {
 
     //Validar que un cliente no esté deshabilitado
     void validarDisponibilidadCliente(Cliente objCliente);
-
-    ClienteResponseDto saveCliente(ClienteRequestDto objNuevo);
     
     void disableCliente(Long id);
     

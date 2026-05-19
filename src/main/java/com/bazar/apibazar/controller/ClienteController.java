@@ -53,13 +53,6 @@ public class ClienteController {
                 clienteService.findMe()
         );
     }
-
-    //Ingresamos 
-    @PostMapping("/")
-    public ResponseEntity<ClienteResponseDto> saveCliente(@Valid @RequestBody ClienteRequestDto objNuevo){
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(clienteService.saveCliente(objNuevo));
-    }
     
     //Eliminamos usando Soft Delete
     @DeleteMapping("/{id}")
