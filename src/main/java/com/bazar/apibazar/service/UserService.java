@@ -214,6 +214,11 @@ public class UserService implements IUserService {
         //Validamos disponibilidad
         validarDisponibilidadUser(user);
 
+        //En este método no se agrega el rol "CLIENT" a un usuario, este se debe registrar por el flujo correspondiente
+        if(newRolesNames.contains("CLIENT")){
+            throw new InvalidRoleAssignmentException("Los usuarios con rol 'CLIENT' deben registrarse a través del flujo de registro correspondiente");
+        }
+
         //Buscamos y agregamos los nuevos roles a la lista roles del usuario
         user.getListRoles().addAll(
                 roleService.findAllRolesByNames(new LinkedHashSet<>(newRolesNames))
@@ -230,6 +235,11 @@ public class UserService implements IUserService {
 
         //Validamos disponibilidad
         validarDisponibilidadUser(objUser);
+
+        //Este método no elimina el rol "CLIENT" de usuarios, ya que esto puede causar inconsistencia en la autenticación de clientes
+        if(removeRolesNames.contains("CLIENT")){
+            throw new InvalidRoleAssignmentException("Los usuarios con rol 'CLIENT' deben deshabilitarse por el flujo de deshabilitación de usuarios");
+        }
 
         //Validamos que la lista de roles que se quieren eliminar del usuario realmente existen en la BD
         roleService.findAllRolesByNames(new LinkedHashSet<>(removeRolesNames));
