@@ -35,6 +35,12 @@ public interface IClienteService {
     
     ClienteSimpleDto patchCliente(Long id, ClienteDto objDto);
 
+        //Método para actualizar completamente los datos del cliente que está autenticado
+    ClienteSimpleDto updateMe(ClienteDto updatedCliente);
+
+    //Método para actualizar parcialmente los datos del cliente que está autenticado
+    ClienteSimpleDto patchMe(ClienteDto updatedCliente);
+
     Long getAuthenticatedClientId();
 
     ClienteSimpleDto findMe();

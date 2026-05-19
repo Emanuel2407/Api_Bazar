@@ -189,6 +189,25 @@ public class ClienteService implements IClienteService{
         return sacarClienteSimple(objCliente);
     }
 
+    @Transactional
+    @Override
+    public ClienteSimpleDto updateMe(ClienteDto updatedCliente) {
+        //Buscamos el ID del cliente que está autenticado y delegamos al método creado para actualización total
+        return this.updateCliente(
+                getAuthenticatedClientId(), updatedCliente
+        );
+
+    }
+
+    @Transactional
+    @Override
+    public ClienteSimpleDto patchMe(ClienteDto updatedCliente) {
+        //Buscamos el ID del cliente que está autenticado y delegamos la actualización al método creado para actualización parcial
+        return this.patchCliente(
+                getAuthenticatedClientId(), updatedCliente
+        );
+    }
+
     @Transactional(readOnly = true)
     @Override
     public ClienteSimpleDto findMe() {

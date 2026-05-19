@@ -4,6 +4,8 @@ import com.bazar.apibazar.dto.cliente.ClienteDto;
 import com.bazar.apibazar.dto.cliente.ClienteSimpleDto;
 import com.bazar.apibazar.service.IClienteService;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,7 +55,7 @@ public class ClienteController {
 
     //Ingresamos 
     @PostMapping("/")
-    public ResponseEntity<ClienteSimpleDto> saveCliente(@RequestBody ClienteDto objNuevo){
+    public ResponseEntity<ClienteSimpleDto> saveCliente(@Valid @RequestBody ClienteDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(clienteService.saveCliente(objNuevo));
     }
@@ -67,7 +69,7 @@ public class ClienteController {
     
     //Actualización total
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteSimpleDto> updateCliente(@PathVariable Long id, @RequestBody ClienteDto objActualizado){
+    public ResponseEntity<ClienteSimpleDto> updateCliente(@Valid @PathVariable Long id, @RequestBody ClienteDto objActualizado){
         return ResponseEntity.ok(clienteService.updateCliente(id, objActualizado));
     }
     
@@ -76,5 +78,19 @@ public class ClienteController {
     public ResponseEntity<ClienteSimpleDto> patchCliente(@PathVariable Long id, @RequestBody ClienteDto objDto){
         return ResponseEntity.ok(clienteService.patchCliente(id, objDto));
     }
-    
+
+    //Actualización total de cliente autenticado
+    @PutMapping("/me")
+    public ResponseEntity<ClienteSimpleDto> updateMe(@Valid @RequestBody ClienteDto objActualizado){
+        return ResponseEntity.ok(clienteService.updateMe(objActualizado));
+    }
+
+    //Actualización parcial de cliente autenticado
+    @PatchMapping("/me")
+    public ResponseEntity<ClienteSimpleDto> patchMe(@RequestBody ClienteDto updatedCliente){
+        return ResponseEntity.ok(clienteService.patchMe(updatedCliente));
+    }
+
+
+
 }
