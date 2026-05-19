@@ -5,6 +5,8 @@ import com.bazar.apibazar.dto.producto.ProductoResponseDto;
 import com.bazar.apibazar.model.Producto;
 import com.bazar.apibazar.service.IProductoService;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -50,7 +52,7 @@ public class ProductoController {
 
     //Ingresamos producto nuevo
     @PostMapping("/")
-    public ResponseEntity<ProductoResponseDto> saveProducto(@RequestBody ProductoRequestDto objNuevo){
+    public ResponseEntity<ProductoResponseDto> saveProducto(@Valid @RequestBody ProductoRequestDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productoService.saveProducto(objNuevo));
     }
@@ -64,7 +66,7 @@ public class ProductoController {
 
     //Actualizamos
     @PutMapping("/{id}")
-    public ResponseEntity<ProductoResponseDto> updateProducto(@PathVariable Long id, @RequestBody ProductoRequestDto objActualizado){
+    public ResponseEntity<ProductoResponseDto> updateProducto(@PathVariable Long id, @Valid @RequestBody ProductoRequestDto objActualizado){
         return ResponseEntity.ok(productoService.updateProducto(id, objActualizado));
     }
 

@@ -3,6 +3,7 @@ package com.bazar.apibazar.controller;
 import com.bazar.apibazar.dto.permission.PermissionRequestDto;
 import com.bazar.apibazar.dto.permission.PermissionResponseDto;
 import com.bazar.apibazar.service.IPermissionService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class PermissionController {
 
     //End-point para registrar un nuevo permiso
     @PostMapping
-    public ResponseEntity<PermissionResponseDto> savePermission(@RequestBody PermissionRequestDto newPermission){
+    public ResponseEntity<PermissionResponseDto> savePermission(@Valid @RequestBody PermissionRequestDto newPermission){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(permissionService.savePermission(newPermission));
     }
@@ -48,7 +49,7 @@ public class PermissionController {
 
     //End-point para actualizar un determinado permiso
     @PutMapping("/{id}")
-    public ResponseEntity<PermissionResponseDto> updatePermission(@PathVariable Long id, @RequestBody PermissionRequestDto updatedPermission){
+    public ResponseEntity<PermissionResponseDto> updatePermission(@PathVariable Long id, @Valid @RequestBody PermissionRequestDto updatedPermission){
         return ResponseEntity.ok(permissionService.updatePermission(id, updatedPermission));
     }
 }

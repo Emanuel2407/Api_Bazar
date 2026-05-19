@@ -3,6 +3,8 @@ package com.bazar.apibazar.controller;
 import com.bazar.apibazar.dto.user.*;
 import com.bazar.apibazar.service.IUserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,13 +68,13 @@ public class UserController {
 
     //Agregar roles al usuario
     @PostMapping("/{userId}/add-roles")
-    public ResponseEntity<UserResponseDto> addRolesToUser(@PathVariable Long userId, @RequestBody List<String> newRolesNames){
+    public ResponseEntity<UserResponseDto> addRolesToUser(@PathVariable Long userId, @RequestBody @NotEmpty List<@NotBlank String> newRolesNames){
         return ResponseEntity.ok(userService.addRolesToUser(userId, newRolesNames));
     }
 
     //Eliminar roles de un usuario
     @DeleteMapping("/{userId}/remove-roles")
-    public ResponseEntity<UserResponseDto> removeRoles(@PathVariable Long userId, @RequestBody List<String> rolesNames){
+    public ResponseEntity<UserResponseDto> removeRoles(@PathVariable Long userId, @RequestBody @NotEmpty List<@NotBlank String> rolesNames){
         return ResponseEntity.ok(userService.removeRolesFromUser(userId, rolesNames));
     }
 

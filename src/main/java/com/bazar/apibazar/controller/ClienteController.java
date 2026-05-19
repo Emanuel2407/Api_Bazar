@@ -69,7 +69,7 @@ public class ClienteController {
     
     //Actualización total
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteResponseDto> updateCliente(@Valid @PathVariable Long id, @RequestBody ClienteRequestDto objActualizado){
+    public ResponseEntity<ClienteResponseDto> updateCliente(@PathVariable Long id, @Valid @RequestBody ClienteRequestDto objActualizado){
         return ResponseEntity.ok(clienteService.updateCliente(id, objActualizado));
     }
     

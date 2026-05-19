@@ -3,6 +3,9 @@ package com.bazar.apibazar.controller;
 import com.bazar.apibazar.dto.role.RoleRequestDto;
 import com.bazar.apibazar.dto.role.RoleResponseDto;
 import com.bazar.apibazar.service.IRoleService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +35,7 @@ public class RoleController {
     }
 
     @PostMapping
-    public ResponseEntity<RoleResponseDto> saveRole(@RequestBody RoleRequestDto newRole) {
+    public ResponseEntity<RoleResponseDto> saveRole(@Valid @RequestBody RoleRequestDto newRole) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(roleService.saveRole(newRole));
     }
@@ -44,19 +47,19 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RoleResponseDto> updateRole(@PathVariable Long id, @RequestBody RoleRequestDto updatedRole) {
+    public ResponseEntity<RoleResponseDto> updateRole(@PathVariable Long id, @Valid @RequestBody RoleRequestDto updatedRole) {
         return ResponseEntity.ok(roleService.updateRole(id, updatedRole));
     }
 
     //Definimos end-point para agregar una lista de permisos dentro de un rol
     @PostMapping("/{idRole}/add-permissions")
-    public ResponseEntity<RoleResponseDto> addPermissionToRole(@PathVariable Long idRole, @RequestBody List<String> newPermissionsNames){
+    public ResponseEntity<RoleResponseDto> addPermissionToRole(@PathVariable Long idRole, @RequestBody @NotEmpty List<@NotBlank String> newPermissionsNames){
         return ResponseEntity.ok(roleService.addPermissionsToRole(idRole, newPermissionsNames));
     }
 
     //End-point para eliminar una lista de permisos dentro de un rol
     @DeleteMapping("/{idRole}/delete-permissions")
-    public ResponseEntity<RoleResponseDto> deletePermissionsFromRole(@PathVariable Long idRole, @RequestBody List<String> removePermissionsNames){
+    public ResponseEntity<RoleResponseDto> deletePermissionsFromRole(@PathVariable Long idRole, @RequestBody @NotEmpty List<@NotBlank String> removePermissionsNames){
         return ResponseEntity.ok(
                 roleService.removePermissionsFromRole(idRole, removePermissionsNames)
         );
