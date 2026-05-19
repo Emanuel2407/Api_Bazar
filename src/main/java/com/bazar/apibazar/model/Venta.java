@@ -5,10 +5,15 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter  @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Venta {
     
@@ -43,21 +48,5 @@ public class Venta {
      * siempre es importante definir EnumType.STRING*/
     @Enumerated(EnumType.STRING)
     private VentaStatus status;
-    
-    public Venta() {
-    }
 
-    public Venta(Long idVenta, LocalDate fechaVenta, Double totalVenta, Integer cantidadTotalProductos, List<VentaProducto> listProductos) {
-        this.idVenta = idVenta;
-        this.fechaVenta = fechaVenta;
-        this.totalVenta = totalVenta;
-        this.cantidadTotalProductos = cantidadTotalProductos;
-        this.listProductos = listProductos;
-    }
-
-    
-
-    
-    
-    
 }

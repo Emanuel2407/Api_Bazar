@@ -168,7 +168,8 @@ public class UserService implements IUserService {
         Cliente newCliente = new Cliente(null,
                 clientUserDTO.clientData().nombre(),
                 clientUserDTO.clientData().apellido(),
-                clientUserDTO.clientData().documento()
+                clientUserDTO.clientData().documento(),
+                true
         );
 
         //Construimos objeto UserSec para persistir

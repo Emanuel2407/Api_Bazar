@@ -5,11 +5,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Setter  @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class VentaProducto {
     
     //Clave embebida de la tabla intermedia
@@ -41,18 +45,5 @@ public class VentaProducto {
     private Double subTotalVenta;
     
     private Integer cantidad;
-
-    public VentaProducto() {
-    }
-
-    public VentaProducto(Venta venta, Producto producto, Double subTotalVenta, Integer cantidad) {
-        this.venta = venta;
-        this.producto = producto;
-        this.subTotalVenta = subTotalVenta;
-        this.cantidad = cantidad;
-    }
-    
-    
-    
     
 }

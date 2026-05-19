@@ -4,12 +4,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-@Entity
 @Getter  @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Cliente {
     
     @Id
@@ -23,16 +27,5 @@ public class Cliente {
 
     /*La relación con "venta" será unidireccional del lado de venta, por lo que el usuario no conoce sus ventas cuando se hace
        el registro de este (porque normalmente cuando un cliente se registra no se le asignan ventas de una)*/
-
-    public Cliente() {
-    }
-
-    public Cliente(Long idCliente, String nombre, String apellido, String documento) {
-        this.idCliente = idCliente;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.documento = documento;
-    }
-    
     
 }
