@@ -303,6 +303,9 @@ public class VentaService implements IVentaService{
         //Validamos que la venta no haya sido cancelada para poder actualizar
         validarEstadoVenta(objVenta);
 
+        //Validamos que el cliente este habilitado para realizar la operación
+        clienteService.validarDisponibilidadCliente(objVenta.getCliente());
+
         /*Si bien los productos que vamos a agregar son los que llegan en "productosNuevos", debemos diferenciar
         los productos que ya estaban antes en la venta, ya que a estos solo se le sumará la cantidad correspondiente
         a la cantidad comprada y con los que realmente son nuevos se van a crear nuevas relaciones con la venta*/
@@ -379,6 +382,9 @@ public class VentaService implements IVentaService{
 
         //Validamos que la venta no haya sido cancelada para poder actualizar
         validarEstadoVenta(objVenta);
+
+        //Validamos que el cliente este habilitado para realizar la operación
+        clienteService.validarDisponibilidadCliente(objVenta.getCliente());
 
         /*Lista que va a almacenar solo los productos con los que se va a eliminar la relación con venta, ya que
         hay ciertos productos que solo se les va a descontar a la cantidad comprada*/
