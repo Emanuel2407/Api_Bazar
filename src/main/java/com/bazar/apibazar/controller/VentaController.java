@@ -33,7 +33,7 @@ public class VentaController {
     }
 
     //Traer todos
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<VentaResponseDto>> getVentas(){
         return ResponseEntity.ok(ventaService.getVentasSimples());
     }
@@ -63,7 +63,7 @@ public class VentaController {
     }
     
     //Ingresamos venta
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<VentaResponseDto> saveVenta(@Valid @RequestBody VentaRequestDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ventaService.saveVenta(objNuevo));

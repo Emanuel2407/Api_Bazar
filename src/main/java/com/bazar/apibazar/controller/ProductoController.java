@@ -33,7 +33,7 @@ public class ProductoController {
     }
 
     //Traer todos
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<ProductoResponseDto>> getProductos(){
         return ResponseEntity.ok(productoService.getProductos());
     }
@@ -52,7 +52,7 @@ public class ProductoController {
     }
 
     //Ingresamos producto nuevo
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ProductoResponseDto> saveProducto(@Valid @RequestBody ProductoRequestDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productoService.saveProducto(objNuevo));
