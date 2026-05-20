@@ -57,44 +57,6 @@ public class VentaService implements IVentaService{
         
         return totalProductos;
     }
-
-
-    /*Método propio para eliminar todas las relaciones de una venta con cada uno de los productos asociados en la
-    tabla intermedia VentaProducto*/
-    public void eliminarRelacionVentaProducto(Venta objVenta){
-
-        //Lista donde se van a guardar los productos que van a ser eliminados de la venta con el stock actualizado
-        List<Producto> listProductosNuevoStock = new ArrayList<>();
-        
-        /*Primero recorremos la lista VentaProducto de la venta*/
-        for(VentaProducto objVP: objVenta.getListProductos()){ 
-                
-            //Encontramos cada Producto asociado a la relación
-            Producto objProducto = objVP.getProducto();
-                
-            //Le devolvemos todo el stock que había en la relación al producto correspondiente
-            if(objProducto != null){
-                objProducto.setCantidadDisponible(objProducto.getCantidadDisponible() + objVP.getCantidad());
-
-                //Agregamos productos a la lista de productos actualizados
-                listProductosNuevoStock.add(objProducto);
-            }    
-                
-        }
-        
-        //Actualizamos los productos con un nuevo Stock
-        productoService.saveAll(listProductosNuevoStock);
-            
-        /*Eliminamos todos los Productos de la venta, es decir, todos los registros relacionados con la venta
-        en la tabla intermedia*/
-        vpRepository.deleteAll(objVenta.getListProductos());
-        
-        /*Limpiamos la lista de productos del objeto objVenta para evitar que sean buscados cuando se 
-        actualice la venta, ya que como fueron eliminados, no serán encontrados y lanzará error*/
-        objVenta.getListProductos().clear();
-      
-    }
-    
     
     //Método propio para crear la relación entre una venta y cada uno de los productos con los que se va a relacionar
     private void crearRelacionVentaProducto(List<VentaProductoDto> listProductos, Venta objVenta){
