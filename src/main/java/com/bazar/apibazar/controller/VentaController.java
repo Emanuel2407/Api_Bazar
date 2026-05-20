@@ -64,9 +64,9 @@ public class VentaController {
     
     //Ingresamos venta
     @PostMapping
-    public ResponseEntity<VentaResponseDto> saveVenta(@Valid @RequestBody VentaRequestDto objNuevo){
+    public ResponseEntity<VentaResponseDto> saveVenta(@RequestBody @NotEmpty List<@Valid VentaProductoDto> listProductos){
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ventaService.saveVenta(objNuevo));
+                .body(ventaService.saveVenta(listProductos));
     }
     
     //Endpoint para cancelar venta

@@ -17,7 +17,7 @@ public interface IVentaService {
     //Se devuelve objeto Dto con una lista de simples productos
     VentaResponseDto findVentaSimple(Long id);
     
-    VentaResponseDto saveVenta(VentaRequestDto objNuevo);
+    VentaResponseDto saveVenta(List<VentaProductoDto> listProductos);
     
     void cancelVenta(Long id);
     

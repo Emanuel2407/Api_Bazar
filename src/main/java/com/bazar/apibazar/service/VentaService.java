@@ -245,9 +245,9 @@ public class VentaService implements IVentaService{
 
     @Transactional
     @Override
-    public VentaResponseDto saveVenta(VentaRequestDto objNuevo) {
+    public VentaResponseDto saveVenta(List<VentaProductoDto> listProductos) {
         //Validamos que el stock de todos los productos es suficiente para la cantidad que se quiere comprar de cada uno
-        productoService.validarStockProductos(objNuevo.listProductos());
+        productoService.validarStockProductos(listProductos);
 
         Venta objVenta = new Venta();
 
@@ -273,7 +273,7 @@ public class VentaService implements IVentaService{
         
         /*Llamamos al método que se encargue de crear las relaciones entre la venta y cada uno de los productos
         que llegaron como objetos VentaProductoDto en el objeto Dto de venta llamado objNuevo*/
-        crearRelacionVentaProducto(objNuevo.listProductos(), objVenta);
+        crearRelacionVentaProducto(listProductos, objVenta);
 
         //Si no hay ningún problema, podremos asignarle el estado a la venta: COMPLETED
         objVenta.setStatus(VentaStatus.COMPLETED);
