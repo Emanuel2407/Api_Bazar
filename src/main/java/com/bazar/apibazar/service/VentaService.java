@@ -2,6 +2,7 @@ package com.bazar.apibazar.service;
 
 import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
 import com.bazar.apibazar.dto.venta.*;
+import com.bazar.apibazar.exception.UnauthorizedOperationException;
 import com.bazar.apibazar.exception.VentaCanceledException;
 import com.bazar.apibazar.exception.VentaNotFoundException;
 import com.bazar.apibazar.model.*;
@@ -300,6 +301,10 @@ public class VentaService implements IVentaService{
         //Buscamos venta a realizar la inserción de productos
         Venta objVenta = findVenta(id);
 
+        //Buscamos id del cliente autenticado y comparamos con ID del cliente dueño de la venta, deben coincidir para validar ownership
+        Long clienteAuthenticatedId = clienteService.getAuthenticatedClientId();
+        if(clienteAuthenticatedId != objVenta.getCliente().getIdCliente()){throw new UnauthorizedOperationException("Usuario no autorizado para modificar la venta");}
+
         //Validamos que la venta no haya sido cancelada para poder actualizar
         validarEstadoVenta(objVenta);
 
@@ -379,6 +384,10 @@ public class VentaService implements IVentaService{
     public VentaResponseDto deleteProductosDeVenta(Long id, List<VentaProductoDto> productosEliminados) {
         //Buscamos venta a eliminar productos
         Venta objVenta = findVenta(id);
+
+        //Buscamos id del cliente autenticado y comparamos con ID del cliente dueño de la venta, deben coincidir para validar ownership
+        Long clienteAuthenticatedId = clienteService.getAuthenticatedClientId();
+        if(clienteAuthenticatedId != objVenta.getCliente().getIdCliente()){throw new UnauthorizedOperationException("Usuario no autorizado para modificar la venta");}
 
         //Validamos que la venta no haya sido cancelada para poder actualizar
         validarEstadoVenta(objVenta);
