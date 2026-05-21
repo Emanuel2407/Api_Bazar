@@ -22,13 +22,11 @@ public class RoleService implements IRoleService{
     private final IRoleRepository roleRepo;
     //Inyección de dependencia para PermissionService
     private final IPermissionService permissionService;
-    //Inyección de dependencia para el repositorio de persistencia de usuarios
-    private final IUserRepository userRepo;
-    //Inyección de dependencia por constructor
-    public RoleService(IRoleRepository roleRepo, PermissionService permissionService, IUserRepository userRepo){
+    //Inyección de dependencia por constructorsrc/main/java/com/bazar/apibazar/service/RoleService.java
+
+    public RoleService(IRoleRepository roleRepo, PermissionService permissionService){
         this.roleRepo = roleRepo;
         this.permissionService = permissionService;
-        this.userRepo = userRepo;
     }
 
     //Método para construir, a partir de los datos de un <<Role>>, un DTO para exponer ese <<Role>>
@@ -137,14 +135,6 @@ public class RoleService implements IRoleService{
     public void disableRole(Long id) {
         //Buscamos rol para verificar existencia
         Role objRole = findRole(id);
-
-        //Debemos eliminar las relaciones que este rol tenga con los usuarios (registros en la tabla intermedia)
-        /*Para ello simplemente removemos este rol de la lista de roles de los usuarios con los que está relacionado,
-          el contexto de persistencia detectará el cambio y al final de la transacción Hibernate eliminará las relaciones*/
-        userRepo.findByListRoles_id(id).forEach(
-                //Creamos función lambda para que se remueva el rol de cada usuario que lo contiene en su "listRoles"
-                user -> user.getListRoles().remove(objRole)
-        );
 
         //Finalmente, desactivamos el rol usando Soft Delete
         objRole.setActive(false);
