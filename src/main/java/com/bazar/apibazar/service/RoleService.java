@@ -45,7 +45,16 @@ public class RoleService implements IRoleService{
 
     //Método para validar si realmente un rol está activo y disponible para usar
     private void validarEstadoDeRol(Role objRole){
-        if(!objRole.isActive()){throw new RoleNotFoundException("No se encontró rol con id: " + objRole.getId() + " disponible");}
+        if(!objRole.isActive()){throw new RoleNotFoundException("No se encontró rol con nombre: " + objRole.getName() + " disponible");}
+    }
+
+    //Valida que todos los roles de una lista se encuentren activos
+    @Override
+    public void validarEstadoDeRoles(List<Role> roles){
+        roles.forEach(
+                //Iteramos sobre la lista y pasamos cada elemento al método this.validarEstadoDeRol
+                this::validarEstadoDeRol
+        );
     }
 
     //Método para construir una lista de objetos DTO de respuesta a partir de los datos de una lista de <<Roles>>

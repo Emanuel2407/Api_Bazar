@@ -13,6 +13,9 @@ public interface IRoleService {
     //Traer todos
     List<RoleResponseDto> findAllRoles();
 
+    //Valida que una lista de roles se encuentren activos para asignar
+    void validarEstadoDeRoles(List<Role> roles);
+
     //Traer lista de roles por sus nombres
     List<Role> findAllRolesByNames(Set<String> rolesNames);
 

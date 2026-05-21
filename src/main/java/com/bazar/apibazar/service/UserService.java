@@ -6,6 +6,7 @@ import com.bazar.apibazar.exception.UnauthorizedOperationException;
 import com.bazar.apibazar.exception.UserNotFoundException;
 import com.bazar.apibazar.exception.UsernameAlreadyExistsException;
 import com.bazar.apibazar.model.Cliente;
+import com.bazar.apibazar.model.Role;
 import com.bazar.apibazar.model.UserSec;
 import com.bazar.apibazar.repository.IUserRepository;
 import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
@@ -83,7 +84,7 @@ public class UserService implements IUserService {
 
     //Método para validar que un usuario no haya sido deshabilitado
     private void validarDisponibilidadUser(UserSec user){
-        if(!user.isEnabled()){throw new UserNotFoundException("No no encontró usuario con id: " + user.getId());}
+        if(!user.isEnabled()){throw new UserNotFoundException("No se encontró usuario con id: " + user.getId());}
     }
 
     //Método propio para extraer del objeto Authentication en el SecurityContext el id del usuario autenticado
@@ -144,11 +145,18 @@ public class UserService implements IUserService {
         objUser.setUsername(newUser.username());
         //Guardamos contraseña hasheada con el algoritmo de hash: BCrypt
         objUser.setPassword(passwordEncoder.encode(newUser.password()));
-        //Agregamos roles del usuario
+
+        List<Role> listRoles = roleService.findAllRolesByNames(
+                new LinkedHashSet<>(newUser.rolesNames())
+        );
+
+        //Verifica que todos los roles asignados al usuario estén activos
+        roleService.validarEstadoDeRoles(listRoles);
+
+        //Asigna los roles enviados en la petición
         objUser.setListRoles(
                 new LinkedHashSet<>(
-                        //Buscamos por medio de RoleService los roles que se le quieren asignar al usuario
-                        roleService.findAllRolesByNames(new LinkedHashSet<>(newUser.rolesNames()))
+                        listRoles
                 )
         );
 
@@ -175,14 +183,17 @@ public class UserService implements IUserService {
         //Construimos objeto UserSec para persistir
         UserSec newClientUser = new UserSec();
 
-        //Agregamos los datos del usuario y le asignamos el cliente construido anteriormente y el rol CLIENTE
+        //Agregamos los datos del usuario y le asignamos el cliente construido anteriormente y el rol CLIENT
         newClientUser.setUsername(clientUserDTO.username());
         newClientUser.setPassword(passwordEncoder.encode(clientUserDTO.password()));
         newClientUser.setCliente(newCliente);
-        //Agregamos rol CLIENTE automáticamente
+        //Busca y valida disponibilidad de rol "CLIENT"
+        Role clientRole = roleService.findRoleByName("CLIENT");
+        roleService.validarEstadoDeRoles(List.of(clientRole));
+        //Agregamos rol "CLIENT" al usuario automáticamente
         newClientUser.setListRoles(new LinkedHashSet<>(
-                List.of(roleService.findRoleByName("CLIENT"))
-        ));
+                List.of(clientRole))
+        );
 
         //Persistimos usuario con el cliente correspondiente
         /* Como en la entidad UserSec definimos CascadeType.PERSIST, Hibernate detectará que el cliente dentro del usuario
@@ -219,9 +230,16 @@ public class UserService implements IUserService {
             throw new InvalidRoleAssignmentException("Los usuarios con rol 'CLIENT' deben registrarse a través del flujo de registro correspondiente");
         }
 
-        //Buscamos y agregamos los nuevos roles a la lista roles del usuario
+        List<Role> listRoles = roleService.findAllRolesByNames(
+                new LinkedHashSet<>(newRolesNames)
+        );
+
+        //Verifica que los nuevos roles asignados al usuario estén activos
+        roleService.validarEstadoDeRoles(listRoles);
+
+        //Agregamos los nuevos roles
         user.getListRoles().addAll(
-                roleService.findAllRolesByNames(new LinkedHashSet<>(newRolesNames))
+                listRoles
         );
 
         return buildUserResponse(user);
