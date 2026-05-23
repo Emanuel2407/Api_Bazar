@@ -206,13 +206,16 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void disableUser(Long id) {
-        //Buscamos
         UserSec objUser = findUser(id);
+
+        //Si el usuario es cliente debemos deshabilitar su identidad de negocio
+        if(objUser.getCliente() != null){
+            objUser.getCliente().setActive(false);
+        }
 
         //Deshabilitamos usuario
         objUser.setEnabled(false);
-        //Deshabilitamos cliente vinculado a esta cuenta
-        objUser.getCliente().setActive(false);
+
 
     }
 
