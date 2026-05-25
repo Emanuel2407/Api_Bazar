@@ -99,7 +99,7 @@ public class GlobalExceptionHandler {
     }
 
     //Handler para excepción UnauthorizedOperation
-    @ExceptionHandler
+    @ExceptionHandler(UnauthorizedOperationException.class)
     public ResponseEntity<Map<String, Object>> handlerUnauthorizedOperation(UnauthorizedOperationException ex){
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(buildExceptionResponse(HttpStatus.FORBIDDEN, ex.getMessage())
