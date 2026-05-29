@@ -47,39 +47,32 @@ public class UserController {
 
     //Registro administrativo de usuarios
     @PostMapping
-    public ResponseEntity<UserResponseDto> saveUser(@Valid @RequestBody UserRequestDto newUser){
+    public ResponseEntity<UserResponseDto> registerUserByAdmin(@Valid @RequestBody UserRequestDto newUser){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.saveUser(newUser));
     }
 
-    //Endpoint de registro público de usuarios
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> saveClientUser(@Valid @RequestBody ClientUserRequestDto newClientUser){
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.registerClientUser(newClientUser));
-    }
-
     //Soft Delete
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/disable")
     public ResponseEntity<Void> disableUser(@PathVariable Long id){
         userService.disableUser(id);
         return ResponseEntity.noContent().build();
     }
 
     //Agregar roles al usuario
-    @PostMapping("/{userId}/add-roles")
+    @PostMapping("/{userId}/roles")
     public ResponseEntity<UserResponseDto> addRolesToUser(@PathVariable Long userId, @RequestBody @NotEmpty List<@NotBlank String> newRolesNames){
         return ResponseEntity.ok(userService.addRolesToUser(userId, newRolesNames));
     }
 
     //Eliminar roles de un usuario
-    @DeleteMapping("/{userId}/remove-roles")
+    @DeleteMapping("/{userId}/roles")
     public ResponseEntity<UserResponseDto> removeRoles(@PathVariable Long userId, @RequestBody @NotEmpty List<@NotBlank String> rolesNames){
         return ResponseEntity.ok(userService.removeRolesFromUser(userId, rolesNames));
     }
 
     //Endpoint para acceder al método de actualizar username de usuario autenticado
-    @PostMapping("/update-username")
+    @PatchMapping("/me/username")
     public ResponseEntity<UserResponseDto> updateUsername(@Valid @RequestBody UpdateUsernameRequestDto objUpdateUsername){
         return ResponseEntity.ok(
                 userService.updateUsername(objUpdateUsername)
@@ -87,7 +80,7 @@ public class UserController {
     }
 
     //Endpoint para acceder al método de actualizar password de usuario autenticado
-    @PostMapping("/update-password")
+    @PatchMapping("/me/password")
     public ResponseEntity<UserResponseDto> updatePassword(@Valid @RequestBody UpdatePasswordRequestDto objUpdatePassword){
         userService.updatePassword(objUpdatePassword);
         return ResponseEntity.ok().build();

@@ -46,20 +46,20 @@ public class ProductoController {
     }
 
     //Productos con stock < 5
-    @GetMapping("/falta-stock")
+    @GetMapping("/stock-bajo")
     public ResponseEntity<List<ProductoResponseDto>> productosPocoStock(){
         return ResponseEntity.ok(productoService.productosPocoStock());
     }
 
     //Ingresamos producto nuevo
     @PostMapping
-    public ResponseEntity<ProductoResponseDto> saveProducto(@Valid @RequestBody ProductoRequestDto objNuevo){
+    public ResponseEntity<ProductoResponseDto> createProducto(@Valid @RequestBody ProductoRequestDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productoService.saveProducto(objNuevo));
     }
 
     //Eliminamos producto por ID (Soft Delete)
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/disable")
     public ResponseEntity<Void> disableProducto(@PathVariable Long id){
         productoService.disableProducto(id);
         return ResponseEntity.noContent().build();

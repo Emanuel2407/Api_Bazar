@@ -55,7 +55,7 @@ public class ClienteController {
     }
     
     //Método para suspender a un cliente y restringirle el acceso a las operaciones de negocio al usuario asociado
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/disable")
     public ResponseEntity<Void> suspendCliente(@PathVariable Long id){
         clienteService.suspendCliente(id);
         return ResponseEntity.noContent().build();

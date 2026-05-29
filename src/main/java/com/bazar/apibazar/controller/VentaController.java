@@ -45,13 +45,13 @@ public class VentaController {
     }
     
     //Traer productos de una venta
-    @GetMapping("/productos/{id}")
+    @GetMapping("/{id}/productos")
     public ResponseEntity<List<Producto>> productosDeVenta(@PathVariable Long id){
         return ResponseEntity.ok(ventaService.productosDeVenta(id));
     }
     
     //Traer el monto total y la cantidad de ventas de un determinado día
-    @GetMapping("/fecha/{fechaVenta}")
+    @GetMapping("/{fechaVenta}/info")
     public ResponseEntity<String> ventasDelDia(@PathVariable @NotNull LocalDate fechaVenta){
         return ResponseEntity.ok(ventaService.ventasDelDia(fechaVenta));
     }
@@ -64,26 +64,26 @@ public class VentaController {
     
     //Ingresamos venta
     @PostMapping
-    public ResponseEntity<VentaResponseDto> saveVenta(@RequestBody @NotEmpty List<@Valid VentaProductoDto> listProductos){
+    public ResponseEntity<VentaResponseDto> createVenta(@RequestBody @NotEmpty List<@Valid VentaProductoDto> listProductos){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ventaService.saveVenta(listProductos));
     }
     
     //Endpoint para cancelar venta
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/cancel")
     public ResponseEntity<Void> cancelVenta(@PathVariable Long id){
         ventaService.cancelVenta(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
     
     //Agregar productos a Venta existente
-    @PostMapping("/agregar-productos/{id}")
+    @PostMapping("/{id}/productos")
     public ResponseEntity<VentaResponseDto> addProductosAventa(@PathVariable Long id, @RequestBody @NotEmpty List<@Valid VentaProductoDto> productosNuevos) {
         return ResponseEntity.ok(ventaService.addProductosAVenta(id, productosNuevos));
     }
     
     //Eliminar productos de Venta existente
-    @DeleteMapping("/eliminar-productos/{id}")
+    @DeleteMapping("/{id}/productos")
     ResponseEntity<?> eliminarProductosDeVenta(@PathVariable Long id, @RequestBody @NotEmpty List<@Valid VentaProductoDto> productosEliminados){
         return ResponseEntity.ok(ventaService.deleteProductosDeVenta(id, productosEliminados));
     }
