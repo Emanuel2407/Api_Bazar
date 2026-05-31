@@ -1,6 +1,5 @@
 package com.bazar.apibazar.dto.producto;
 
-//DTO para exponer un producto al cliente
 public record ProductoResponseDto(
         Long idProducto,
         String nombre,

@@ -5,14 +5,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Principal personalizado para guardar la identidad del usuario
+ * autenticado usada en operaciones de ownership y
+ * control de acceso a recursos.
+ * */
 @Getter  @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-//Clase para sacar objetos Principal personalizados que guarden la identidad autenticada del usuario para ownership y acceso contextual
 public class CustomUserPrincipal {
 
     private Long userId;
-    private Long clientId;  //En caso de que el usuario no sea cliente, este campo será null
+    private Long clientId; 
     private String username;
 
 }

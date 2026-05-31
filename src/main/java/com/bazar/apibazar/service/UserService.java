@@ -13,6 +13,7 @@ import com.bazar.apibazar.security.jwt.CustomUserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,29 +23,25 @@ import java.util.*;
 @Service
 public class UserService implements IUserService {
 
-    //Inyección de dependencia para el repositorio de usuarios
     private final IUserRepository userRepo;
-    //Inyección de dependencia para el contrato del service de Role
     private final IRoleService roleService;
-    //Inyección de dependencia para el "hasheador" de contraseñas
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    //Inyección de dependencia por constructor
     public UserService(IUserRepository userRepo, RoleService roleService, BCryptPasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
     }
 
-    //Método para construir un DTO para la exposición de un usuario
+    /**
+     * Construye DTO de respuesta usado para exponer usuarios
+     */
     private UserResponseDto buildUserResponse(UserSec objUser) {
-        //Si el usuario es cliente, sacamos el ID del cliente asociado para agregarlo al DTO de respuesta, si no establecemos el ID como null
         Long clientId = null;
         if(objUser.getCliente() != null){clientId = objUser.getCliente().getIdCliente();}
 
-        // Creamos objeto "UserResponseDto" con los datos de "objUser"
         return new UserResponseDto(objUser.getId(), objUser.getUsername(),
-                //Con el método "buildRolesResponse(..) transformamos una lista de roles a ResponseDto para exponerlos"
+                //Construye DTO de roles
                 roleService.buildRolesResponse(
                         new ArrayList<>(objUser.getListRoles())),
                 clientId,
@@ -52,21 +49,26 @@ public class UserService implements IUserService {
         );
     }
 
-    //Método para construir una lista de DTO de respuesta a partir de los datos de una lista de usuarios
+    /**
+     * Construye una lista de DTOs de respuesta de usuarios
+     */
     private List<UserResponseDto> buildUsersResponse(List<UserSec> listUsers) {
-        //Lista de Dto de usuarios
         List<UserResponseDto> usersResponse = new ArrayList<>();
 
-        //Recorremos la lista de usuarios y usamos una función lambda para transformar cada usuario en su respectivo DTO de respuesta
         listUsers.forEach(
-                user -> usersResponse.add(buildUserResponse(user))
+                user -> usersResponse.add(
+                        buildUserResponse(user)
+                )
         );
 
         //Retornamos lista de Dto
         return usersResponse;
     }
 
-    //Método para consultar los datos de un usuario y en caso de que no exista -> Excepción personalizada
+    /**
+     * Consulta un usuario por su id o lanza excepción
+     * de dominio si no existe.
+     * */
     private UserSec findUser(Long id) {
         return userRepo.findById(id)
                 .orElseThrow(
@@ -74,29 +76,34 @@ public class UserService implements IUserService {
                 );
     }
 
-    //Método propio para validar si un username asignado a un usuario no existe ya en la bd
+    /**
+     * Valida que no se duplique un nombre de usuario en los registros.
+     */
     private void validarUsername(String username){
-        //Validamos que el username que se quiere asociar al usuario no esté registrado
+
         if (userRepo.existsByUsername(username)) {
             throw new UsernameAlreadyExistsException("Ya existe usuario con username: " + username + ", intente con otro");
         }
     }
 
-    //Método para validar que un usuario no haya sido deshabilitado
+    /**
+     * Valida si un usuario está activo.
+     * */
     private void validarDisponibilidadUser(UserSec user){
         if(!user.isEnabled()){throw new UserNotFoundException("No se encontró usuario con id: " + user.getId());}
     }
 
-    //Método propio para extraer del objeto Authentication en el SecurityContext el id del usuario autenticado
+    /**
+     * Recupera identidad del usuario del Security Context y retorna su Id
+     */
     private Long getAuthenticatedUserId() {
-
-        //Obtenemos el objeto Authentication del SecurityContext con la información del usuario autenticado
+        //Obtiene la autenticación actual del usuario.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        //Sacamos la identidad del usuario que guardamos como un objeto CustomUserPrincipal, pero dentro de Authentication se guarda con un objeto generalizado tipo Object
+        //Saca objeto Principal con la identidad del usuario.
         Object objPrincipal = authentication.getPrincipal();
 
-        //Válidamos que el objeto Principal sea instancia de nuestro Principal personalizado "CustomUserPrincipal"
+        //Válida que el objeto Principal sea instancia de nuestro Principal personalizado "CustomUserPrincipal"
         if(!(objPrincipal instanceof CustomUserPrincipal principal)){throw new UnauthorizedOperationException("No autorizado");}
 
         return principal.getUserId();
@@ -128,39 +135,32 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public UserResponseDto saveUser(UserRequestDto newUser) {
-
-        //Validamos que el username no exista
         validarUsername(newUser.username());
 
-        //En este método no se registran usuarios que son clientes, solo registros administrativos (empleados, administradores, etc)
+        //El registro de clientes se hace por el flujo del registro público
         if(newUser.rolesNames().contains("CLIENT")){
             throw new InvalidRoleAssignmentException("Los usuarios con el rol CLIENTE deben registrarse a través del flujo de registro de clientes");
         }
 
-        //Creamos objeto que almacena los datos del usuario a persistir
         UserSec objUser = new UserSec();
 
-        //Agregamos los datos del usuario
-        //Username
         objUser.setUsername(newUser.username());
-        //Guardamos contraseña hasheada con el algoritmo de hash: BCrypt
+
         objUser.setPassword(passwordEncoder.encode(newUser.password()));
 
+        //Consulta roles en RoleService
         List<Role> listRoles = roleService.findAllRolesByNames(
                 new LinkedHashSet<>(newUser.rolesNames())
         );
 
-        //Verifica que todos los roles asignados al usuario estén activos
         roleService.validarEstadoDeRoles(listRoles);
 
-        //Asigna los roles enviados en la petición
         objUser.setListRoles(
                 new LinkedHashSet<>(
                         listRoles
                 )
         );
 
-        //Persistimos objeto
         UserSec savedUser = userRepo.save(objUser);
 
         return buildUserResponse(savedUser);
@@ -169,35 +169,38 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public UserResponseDto registerClientUser(ClientUserRequestDto clientUserDTO) {
-        //Validamos que el username no esté registrado
         validarUsername(clientUserDTO.username());
 
-        //Construimos objeto Cliente para persistirlo junto al usuario
-        Cliente newCliente = new Cliente(null,
+        //Identidad comercial del usuario
+        Cliente newCliente = new Cliente(
+                null,
                 clientUserDTO.clientData().nombre(),
                 clientUserDTO.clientData().apellido(),
                 clientUserDTO.clientData().documento(),
                 true
         );
 
-        //Construimos objeto UserSec para persistir
+        //Identidad de autenticación del usuario
         UserSec newClientUser = new UserSec();
 
-        //Agregamos los datos del usuario y le asignamos el cliente construido anteriormente y el rol CLIENT
         newClientUser.setUsername(clientUserDTO.username());
-        newClientUser.setPassword(passwordEncoder.encode(clientUserDTO.password()));
+
+        newClientUser.setPassword(
+                passwordEncoder.encode(clientUserDTO.password())
+        );
+
         newClientUser.setCliente(newCliente);
-        //Busca y valida disponibilidad de rol "CLIENT"
+
+        //Cataloga al usuario como cliente
         Role clientRole = roleService.findRoleByName("CLIENT");
+
         roleService.validarEstadoDeRoles(List.of(clientRole));
-        //Agregamos rol "CLIENT" al usuario automáticamente
+
         newClientUser.setListRoles(new LinkedHashSet<>(
                 List.of(clientRole))
         );
 
-        //Persistimos usuario con el cliente correspondiente
-        /* Como en la entidad UserSec definimos CascadeType.PERSIST, Hibernate detectará que el cliente dentro del usuario
-           no existe y lo registrará automáticamente en la bd sin necesidad de usar el repo de Cliente */
+        //Aplica operación cascada y persiste al cliente con el usuario.
         userRepo.save(newClientUser);
 
         return buildUserResponse(newClientUser);
@@ -213,7 +216,6 @@ public class UserService implements IUserService {
             objUser.getCliente().setActive(false);
         }
 
-        //Deshabilitamos usuario
         objUser.setEnabled(false);
 
 
@@ -222,14 +224,14 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public UserResponseDto addRolesToUser(Long userId, List<String> newRolesNames) {
-        //Buscamos user por si id, en caso de que no exista -> Excepción personalizada
+
         UserSec user = findUser(userId);
 
-        //Validamos disponibilidad
         validarDisponibilidadUser(user);
 
-        //En este método no se agrega el rol "CLIENT" a un usuario, este se debe registrar por el flujo correspondiente
-        if(newRolesNames.contains("CLIENT")){
+        /*No se asigna rol "CLIENT" por este flujo,
+           solo en registro público*/
+        if (newRolesNames.contains("CLIENT")) {
             throw new InvalidRoleAssignmentException("Los usuarios con rol 'CLIENT' deben registrarse a través del flujo de registro correspondiente");
         }
 
@@ -240,7 +242,6 @@ public class UserService implements IUserService {
         //Verifica que los nuevos roles asignados al usuario estén activos
         roleService.validarEstadoDeRoles(listRoles);
 
-        //Agregamos los nuevos roles
         user.getListRoles().addAll(
                 listRoles
         );
@@ -251,35 +252,33 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public UserResponseDto removeRolesFromUser(Long userId, List<String> removeRolesNames) {
-        //Buscamos usuario y confirmamos existencia
+
         UserSec objUser = findUser(userId);
 
-        //Validamos disponibilidad
         validarDisponibilidadUser(objUser);
 
-        //Este método no elimina el rol "CLIENT" de usuarios, ya que esto puede causar inconsistencia en la autenticación de clientes
+        /*No se elimina el rol "CLIENT" de los usuarios,
+          ya que esto puede causar inconsistencia en la autenticación de clientes*/
         if(removeRolesNames.contains("CLIENT")){
             throw new InvalidRoleAssignmentException("Los usuarios con rol 'CLIENT' deben deshabilitarse por el flujo de deshabilitación de usuarios");
         }
 
-        //Validamos que la lista de roles que se quieren eliminar del usuario realmente existen en la BD
-        roleService.findAllRolesByNames(new LinkedHashSet<>(removeRolesNames));
+        //Valida existencia de roles
+        roleService.findAllRolesByNames(
+                new LinkedHashSet<>(removeRolesNames)
+        );
 
-        /*Recorremos la lista de Roles del usuario y con el método .removeIf(..) garantizamos que se eliminen, de esa lista,
-          de forma segura, los roles que cumplan la condición (el id de estos está dentro de "removeRolesIds")*/
         objUser.getListRoles().removeIf(
-                //Usamos función lambda para verificar si el rol en cuestión se mandó a eliminar
                 role -> removeRolesNames.contains(role.getName())
         );
 
-        //Retornamos usuario con roles actualizados
         return buildUserResponse(objUser);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserResponseDto findMe() {
-        //Usamos método para obtener id del usuario autenticado y lo buscamos
+        //Consulta datos de usuario autenticado
         UserSec objUser = findUser(
                 getAuthenticatedUserId()
         );
@@ -291,20 +290,17 @@ public class UserService implements IUserService {
     @Override
     public UserResponseDto updateUsername(UpdateUsernameRequestDto objUpdateUsername) {
 
-        //Buscamos usuario autenticado
         UserSec objUser = findUser(
                 getAuthenticatedUserId()
         );
 
-        //Validamos si las contraseñas coinciden
+        //Valida autenticidad de contraseña
         boolean verifier = passwordEncoder.matches(
                 objUpdateUsername.password(), objUser.getPassword()
         );
 
-        //Si no coinciden las contraseñas, lanzamos excepción de NO Autorizado
         if(!verifier){throw new UnauthorizedOperationException("Contraseña incorrecta");}
 
-        //Si coinciden las contraseñas, actualizamos usuario
         objUser.setUsername(objUpdateUsername.newUsername());
 
         return buildUserResponse(objUser);
@@ -313,20 +309,18 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void updatePassword(UpdatePasswordRequestDto objUpdatePassword) {
-        //Buscamos usuario autenticado
+
         UserSec user = findUser(
                 getAuthenticatedUserId()
         );
 
-        //Validamos que las contraseñas coincidan
+        //Validamos autenticidad de contraseña
         boolean verifier = passwordEncoder.matches(
                 objUpdatePassword.currentPassword(), user.getPassword()
         );
 
-        //Si las contraseñas no coinciden, lanzamos excepción de UnauthorizeOperation
         if(!verifier){throw new UnauthorizedOperationException("Contraseña incorrecta");}
 
-        //Si la contraseña coincide, actualizamos contraseña
         user.setPassword(
                 passwordEncoder.encode(
                        objUpdatePassword.newPassword()

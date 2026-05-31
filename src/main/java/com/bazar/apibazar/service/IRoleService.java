@@ -7,40 +7,28 @@ import com.bazar.apibazar.model.Role;
 import java.util.List;
 import java.util.Set;
 
-//Interfaz donde se definen las operaciones de lógica de negocio para el dominio <<Role>> que serán usadas por diferentes clientes (controllers, otros service, etc)
 public interface IRoleService {
 
-    //Traer todos
     List<RoleResponseDto> findAllRoles();
 
-    //Valida que una lista de roles se encuentren activos para asignar
     void validarEstadoDeRoles(List<Role> roles);
 
-    //Traer lista de roles por sus nombres
     List<Role> findAllRolesByNames(Set<String> rolesNames);
 
-    //Mapear objetos Roles a DTOs de respuesta para exposición
     List<RoleResponseDto> buildRolesResponse(List<Role> listRoles);
 
-    //Traer por ID
     RoleResponseDto findRoleById(Long id);
 
-    //Traer rol por nombre
     Role findRoleByName(String roleName);
 
-    //Registro de un rol
     RoleResponseDto saveRole(RoleRequestDto newRole);
 
-    //Eliminar rol por id
     void disableRole(Long id);
 
-    //Actualizar rol
     RoleResponseDto updateRole(Long idRole, RoleRequestDto updatedRol);
 
-    //Método para asignarle uno o varios permisos nuevos al role
     RoleResponseDto addPermissionsToRole(Long idRole, List<String> newPermissionsNames);
 
-    //Eliminar una lista de permisos dentro de un rol
     RoleResponseDto removePermissionsFromRole(Long idRole, List<String> removePermissionsNames);
 
 }

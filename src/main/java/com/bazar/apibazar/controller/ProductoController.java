@@ -24,58 +24,48 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/productos")
 public class ProductoController {
 
-    //Inyección de dependencia para ProductoService
     private final IProductoService productoService;
 
-    //Inyección de dependencia por constructor
     public ProductoController(IProductoService productoService) {
         this.productoService = productoService;
     }
 
-    //Traer todos
     @GetMapping
     public ResponseEntity<List<ProductoResponseDto>> getProductos(){
         return ResponseEntity.ok(productoService.getProductos());
     }
 
-    //Traer uno
     @GetMapping("/{id}")
     public ResponseEntity<ProductoResponseDto> findProducto(@PathVariable Long id){
         return ResponseEntity.ok(productoService.findProductoResponse(id));
 
     }
 
-    //Productos con stock < 5
     @GetMapping("/stock-bajo")
     public ResponseEntity<List<ProductoResponseDto>> productosPocoStock(){
         return ResponseEntity.ok(productoService.productosPocoStock());
     }
 
-    //Ingresamos producto nuevo
     @PostMapping
     public ResponseEntity<ProductoResponseDto> createProducto(@Valid @RequestBody ProductoRequestDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productoService.saveProducto(objNuevo));
     }
 
-    //Eliminamos producto por ID (Soft Delete)
     @PatchMapping("/{id}/disable")
     public ResponseEntity<Void> disableProducto(@PathVariable Long id){
         productoService.disableProducto(id);
         return ResponseEntity.noContent().build();
     }
 
-    //Actualizamos
     @PutMapping("/{id}")
     public ResponseEntity<ProductoResponseDto> updateProducto(@PathVariable Long id, @Valid @RequestBody ProductoRequestDto objActualizado){
         return ResponseEntity.ok(productoService.updateProducto(id, objActualizado));
     }
 
-    //Actualización parcial
     @PatchMapping("/{id}")
     public ResponseEntity<ProductoResponseDto> patchProducto(@PathVariable Long id, @Valid @RequestBody ProductoPatchDto objDto){
         return ResponseEntity.ok(productoService.patchProducto(id, objDto));
     }
-
 
 }

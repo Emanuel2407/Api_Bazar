@@ -6,7 +6,6 @@ import com.bazar.apibazar.dto.cliente.ClienteResponseDto;
 import com.bazar.apibazar.exception.ClienteNotFoundException;
 import com.bazar.apibazar.exception.UnauthorizedOperationException;
 import com.bazar.apibazar.model.Cliente;
-import com.bazar.apibazar.model.UserSec;
 import com.bazar.apibazar.repository.IClienteRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,36 +21,35 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ClienteService implements IClienteService{
-    
-    //Inyección de dependencia para ClienteRepository
+
     private final IClienteRepository clienteRepository;
-    //Inyección de dependencia para service de componente "user"
     private final IUserService userService;
-    //Inyección de dependencia por constructor
+
     public ClienteService(IClienteRepository clienteRepository, IUserService userService) {
         this.clienteRepository = clienteRepository;
         this.userService = userService;
     }
 
-    //Método propio para extraer del objeto Authentication guardado en el SecurityContext el id del cliente relacionado con el usuario autenticado
+    /**
+     * Obtiene cliente autenticado en el Security Context y
+     * retorna su id.
+     * */
     @Override
     public Long getAuthenticatedClientId(){
 
-        //Sacamos objeto Authentication creado y guardado en el Security Context con base a la información almacenada en el token de autenticación
+       //Recupera la autenticación actual del usuario
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        //Sacamos objeto Object con el Principal
+        //Extrae objeto Principal con la identidad del usuario.
         Object principalObj = authentication.getPrincipal();
 
-        //Válidamos que el Principal sea instancia de CustomUserPrincipal
+        //Valida que sea instancia de nuestro Principal personalizado
         if(!(principalObj instanceof CustomUserPrincipal principal)){
             throw new UnauthorizedOperationException("Usuario no autorizado");
         }
 
-        //Del Principal obtenemos el ID del cliente que está haciendo la compra
         Long clienteId = principal.getClientId();
-
-        //Si el usuario no es cliente quiere decir que clienteId=null, por lo que informamos el error
+        //Validamos que el usuario realmente sea cliente
         if(clienteId == null){throw new UnauthorizedOperationException("El usuario no es cliente, por lo que no puede realizar la operación");}
 
         return clienteId;
@@ -62,7 +60,9 @@ public class ClienteService implements IClienteService{
         if(!objCliente.isActive()){throw new ClienteNotFoundException("El cliente con id: " + objCliente.getIdCliente() + " está deshabilitado");}
     }
 
-    /*Método de construir el DTO para exponer a un cliente*/
+    /**
+     * Construye DTO para exponer un cliente.
+     * */
     @Override
     public ClienteResponseDto sacarClienteSimple(Cliente objCliente){
 
@@ -71,7 +71,10 @@ public class ClienteService implements IClienteService{
 
     }
 
-    //Método propio para consultar los datos de un cliente y en caso de que no exista, excepción personalizada
+   /**
+    * Consulta un cliente por su id o lanza excepción
+    * personalizada si no existe.
+    * */
     @Override
     public Cliente findCliente(Long id) {
         Optional<Cliente> objCliente = clienteRepository.findById(id);
@@ -85,15 +88,10 @@ public class ClienteService implements IClienteService{
     @Transactional(readOnly = true)
     @Override
     public List<ClienteResponseDto> getClientesSimples() {
-        
-        //Lista que va a contener a todos los clientes en su formato de respuesta
+
         List<ClienteResponseDto> listClientes = new ArrayList<>();
-        
-        //Recorrer los clientes registrados
+
         for(Cliente objCliente: clienteRepository.findAll()){
-            
-            /*Llamamos la método que se va a encargar de transformar los datos de un Cliente de la base de datos a un DTO de respuesta.
-            Le mandamos como parámetro cada uno de los clientes registrados y vamos agregando a la lista*/
             listClientes.add(
                     sacarClienteSimple(objCliente)
             );
@@ -118,15 +116,15 @@ public class ClienteService implements IClienteService{
     @Transactional
     @Override
     public void suspendCliente(Long id) {
-        //Se busca el cliente y se confirma existencia
+
         Cliente objCliente = findCliente(id);
 
         //Se aplica un borrado lógico, desactivando al cliente para evitar perder datos de negocio importantes
         objCliente.setActive(false);
 
-        /*En este caso, como solo estamos suspendiendo al cliente, el usuario puede seguir iniciando sesión solo que en este
-            caso, solo podrá realizar operaciones de consulta y no ciertas operaciones de negocio como comprar, crear un carrito,
-                agregar productos a carrito, etc.*/
+        /*Se suspende al cliente, pero el usuario puede seguir iniciando sesión solo que esta
+            vez, solo podrá realizar operaciones de consulta y no ciertas operaciones
+            de negocio como comprar, crear un carrito, agregar productos a carrito, etc.*/
     }
 
     @Transactional
@@ -134,17 +132,12 @@ public class ClienteService implements IClienteService{
     public ClienteResponseDto updateCliente(Long id, ClienteRequestDto objActualizado) {
         Cliente objCliente = findCliente(id);
 
-        //Validamos que el cliente esté disponible
         validarDisponibilidadCliente(objCliente);
 
-        //Actualizamos datos del cliente
         objCliente.setNombre(objActualizado.nombre());
         objCliente.setApellido(objActualizado.apellido());
         objCliente.setDocumento(objActualizado.documento());
 
-        //Con transactional se detecta el cambio en el contexto de seguridad y Hibernate actualiza en la bd sin necesidad de un save()
-
-        //Devolvemos cliente
         return sacarClienteSimple(objCliente);
         
         
@@ -155,10 +148,8 @@ public class ClienteService implements IClienteService{
     public ClienteResponseDto patchCliente(Long id, ClientePatchDto objDto) {
         Cliente objCliente = findCliente(id);
 
-        //Validamos que el cliente esté disponible
         validarDisponibilidadCliente(objCliente);
 
-        //Actualizamos solo los datos enviados
         if (objDto.nombre() != null) {
             //Si se manda a actualizar el nombre, válidamos que no sea una cadena vacía
             if(objDto.nombre().isBlank()){throw new ResponseStatusException(
@@ -169,7 +160,6 @@ public class ClienteService implements IClienteService{
         }
 
         if (objDto.apellido() != null) {
-            //Validamos que no sea una cadena vacía
             if(objDto.apellido().isBlank()){throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "El apellido no puede estar vacío"
@@ -178,7 +168,6 @@ public class ClienteService implements IClienteService{
         }
 
         if (objDto.documento() != null) {
-            //Se válida que el String no esté vacío o lleno de espacios
             if(objDto.documento().isBlank()){throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "El documento no puede estar vacío"
@@ -186,14 +175,14 @@ public class ClienteService implements IClienteService{
             objCliente.setDocumento(objDto.documento());
         }
 
-        //Devolvemos cliente
         return sacarClienteSimple(objCliente);
     }
 
     @Transactional
     @Override
     public ClienteResponseDto updateMe(ClienteRequestDto updatedCliente) {
-        //Buscamos el ID del cliente que está autenticado y delegamos al método creado para actualización total
+        /*Buscamos el ID del cliente autenticado y
+          delegamos actualización a updateCliente()l */
         return this.updateCliente(
                 getAuthenticatedClientId(), updatedCliente
         );
@@ -203,7 +192,8 @@ public class ClienteService implements IClienteService{
     @Transactional
     @Override
     public ClienteResponseDto patchMe(ClientePatchDto updatedCliente) {
-        //Buscamos el ID del cliente que está autenticado y delegamos la actualización al método creado para actualización parcial
+        /*Buscamos el ID del cliente autenticado y delegamos la
+          actualización a patchCliente()*/
         return this.patchCliente(
                 getAuthenticatedClientId(), updatedCliente
         );
@@ -212,7 +202,6 @@ public class ClienteService implements IClienteService{
     @Transactional(readOnly = true)
     @Override
     public ClienteResponseDto findMe() {
-        //Buscamos cliente por su id guardado en el SecurityContext
         return sacarClienteSimple(findCliente(
                 getAuthenticatedClientId())
         );

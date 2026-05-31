@@ -16,10 +16,8 @@ import java.util.List;
 @RequestMapping("/roles")
 public class RoleController {
 
-    //Inyección de dependencia para el contrato (Interfaz que define operaciones públicas) de PermissionService
     private final IRoleService roleService;
 
-    //Inyección de dependencia por constructor
     public RoleController(IRoleService roleService) {
         this.roleService = roleService;
     }
@@ -51,13 +49,11 @@ public class RoleController {
         return ResponseEntity.ok(roleService.updateRole(id, updatedRole));
     }
 
-    //Definimos end-point para agregar una lista de permisos dentro de un rol
     @PostMapping("/{idRole}/permissions")
     public ResponseEntity<RoleResponseDto> addPermissionToRole(@PathVariable Long idRole, @RequestBody @NotEmpty List<@NotBlank String> newPermissionsNames){
         return ResponseEntity.ok(roleService.addPermissionsToRole(idRole, newPermissionsNames));
     }
 
-    //End-point para eliminar una lista de permisos dentro de un rol
     @DeleteMapping("/{idRole}/permissions")
     public ResponseEntity<RoleResponseDto> deletePermissionsFromRole(@PathVariable Long idRole, @RequestBody @NotEmpty List<@NotBlank String> removePermissionsNames){
         return ResponseEntity.ok(

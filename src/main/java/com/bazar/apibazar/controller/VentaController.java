@@ -24,33 +24,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/ventas")
 public class VentaController {
-    
-    //Inyección de dependencia para VentaService
+
     private final IVentaService ventaService;
-    //Inyección de dependencia por constructor
+
     public VentaController(IVentaService ventaService) {
         this.ventaService = ventaService;
     }
 
-    //Traer todos
     @GetMapping
     public ResponseEntity<List<VentaResponseDto>> getVentas(){
         return ResponseEntity.ok(ventaService.getVentasSimples());
     }
-    
-    //Traer uno
+
     @GetMapping("/{id}")
     public ResponseEntity<VentaResponseDto> findVenta(@PathVariable Long id){
         return ResponseEntity.ok(ventaService.findVentaSimple(id));
     }
-    
-    //Traer productos de una venta
+
     @GetMapping("/{id}/productos")
     public ResponseEntity<List<Producto>> productosDeVenta(@PathVariable Long id){
         return ResponseEntity.ok(ventaService.productosDeVenta(id));
     }
-    
-    //Traer el monto total y la cantidad de ventas de un determinado día
+
     @GetMapping("/{fechaVenta}/info")
     public ResponseEntity<String> ventasDelDia(@PathVariable @NotNull LocalDate fechaVenta){
         return ResponseEntity.ok(ventaService.ventasDelDia(fechaVenta));
@@ -61,28 +56,24 @@ public class VentaController {
         return ResponseEntity.ok(ventaService.findMayorVenta());
         
     }
-    
-    //Ingresamos venta
+
     @PostMapping
     public ResponseEntity<VentaResponseDto> createVenta(@RequestBody @NotEmpty List<@Valid VentaProductoDto> listProductos){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ventaService.saveVenta(listProductos));
     }
-    
-    //Endpoint para cancelar venta
+
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<Void> cancelVenta(@PathVariable Long id){
         ventaService.cancelVenta(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-    
-    //Agregar productos a Venta existente
+
     @PostMapping("/{id}/productos")
     public ResponseEntity<VentaResponseDto> addProductosAventa(@PathVariable Long id, @RequestBody @NotEmpty List<@Valid VentaProductoDto> productosNuevos) {
         return ResponseEntity.ok(ventaService.addProductosAVenta(id, productosNuevos));
     }
-    
-    //Eliminar productos de Venta existente
+
     @DeleteMapping("/{id}/productos")
     ResponseEntity<?> eliminarProductosDeVenta(@PathVariable Long id, @RequestBody @NotEmpty List<@Valid VentaProductoDto> productosEliminados){
         return ResponseEntity.ok(ventaService.deleteProductosDeVenta(id, productosEliminados));

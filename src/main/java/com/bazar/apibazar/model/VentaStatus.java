@@ -1,6 +1,9 @@
 package com.bazar.apibazar.model;
 
-//Enum para guardar los diferentes valores que puede tener el estado de una venta
+/**
+ * Conjunto de valores que puede tener el estado de una
+ * venta durante su ciclo de vida.
+ */
 public enum VentaStatus {
     PENDING,
     CANCELED,

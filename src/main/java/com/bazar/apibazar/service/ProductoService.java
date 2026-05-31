@@ -20,31 +20,32 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class ProductoService implements IProductoService{
 
-    //Inyección de dependencia para ProductoRepository
     private final IProductoRepository productoRepository;
-    //Inyección de dependencia por constructor
     public ProductoService(IProductoRepository productoRepository) {
         this.productoRepository = productoRepository;
     }
 
-    //Método propio para validar si el stock de una lista de productos es suficiente para cubrir una cierta cantidad
+    @Override
     public void validarStockProductos(List<VentaProductoDto> productosValidarStock){
 
-        //Recorremos la lista para validar uno por uno los productos
         for(VentaProductoDto productoValidar: productosValidarStock){
-            //Buscamos producto, si no existe -> Excepción de dominio
-            Producto objProducto = findProducto(productoValidar.getProductoId());
 
-            //Si el stock es insuficiente -> Excepción de dominio
+            //Busca el registro de cada producto solicitado
+            Producto objProducto = findProducto(
+                    productoValidar.getProductoId()
+            );
+
             if(objProducto.getCantidadDisponible() < productoValidar.getCantidad()){
                 throw new ProductoStockInsuficienteException(
                     "El producto con id: " + productoValidar.getProductoId() + " no tiene stock suficiente para cubrir la cantidad: " + productoValidar.getCantidad()
                 );
             }
-        } //Si llega el final del bucle y no hay excepciones -> Los productos son válidos para vender
+        }
     }
 
-    //Método propio para construir un DTO que se usa para exponer un producto
+    /**
+     * Construye DTO de respuesta para exponer un producto.
+     * */
     private ProductoResponseDto buildProductoResponse(Producto objProducto){
         return new ProductoResponseDto(
                 objProducto.getIdProducto(),
@@ -59,20 +60,22 @@ public class ProductoService implements IProductoService{
     @Transactional(readOnly = true)
     @Override
     public List<ProductoResponseDto> getProductos() {
-        //Productos a exponer
+
         List<ProductoResponseDto> productosResponse = new ArrayList<>();
 
-        //Construimos DTO de productos a exponer
         for(Producto objProducto: productoRepository.findByAvailableTrue()){
             productosResponse.add(buildProductoResponse(
                     objProducto
             ));
         }
 
-        //Exponemos solo los productos habilitados para vender
         return productosResponse;
     }
 
+    /**
+     * Busca producto por su id y retorna excepción de dominio
+     * si este no existe o está deshabilitado para vender.
+     */
     @Override
     public Producto findProducto(Long id) {
         Optional<Producto> objProducto = productoRepository.findById(id);
@@ -109,12 +112,8 @@ public class ProductoService implements IProductoService{
     }
 
     @Transactional
-    //Sobre-carga del método saveProducto que será útil en venta-service para registrar un producto desde allá
+    @Override
     public void saveProducto(Producto objNuevo) {productoRepository.save(objNuevo);}
-
-    //Método usado por venta-service para registrar una lista de productos
-    @Transactional
-    public void saveAll(List<Producto> listProducto) {productoRepository.saveAll(listProducto);}
 
     @Transactional
     @Override
@@ -134,8 +133,6 @@ public class ProductoService implements IProductoService{
         objProducto.setCosto(objActualizado.costo());
         objProducto.setCantidadDisponible(objActualizado.cantidadDisponible());
 
-        productoRepository.save(objProducto);
-
         return buildProductoResponse(objProducto);
 
 
@@ -147,26 +144,29 @@ public class ProductoService implements IProductoService{
         Producto objProducto = findProducto(id);
 
         if(objDto.nombre() != null){
-            //Si me manda a cambiar el nombre, validamos que no sea por una cadena de texto vacía o llena de espacios
+
+            /*Si se manda a cambiar el nombre, validamos que no sea por una cadena de
+              texto vacía o llena de espacios*/
             if(objDto.nombre().isBlank()){throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "El nombre no puede estar vacío"
             );}
+
             objProducto.setNombre(objDto.nombre());
         }
 
-        if(objDto.marca() != null){objProducto.setMarca(objDto.marca());
-            //Válidamos que la nueva marca no sea un string vacío o lleno de espacios
+        if(objDto.marca() != null){
+
             if(objDto.marca().isBlank()){throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "La marca no puede estar vacía"
             );}
+
+            objProducto.setMarca(objDto.marca());
         }
 
         if(objDto.costo() != null){objProducto.setCosto(objDto.costo());}
         if(objDto.cantidadDisponible() != null){objProducto.setCantidadDisponible(objDto.cantidadDisponible());}
-
-        productoRepository.save(objProducto);
 
         return buildProductoResponse(objProducto);
     }

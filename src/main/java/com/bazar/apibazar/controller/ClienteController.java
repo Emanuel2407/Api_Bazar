@@ -23,30 +23,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
-    
-    //Inyección de dependencia para ClienteService
+
     private final IClienteService clienteService;
 
-    //Inyección de dependencia por constructor
     public ClienteController(IClienteService clienteService) {
         this.clienteService = clienteService;
     }
 
-    //Traer todos
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<ClienteResponseDto>> getClientes(){
+    public ResponseEntity<List<ClienteResponseDto>> getClientes() {
         return ResponseEntity.ok(clienteService.getClientesSimples());
     }
-    
-    //Traer uno
+
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteResponseDto> findCliente(@PathVariable Long id){
+    public ResponseEntity<ClienteResponseDto> findCliente(@PathVariable Long id) {
         return ResponseEntity.ok(clienteService.findClienteSimple(id));
-        
+
     }
 
-    //Traer los datos del cliente autenticado
+    /**
+     * Consulta los datos del cliente autenticado actual.
+     */
     @GetMapping("/me")
     public ResponseEntity<ClienteResponseDto> findMe(){
         return ResponseEntity.ok(
@@ -54,37 +52,34 @@ public class ClienteController {
         );
     }
     
-    //Método para suspender a un cliente y restringirle el acceso a las operaciones de negocio al usuario asociado
+    /**
+     * Deshabilita un cliente y restringe las operaciones
+     * comerciales que puede realizar.
+     * */
     @PatchMapping("/{id}/disable")
     public ResponseEntity<Void> suspendCliente(@PathVariable Long id){
         clienteService.suspendCliente(id);
         return ResponseEntity.noContent().build();
     }
-    
-    //Actualización total
+
     @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> updateCliente(@PathVariable Long id, @Valid @RequestBody ClienteRequestDto objActualizado){
         return ResponseEntity.ok(clienteService.updateCliente(id, objActualizado));
     }
-    
-    //Actualización parcial
+
     @PatchMapping("/{id}")
     public ResponseEntity<ClienteResponseDto> patchCliente(@PathVariable Long id, @Valid @RequestBody ClientePatchDto UpdatedCliente){
         return ResponseEntity.ok(clienteService.patchCliente(id, UpdatedCliente));
     }
 
-    //Actualización total de cliente autenticado
     @PutMapping("/me")
     public ResponseEntity<ClienteResponseDto> updateMe(@Valid @RequestBody ClienteRequestDto objActualizado){
         return ResponseEntity.ok(clienteService.updateMe(objActualizado));
     }
 
-    //Actualización parcial de cliente autenticado
     @PatchMapping("/me")
     public ResponseEntity<ClienteResponseDto> patchMe(@Valid @RequestBody ClientePatchDto updatedCliente){
         return ResponseEntity.ok(clienteService.patchMe(updatedCliente));
     }
-
-
 
 }

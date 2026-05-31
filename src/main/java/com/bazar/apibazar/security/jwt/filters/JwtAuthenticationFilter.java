@@ -23,63 +23,65 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-//Clase donde se va a crear el filtro que intercepte la request para validar el token JWT
-//OncePerRequestFilter establece que este filtro será ejecutado una sola vez por request
-@Component //Registramos instancia de la clase como Bean para que Spring la pueda gestionar
+/**
+ * Filtro encargado de validar tokens JWT presentes
+ * en las peticiones entrantes y establecer la
+ * autenticación en el contexto de seguridad.
+ */
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    //Inyección de dependencia para usar las operaciones de la clase de utilidades JWT (JwtUtils)
     private final JwtUtils jwtUtils;
-    //Inyección de dependencia por constructor
     public JwtAuthenticationFilter(JwtUtils jwtUtils) {
         this.jwtUtils = jwtUtils;
     }
 
-    //Sobre-escribimos método para definir filtro personalizado
+    /**
+     * Intercepta cada petición HTTP para validar el JWT
+     * y registrar la autenticación correspondiente.
+     */
     @Override
     protected void doFilterInternal(@Nonnull HttpServletRequest request,
                                     @Nonnull HttpServletResponse response,
                                     @Nonnull FilterChain filterChain) throws ServletException, IOException {
 
-        //Usamos try-catch{} por si ocurre algún problema en la validación del token
         try {
-            //Sacamos, del Header de la Response, el token que normalmente viene con el nombre: AUTHORIZATION
+            /* Obtiene el valor del header Authorization
+              que puede contener un token JWT */
             String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-            //Filtramos que el token no sea null y que empiece con el esquema: Bearer
             if (token != null && token.startsWith("Bearer ")) {
 
-                //Como el esquema "Bearer " no forma parte del token, debemos removerlo
-                token = token.substring(7);  //'Bearer ': 6 letras + 1 especio = 7 caracteres
+                //Remueve esquema "Bearer " para recuperar el token original.
+                token = token.substring(7);
 
-                //Intentamos validar el token, en caso de que la validación sea exitosa obtendremos un objeto DecodeJwt con toda la información del token
                 DecodedJWT decodedJWT = jwtUtils.validateToken(token);
 
-                //Construimos y agregamos objeto Authentication con los datos del usuario al contexto de seguridad de Spring
+                //Construye objeto Authentication y lo guarda en el contexto de seguridad.
                 SecurityContextHolder.getContext().setAuthentication(
                         jwtUtils.buildAuthentication(decodedJWT)
                 );
             }
 
-            //Si no se encontró filtro o no tiene el Schema: "Bearer ", delegamos al siguiente filtro
             filterChain.doFilter(request, response);
 
-                //Si la autenticación del token falla, capturamos la excepción
+            /*
+             * Si el token es inválido o expiró,
+             * retorna una respuesta HTTP 401.
+             */
         }catch(JWTVerificationException e){
 
-            //Formamos respuesta con StatusCode 401-UNAUTHORIZED
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            //Le damos formato Json al mensaje de error
+
             response.setContentType("application/json");
-            //Enviamos mensaje informando el fallo de verificación
+
+            response.setCharacterEncoding("UTF-8");
+
             response.getWriter().write("""  
         {
             "error": "Expired or invalid token"
         }
         """);
-
-        //Finalizamos filtro
-            return;
 
         }
 

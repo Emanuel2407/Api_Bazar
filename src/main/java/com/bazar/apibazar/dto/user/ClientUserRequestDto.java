@@ -5,7 +5,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-//DTO para transferir los datos de los usuarios que se registren por el registro público (clientes)
+/***
+ * DTO utilizado en el registro público de usuarios.
+ */
 public record ClientUserRequestDto(@NotBlank String username,
                                    @NotBlank String password,
                                    @NotNull @Valid ClienteRequestDto clientData) {

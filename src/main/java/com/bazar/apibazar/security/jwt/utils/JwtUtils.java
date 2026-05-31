@@ -22,128 +22,147 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-//Creamos clase con utilidades JWT donde se ejecutan acciones como crear token JWT, validar token, sacar username del usuario desde el token, etc.
-@Component //Registramos instancia de esta clase como Bean para que Spring lo pueda inyectar cuando se necesite
+/**
+ * Operaciones para gestionar el token JWT y
+ * guardar el usuario autenticado en el contexto de seguridad.
+ */
+@Component
 public class JwtUtils {
 
-    //Inyectamos clave secreta con la que se firma el token
+    //Inyecta clave secreta para firmar el token.
     @Value("${security.jwt.secret}")
     private String secretKey;
-    //Inyectamos usuario que genera el token
+
+    //Inyecta el identificador del emisor (issuer) del token.
     @Value("${security.jwt.user.generator}")
     private String userGenerator;
 
-    //Inyección de dependencia para repositorio de persistencia de usuarios
     private final IUserRepository userRepo;
 
-    //Inyección de dependencia por método constructor
     public JwtUtils(IUserRepository userRepo) {
         this.userRepo = userRepo;
     }
 
-    //Método para crear el token JWT a partir de los datos del usuario ya autenticado (objeto Authentication en parámetro)
+    /**
+     * Crea un token JWT a partir de los datos del
+     * usuario autenticado.
+     */
     public String createToken(Authentication authentication){
 
-        //Definimos el algoritmo de firma que vamos a utilizar (en este caso HMAC256)
-        //Decodificamos clave secreta y se la pasamos al algoritmo de firma
+        /*Define el algoritmo de firma usado para firmar el JWT con
+           la clave secreta asignada*/
         Algorithm algorithm = Algorithm.HMAC256(
                 Base64.getDecoder().decode(secretKey)
         );
 
-        //Sacamos username del objeto Authentication
         String username = authentication.getName();
 
-        //Buscamos usuario por username
+        /*Busca usuario por nombre de usuario o
+        * lanza UsernameNotFoundException si no existe.
+        */
         UserSec user = userRepo.findByUsername(username)
-                //En caso de que no se encuentre, lanzamos excepción de SpringSecurity
                 .orElseThrow(
-                        //Usamos función lambda para retornar excepción indicando que el usuario no es válido
+
                         () -> new UsernameNotFoundException("Invalid username or password")
                 );
 
-        //Si el usuario además es cliente, sacamos su ID correspondiente del objeto cliente relacionado
+        //Si el usuario es cliente, se agrega su id al JWT
         Long clienteId=null;
         if(user.getCliente() != null){clienteId=user.getCliente().getIdCliente();}
 
-        //Sacamos autoridades del usuario y las convertimos en una lista de String
+        //Expone la lista de autoridades del usuario como lista de String
         List<String> authorities = authentication.getAuthorities()
-                //Usamos .stream() para habilitar métodos especiales para trabajar con colecciones
                 .stream()
-                //.map(..) transforma cada objeto GrantedAuthority de la colección a lo retornado por su método getAuthority() (Nombre de la autoridad)
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        //Guardamos fecha actual para, con base a esta, definir el tiempo de vida que tendrá el token una vez creado
+
         Instant now = Instant.now();
 
-        return JWT.create() //Llamamos la builder de Java-Jwt
-                //Datos que irán en el payload:
-                .withJWTId(UUID.randomUUID().toString())  //Generamos ID random y lo asignamos al token
-                .withSubject(username) //Agregamos username
-                .withIssuer(userGenerator)  //Agregamos usuario que genera el token
-                .withIssuedAt(Date.from(now))  //Agregamos fecha en que se emite el token
-                .withExpiresAt(Date.from(  //Agregamos fecha de expiración del token
-                        now.plus(Duration.ofMinutes(30)))  //Usamos java.time para adicionar 30 minutos a partir de la creación del token
+        return JWT.create()
+                .withJWTId(UUID.randomUUID().toString())
+                .withSubject(username)
+                .withIssuer(userGenerator)
+                //Usa java.time para definir fecha de entrega y expiración del token
+                .withIssuedAt(Date.from(now))
+                .withExpiresAt(Date.from(
+                        now.plus(Duration.ofMinutes(30)))
                 )
-                .withClaim("authorities", authorities)  //Claim adicional que contiene las autoridades del usuario
-                .withClaim("clientId", clienteId)  //Claim adicional que contiene, en caso de que el usuario sea cliente, su id correspondiente
+                .withClaim("authorities", authorities)
+                .withClaim("clientId", clienteId)
                 .withClaim("userId", user.getId())
-                .sign(algorithm);  //Finalmente, firmamos el token con el algoritmo de firma definido anteriormente
+                .sign(algorithm);
     }
 
-    //Método para validar la autenticidad y veracidad de un token
+
+    /**
+     * Valida autenticidad del token JWT y devuelve un objeto DecodedJWT
+     * con la información verificada.
+     */
     public DecodedJWT validateToken(String token){
-        //Definimos algoritmo para reconstruir la firma y validar
-        //Como guardamos la clave secreta codificada en Base64, debemos decodificarla para correcta reconstrucción de la firma
+        //Algoritmo usado para reconstruir la firma y poder validar
         Algorithm algorithm = Algorithm.HMAC256(Base64.getDecoder().decode(secretKey));
 
-        //Definimos verificador de JWT pasándole el algoritmo de firma y la clave secreta
         JWTVerifier verifier = JWT.require(algorithm)
-                .withIssuer(userGenerator)  //Le indicamos que además valide la veracidad del usuario que generó el token (Issuer)
-                .build();  //Construimos el verificador
+                //Configura el verificador para que valide el usuario que generó el token.
+                .withIssuer(userGenerator)
+                .build();
 
-        //Con los parámetros anteriores le decimos al verificador que valide el token y devolvemos token decodificado
         return verifier.verify(token);
 
     }
 
-    //Método para sacar el username del usuario del token decodificado
+    /**
+     * Recupera el nombre de usuario almacenado
+     * en el subject del token.
+     */
     public String extractUsername(DecodedJWT decodedJWT){
-        return decodedJWT.getSubject();  //En el momento de la creación, establecimos el subject como el username del usuario
+        return decodedJWT.getSubject();
     }
 
-    //Método para encontrar un Claim es especifico por su nombre
+    /**
+     * Busca un claim específico dentro del token
+     */
     public Claim findClaim(String claimName, DecodedJWT decodedJWT){
         return decodedJWT.getClaim(claimName);
     }
 
-    //Método para traer todos los claims
+    /**
+     * Retorna todos los claims contenidos en el JWT
+     */
     public Map<String, Claim> findAllClaims(DecodedJWT decodedJWT){
         return decodedJWT.getClaims();
     }
 
-    public Authentication buildAuthentication(DecodedJWT decodedJWT){
-        //Extraemos username del token
+    /**
+     * Construye objeto autenticación para guardar
+     * información del JWT en el contexto de seguridad
+     */
+    public Authentication buildAuthentication(DecodedJWT decodedJWT) {
+
         String username = this.extractUsername(decodedJWT);
 
-        //Extraemos Claim de autoridades y las guardamos como lista de String
         List<String> authorities = this.findClaim("authorities", decodedJWT).asList(String.class);
 
-        //Convertimos la lista de String con las autoridades a lista de objetos GrantedAuthority
-        Collection<? extends GrantedAuthority> authoritiesList = authorities.stream()
+        /*Construye autoridades del usuario para
+        * guardarlas en el Authentication.
+        */
+        Collection<? extends GrantedAuthority> authoritiesList =
+                authorities.stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 
-        //Extraemos id del cliente asociado con el usuario si es que el usuario es cliente, si no lo es tendremos null
+        /* Recupera identidad de negocio del usuario o guarda null
+         * si el usuario no es cliente.*/
         Long clientId = this.findClaim("clientId", decodedJWT).asLong();
 
-        //Extraemos del token, el ID del usuario autenticado
+        /* Recupera identificador del usuario
+         * auténticado.*/
         Long userId = this.findClaim("userId", decodedJWT).asLong();
 
-        //Creamos objeto Principal personalizado
+        //Construye Principal personalizado.
         CustomUserPrincipal principal = new CustomUserPrincipal(userId, clientId, username);
 
-        //Formamos objeto Authentication implementado con la clase UsernamePasswordAuthenticationToken y retornamos
         return  new UsernamePasswordAuthenticationToken(
                 principal,
                 null,

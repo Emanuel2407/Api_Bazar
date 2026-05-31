@@ -9,41 +9,38 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+/**
+ * Entidad intermedia que representa la relación
+ * entre ventas y productos, permitiendo almacenar
+ * atributos adicionales propios de la venta,
+ * como la cantidad comprada y el subtotal.
+ */
 @Entity
-@Setter  @Getter
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class VentaProducto {
-    
-    //Clave embebida de la tabla intermedia
+
+    // Clave primaria compuesta por los identificadores de la venta y el producto.
     @EmbeddedId
     private VentaProductoId id = new VentaProductoId();
-    
-    /*Como Venta tiene una relación bidireccional con VentaProducto debemos usar la annotation @ManyToOne y del
-    lado de venta la annotation @OneToMany, además la annotation @MapsId es necesaria para la relación con la 
-    clave primaria compuesta de la tabla intermedia*/
+
+    // Venta asociada a la relación.
     @ManyToOne
     @MapsId("ventaId")
-    @JoinColumn(name="venta_id")
+    @JoinColumn(name = "venta_id")
     private Venta venta;
-    
-     /*La relación entre Producto y VentaProducto se mapea desde VentaProducto porque esta tabla intermedia es
-    la que contiene la FK hacia prodcuto.
-    En JPA el lado dueño de la relación siempre es el que tiene la FK por eso debemos usar el @ManyToOne junto
-    con el @JoinColum.
-    Además usamos @MapsId porque la FK de VentaProducto está compuesta por las PKs de Venta y Producto por lo
-    que necesitamos que Jpa las sincronice*/
+
+    // Producto asociado a la relación.
     @ManyToOne
     @MapsId("productoId")
-    @JoinColumn(name= "producto_id")
+    @JoinColumn(name = "producto_id")
     private Producto producto;
-    
-    /*Acontinuación se van a declarar los atributos propios de la relacipon que dependerán tanto de las ventas 
-    como de los productos en cuestón*/
-    
+
+    // Valor total correspondiente a este producto dentro de la venta.
     private Double subTotalVenta;
-    
+
+    // Cantidad de unidades vendidas del producto.
     private Integer cantidad;
-    
 }

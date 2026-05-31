@@ -15,22 +15,20 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    //Inyección de dependencia para login en AuthenticationService
     private final AuthService authService;
     private final IUserService userService;
-    //Inyección de dependencia por constructor
+
     public AuthController(AuthService authService, IUserService userService) {
         this.authService = authService;
         this.userService = userService;
     }
 
-    //Definimos end-point para login
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponseDto> login(@RequestBody @Valid UserLoginRequestDto userLogin){
         return ResponseEntity.ok(authService.login(userLogin));
     }
 
-    //Endpoint de registro público de usuarios
+    //Registro público de clientes.
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> registerClient(@Valid @RequestBody ClientUserRequestDto newClientUser){
         return ResponseEntity.status(HttpStatus.CREATED)
