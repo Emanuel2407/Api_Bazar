@@ -10,6 +10,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -41,28 +42,33 @@ public class ProductoController {
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stock-bajo")
     public ResponseEntity<List<ProductoResponseDto>> productosPocoStock(){
         return ResponseEntity.ok(productoService.productosPocoStock());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductoResponseDto> createProducto(@Valid @RequestBody ProductoRequestDto objNuevo){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productoService.saveProducto(objNuevo));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/disable")
     public ResponseEntity<Void> disableProducto(@PathVariable Long id){
         productoService.disableProducto(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductoResponseDto> updateProducto(@PathVariable Long id, @Valid @RequestBody ProductoRequestDto objActualizado){
         return ResponseEntity.ok(productoService.updateProducto(id, objActualizado));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<ProductoResponseDto> patchProducto(@PathVariable Long id, @Valid @RequestBody ProductoPatchDto objDto){
         return ResponseEntity.ok(productoService.patchProducto(id, objDto));

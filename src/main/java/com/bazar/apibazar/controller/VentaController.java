@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -63,17 +64,20 @@ public class VentaController {
                 .body(ventaService.saveVenta(listProductos));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<Void> cancelVenta(@PathVariable Long id){
         ventaService.cancelVenta(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/productos")
     public ResponseEntity<VentaResponseDto> addProductosAventa(@PathVariable Long id, @RequestBody @NotEmpty List<@Valid VentaProductoDto> productosNuevos) {
         return ResponseEntity.ok(ventaService.addProductosAVenta(id, productosNuevos));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}/productos")
     ResponseEntity<?> eliminarProductosDeVenta(@PathVariable Long id, @RequestBody @NotEmpty List<@Valid VentaProductoDto> productosEliminados){
         return ResponseEntity.ok(ventaService.deleteProductosDeVenta(id, productosEliminados));

@@ -18,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -48,11 +51,11 @@ public class SecurityConfig {
 
                 // Define las reglas de autorización para cada petición.
                 .authorizeHttpRequests(auth -> {
-//                    auth.requestMatchers("/permissions/**").hasRole("ADMIN");
-//                    auth.requestMatchers("/roles/**").hasRole("ADMIN");
-//                    auth.requestMatchers("/users/**").hasRole("ADMIN");
-
-                    auth.anyRequest().permitAll();
+                    auth
+                            .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers(GET, "/productos").permitAll()
+                            .requestMatchers(GET, "/productos/{id}").permitAll()
+                            .anyRequest().authenticated();
                 })
 
                 // Agrega el filtro JWT antes del filtro de autenticación básica.
