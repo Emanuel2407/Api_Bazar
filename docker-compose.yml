@@ -8,6 +8,8 @@ services:
       DB_URL: ${DB_URL}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_USER_GENERATOR: ${JWT_USER_GENERATOR}
     restart: always
     depends_on:
       db_apibazar:
