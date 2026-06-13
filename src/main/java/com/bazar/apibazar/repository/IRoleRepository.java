@@ -21,4 +21,6 @@ public interface IRoleRepository extends JpaRepository<Role, Long> {
 
     //Definimos método de consulta personalizada para traer un rol por su nombre
     Optional<Role> findByName(String roleName);
+
+    boolean existsByName(String name);
 }

@@ -9,7 +9,9 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
-      JWT_USER_GENERATOR: ${JWT_USER_GENERATOR}
+      JWT_USER_GENERATOR: ${JWT_USER_GENERATOR}    
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     restart: always
     depends_on:
       db_apibazar:

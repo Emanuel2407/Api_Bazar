@@ -13,4 +13,6 @@ public interface IPermissionRepository extends JpaRepository<Permission, Long> {
 
     //Definimos método de consulta personalizada que Spring-Data-Jpa interpreta para traer, consultando por sus nombres, una lista de permisos
     List<Permission> findAllByNameIn(Set<String> permissionsNames);
+
+    boolean existsByName(String name);
 }
